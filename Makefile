@@ -7,10 +7,12 @@ SRCS		= dplbck.c			\
 		  commands/list/list.c		\
 		  commands/restore/restore.c	\
 		  commands/stats/stats.c	\
+		  objects/hash_file.c		\
 
 OBJS		= $(SRCS:.c=.o)
 
-CFLAGS		+= -I. -std=c99
+CFLAGS		+= -std=c99 -I. `pkg-config openssl --cflags`
+LDFLAGS		+= `pkg-config openssl --libs`
 MAKEFLAGS	+= --silent
 
 all: $(TARGET)
