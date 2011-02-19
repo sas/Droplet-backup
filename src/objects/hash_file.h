@@ -3,6 +3,6 @@
 
 # include <openssl/sha.h>
 
-int hash_file(const char *filename, unsigned char hash[SHA_DIGEST_LENGTH]);
+int hash_file(const char *filename, unsigned char hash[SHA256_DIGEST_LENGTH]);
 
 #endif /* !HASH_FILE_H_ */
