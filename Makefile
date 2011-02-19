@@ -1,34 +1,10 @@
-TARGET		= dplbck
+SUBDIRS	= src
 
-SRCS		= dplbck.c			\
-		  usage.c			\
-		  commands/backup/backup.c	\
-		  commands/help/help.c		\
-		  commands/list/list.c		\
-		  commands/restore/restore.c	\
-		  commands/stats/stats.c	\
-		  objects/hash_file.c		\
-
-OBJS		= $(SRCS:.c=.o)
-
-CFLAGS		+= -std=c99 -I. `pkg-config openssl --cflags`
-LDFLAGS		+= `pkg-config openssl --libs`
-MAKEFLAGS	+= --silent
-
-all: $(TARGET)
-
-$(TARGET): $(OBJS)
-	echo "LD	$@"
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-.c.o:
-	echo "CC	$^"
-	$(CC) $(CFLAGS) -c $^ -o $@
+all:
+	@for dir in $(SUBDIRS); do make -C $$dir; done
 
 clean:
-	echo "RM	OBJS"
-	rm -f $(OBJS)
+	@for dir in $(SUBDIRS); do make -C $$dir clean; done
 
-distclean: clean
-	echo "RM	$(TARGET)"
-	rm -f $(TARGET)
+distclean:
+	@for dir in $(SUBDIRS); do make -C $$dir distclean; done

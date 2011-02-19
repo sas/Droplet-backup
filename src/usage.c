@@ -18,6 +18,6 @@ void usage(FILE *output)
     "        help:    display this help",
   };
 
-  for (int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
+  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }

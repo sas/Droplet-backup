@@ -7,6 +7,9 @@
 
 int cmd_help(int argc, char *argv[])
 {
+  (void) argc;
+  (void) argv;
+
   usage(stdout);
   exit(0);
 }

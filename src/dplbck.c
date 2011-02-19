@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  for (int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
+  for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
     if (strcmp(*argv, commands[i].cmd_name) == 0)
       return commands[i].cmd(argc, argv);
 
