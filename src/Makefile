@@ -13,10 +13,6 @@ SRCS		= dplbck.c			\
 
 OBJS		= $(SRCS:.c=.o)
 
-CFLAGS		+= -std=c99 -I. `pkg-config openssl --cflags`
-LDFLAGS		+= `pkg-config openssl --libs`
-MAKEFLAGS	+= --silent
-
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
