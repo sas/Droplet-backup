@@ -34,6 +34,12 @@ void usage(FILE *output)
     fprintf(output, "%s\n", message[i]);
 }
 
+void usage_die(void)
+{
+  usage(stderr);
+  exit(EXIT_BAD_USAGE);
+}
+
 void err(int exit_val, const char *format, ...)
 {
   va_list ap;
