@@ -3,9 +3,8 @@
 
 # include <stdio.h>
 
-# define EXIT_BAD_USAGE    1
-# define EXIT_UNK_COMMAND  2
-# define EXIT_UNK_STORAGE  3
+# define EXIT_USAGE_FAIL    1
+# define EXIT_STORAGE_FAIL  2
 
 void usage(FILE *output);
 void usage_die(void);

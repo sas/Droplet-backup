@@ -37,7 +37,7 @@ void usage(FILE *output)
 void usage_die(void)
 {
   usage(stderr);
-  exit(EXIT_BAD_USAGE);
+  exit(EXIT_USAGE_FAIL);
 }
 
 void err(int exit_val, const char *format, ...)

@@ -23,7 +23,7 @@ storage_t storage_new(const char *uri)
     if (strncmp(uri, inits[i].scheme, strlen(inits[i].scheme)) == 0)
       return inits[i].initializer(uri + strlen(inits[i].scheme));
 
-  err(EXIT_UNK_STORAGE, "unknown uri scheme: %s\n", uri);
+  err(EXIT_STORAGE_FAIL, "unknown uri scheme: %s\n", uri);
 }
 
 int storage_store(storage_t storage, const char *path, struct buffer *data)

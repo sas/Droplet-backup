@@ -38,5 +38,5 @@ int main(int argc, char *argv[])
       return commands[i].cmd(argc, argv);
 
   /* We never reach this point if there is a valid command. */
-  err(EXIT_UNK_COMMAND, "unknown command: %s\n", *argv);
+  err(EXIT_USAGE_FAIL, "unknown command: %s\n", *argv);
 }
