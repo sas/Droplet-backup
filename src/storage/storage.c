@@ -8,12 +8,12 @@
 
 #include "storage.h"
 
-storage_t storage_new(const char *uri)
+storage_t storage_new(const char *uri, int create_dirs)
 {
   static const struct
   {
     const char *scheme;
-    storage_t (*initializer)(const char *uri);
+    storage_t (*initializer)(const char *uri, int create_dirs);
   } inits[] = {
     { "dpl://",   sto_dpl_new },
     { "file://",   sto_file_new },
@@ -21,7 +21,7 @@ storage_t storage_new(const char *uri)
 
   for (unsigned int i = 0; i < sizeof (inits) / sizeof (inits[0]); ++i)
     if (strncmp(uri, inits[i].scheme, strlen(inits[i].scheme)) == 0)
-      return inits[i].initializer(uri + strlen(inits[i].scheme));
+      return inits[i].initializer(uri + strlen(inits[i].scheme), create_dirs);
 
   err(EXIT_STORAGE_FAIL, "unknown uri scheme: %s\n", uri);
 }

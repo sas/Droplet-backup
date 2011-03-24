@@ -128,7 +128,7 @@ static const char *sto_file_list(void *state, const char *path)
     return NULL;
 }
 
-struct storage *sto_file_new(const char *uri)
+struct storage *sto_file_new(const char *uri, int create_dirs)
 {
   struct storage *res = NULL;
   struct file_storage_state *state = NULL;
@@ -155,33 +155,26 @@ struct storage *sto_file_new(const char *uri)
   ** yet.
   ** XXX: Some parts of this code are a little stupid.
   */
+  if (create_dirs)
   {
+    /* strlen("/backups") == strlen("/objects") */
     char path[strlen(state->remote_root) + strlen("/backups") + 1];
 
     strcpy(path, state->remote_root);
     if (mkdir(path, 0777) == -1)
       if (errno != EEXIST)
-      {
-        fprintf(stderr, "fail : %s\n", path);
         goto err;
-      }
 
     strcat(path, "/backups");
     if (mkdir(path, 0777) == -1)
       if (errno != EEXIST)
-      {
-        fprintf(stderr, "fail : %s\n", path);
         goto err;
-      }
 
     strcpy(path, state->remote_root);
-    strcat(path, "/objects"); // strlen("/backups") == strlen("/objects")
+    strcat(path, "/objects");
     if (mkdir(path, 0777) == -1)
       if (errno != EEXIST)
-      {
-        fprintf(stderr, "fail : %s\n", path);
         goto err;
-      }
   }
 
   return res;

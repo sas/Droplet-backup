@@ -13,7 +13,7 @@ int cmd_list(int argc, char *argv[])
   struct storage *storage = NULL;
   const char *elem;
 
-  if ((storage = storage_new(argv[1])) == NULL)
+  if ((storage = storage_new(argv[1], 0)) == NULL)
     err(EXIT_STORAGE_FAIL, "unable to open storage: %s\n", argv[1]);
 
   if ((elem = storage_list(storage, "backups")) != NULL)

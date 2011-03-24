@@ -24,7 +24,7 @@ struct storage
 
 typedef struct storage *storage_t;
 
-storage_t storage_new(const char *uri);
+storage_t storage_new(const char *uri, int create_dirs);
 int storage_store(storage_t storage, const char *path, struct buffer *data);
 struct buffer *storage_retrieve(storage_t storage, const char *path);
 const char *storage_list(storage_t storage, const char *path);
