@@ -3,11 +3,11 @@
 
 struct storage
 {
-  int (*store_file)(const char *src_path, const char *dst_path);
-  int (*get_file)(const char *src_path, const char *dst_path);
-  const char *local_root;
+  int (*store)(struct storage *this, const char *path, void *data, unsigned int len);
+  /* XXX: The prototype of the retrieve() needs change. */
+  int (*retrieve)(const char *path);
   const char *remote_root;
-  void *specific_data;
+  void *aux_data;
 };
 
 struct storage *storage_new(const char *uri);

@@ -27,11 +27,10 @@ struct storage *sto_dpl_new(const char *uri)
   if ((ctx->cur_bucket = strsep(&wuri, "/")) == NULL)
     goto err;
 
-  res->store_file = NULL;
-  res->get_file = NULL;
-  res->local_root = NULL;
+  res->store = NULL;
+  res->retrieve = NULL;
   res->remote_root = wuri;
-  res->specific_data = ctx;
+  res->aux_data = ctx;
 
   return res;
 

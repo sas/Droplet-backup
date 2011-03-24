@@ -10,6 +10,7 @@ SRCS		= dplbck.c			\
 		  commands/restore/restore.c	\
 		  commands/stats/stats.c	\
 		  storage/dpl/dpl.c		\
+		  storage/file/file.c		\
 		  storage/storage.c		\
 
 OBJS		= $(SRCS:.c=.o)

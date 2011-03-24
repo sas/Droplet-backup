@@ -21,10 +21,9 @@ int main(int argc, char *argv[])
     { "help",     cmd_help, },
   };
 
-  --argc;
-  ++argv;
+  --argc; ++argv;
 
-  /* Skip the arguments for the moment. */
+  /* XXX: We skip the arguments for now. */
   while (argc && *argv[0] == '-')
     --argc, ++argv;
 
@@ -39,6 +38,5 @@ int main(int argc, char *argv[])
       return commands[i].cmd(argc, argv);
 
   /* We never reach this point if there is a valid command. */
-  fprintf(stderr, "unkown command: %s\n", *argv);
-  return 1;
+  err(EXIT_UNK_COMMAND, "unknown command: %s\n", *argv);
 }
