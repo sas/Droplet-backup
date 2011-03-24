@@ -9,7 +9,6 @@ SRCS		= dplbck.c			\
 		  commands/list/list.c		\
 		  commands/restore/restore.c	\
 		  commands/stats/stats.c	\
-		  objects/hash_file.c		\
 		  storage/dpl/dpl.c		\
 		  storage/storage.c		\
 
