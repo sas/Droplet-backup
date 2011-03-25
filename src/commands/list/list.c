@@ -21,5 +21,7 @@ int cmd_list(int argc, char *argv[])
   while ((elem = storage_list(storage, NULL)) != NULL)
     printf("%s\n", elem);
 
+  storage_delete(storage);
+
   return 0;
 }

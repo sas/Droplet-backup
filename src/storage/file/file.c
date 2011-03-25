@@ -116,6 +116,9 @@ static const char *sto_file_list(void *state, const char *path)
     strcat(full_path, "/");
     strcat(full_path, path);
 
+    if (s->last_list != NULL)
+      closedir(s->last_list);
+
     s->last_list = opendir(full_path);
   }
 
@@ -126,6 +129,16 @@ static const char *sto_file_list(void *state, const char *path)
     return dir->d_name;
   else
     return NULL;
+}
+
+static void sto_file_delete(void *state)
+{
+  struct file_storage_state *s = state;
+
+  if (s->last_list != NULL)
+    closedir(s->last_list);
+  free(s->remote_root);
+  free(s);
 }
 
 struct storage *sto_file_new(const char *uri, int create_dirs)
@@ -145,6 +158,7 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   res->store = sto_file_store;
   res->retrieve = sto_file_retrieve;
   res->list = sto_file_list;
+  res->delete = sto_file_delete;
   state->remote_root = wuri;
   state->last_list = NULL;
   res->state = state;

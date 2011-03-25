@@ -1,5 +1,6 @@
 #define STORAGE_INTERNAL
 
+#include <stdlib.h>
 #include <string.h>
 
 #include <storage/dpl/dpl.h>
@@ -39,4 +40,10 @@ struct buffer *storage_retrieve(storage_t storage, const char *path)
 const char *storage_list(storage_t storage, const char *path)
 {
   return storage->list(storage->state, path);
+}
+
+void storage_delete(storage_t storage)
+{
+  storage->delete(storage->state);
+  free(storage);
 }

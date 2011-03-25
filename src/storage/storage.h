@@ -18,6 +18,7 @@ struct storage
   int (*store)(void *state, const char *path, struct buffer *data);
   struct buffer *(*retrieve)(void *state, const char *path);
   const char *(*list)(void *state, const char *path);
+  void (*delete)(void *state);
   void *state;
 };
 # endif /* STORAGE_INTERNAL */
@@ -28,5 +29,6 @@ storage_t storage_new(const char *uri, int create_dirs);
 int storage_store(storage_t storage, const char *path, struct buffer *data);
 struct buffer *storage_retrieve(storage_t storage, const char *path);
 const char *storage_list(storage_t storage, const char *path);
+void storage_delete(storage_t storage);
 
 #endif /* !STORAGE_H_ */

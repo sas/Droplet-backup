@@ -41,6 +41,7 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   res->store = NULL;
   res->retrieve = NULL;
   res->list = NULL;
+  res->delete = NULL;
   state->remote_root = wuri;
   state->ctx = ctx;
   res->state = state;
