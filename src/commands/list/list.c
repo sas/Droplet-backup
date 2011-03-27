@@ -45,10 +45,12 @@ int cmd_list(int argc, char *argv[])
   if ((storage = storage_new(argv[1], 0)) == NULL)
     err(EXIT_STORAGE_FAIL, "unable to open storage: %s\n", argv[1]);
 
-  if ((elem = storage_list(storage, "backups")) != NULL)
+  elem = storage_list(storage, "backups");
+  while (elem != NULL)
+  {
     printf("%s\n", elem);
-  while ((elem = storage_list(storage, NULL)) != NULL)
-    printf("%s\n", elem);
+    elem = storage_list(storage, NULL);
+  }
 
   storage_delete(storage);
 

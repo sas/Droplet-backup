@@ -45,6 +45,7 @@ struct dpl_storage_state
 
 storage_t sto_dpl_new(const char *uri, int create_dirs)
 {
+  (void) create_dirs;
   struct storage *res = NULL;
   struct dpl_storage_state *state = NULL;
   dpl_ctx_t *ctx = NULL;

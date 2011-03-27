@@ -73,9 +73,11 @@ void err(int exit_val, const char *format, ...)
 {
   va_list ap;
 
+  fprintf(stderr, "error: ");
   va_start(ap, format);
   vfprintf(stderr, format, ap);
   va_end(ap);
+
   exit(exit_val);
 }
 
@@ -83,6 +85,7 @@ void warn(const char *format, ...)
 {
   va_list ap;
 
+  fprintf(stderr, "warning: ");
   va_start(ap, format);
   vfprintf(stderr, format, ap);
   va_end(ap);

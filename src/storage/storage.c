@@ -54,6 +54,7 @@ storage_t storage_new(const char *uri, int create_dirs)
       return inits[i].initializer(uri + strlen(inits[i].scheme), create_dirs);
 
   err(EXIT_STORAGE_FAIL, "unknown uri scheme: %s\n", uri);
+  return NULL;
 }
 
 int storage_store(storage_t storage, const char *path, struct buffer *data)

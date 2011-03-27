@@ -45,7 +45,7 @@
 
 struct file_storage_state
 {
-  char *remote_root;
+  const char *remote_root;
   DIR *last_list;
 };
 
@@ -84,7 +84,6 @@ static int sto_file_store(void *state, const char *path, struct buffer *data)
   return 1;
 
 err:
-  perror(full_path);
   if (fd != -1)
     close(fd);
   return 0;
@@ -124,7 +123,6 @@ static struct buffer *sto_file_retrieve(void *state, const char *path)
   return res;
 
 err:
-  perror(full_path);
   if (fd != -1)
     close(fd);
   if (res != NULL)
@@ -148,14 +146,20 @@ static const char *sto_file_list(void *state, const char *path)
     if (s->last_list != NULL)
       closedir(s->last_list);
 
-    s->last_list = opendir(full_path);
+    if ((s->last_list = opendir(full_path)) == NULL)
+      return NULL;
   }
 
   if (s->last_list == NULL)
     return NULL;
 
   if ((dir = readdir(s->last_list)) != NULL)
-    return dir->d_name;
+  {
+    if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
+      return sto_file_list(state, NULL);
+    else
+      return dir->d_name;
+  }
   else
     return NULL;
 }
@@ -166,7 +170,6 @@ static void sto_file_delete(void *state)
 
   if (s->last_list != NULL)
     closedir(s->last_list);
-  free(s->remote_root);
   free(s);
 }
 
@@ -174,21 +177,21 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
 {
   struct storage *res = NULL;
   struct file_storage_state *state = NULL;
-  char *wuri = NULL;
+  /* strlen("/backups") == strlen("/objects") == strlen("/.dplbck") */
+  char path[strlen(uri) + strlen("/backups") + 1];
+  int fd;
+
 
   if ((res = malloc(sizeof (struct storage))) == NULL)
     goto err;
   if ((state = malloc(sizeof (struct file_storage_state))) == NULL)
     goto err;
 
-  if ((wuri = strdup(uri)) == NULL)
-    goto err;
-
   res->store = sto_file_store;
   res->retrieve = sto_file_retrieve;
   res->list = sto_file_list;
   res->delete = sto_file_delete;
-  state->remote_root = wuri;
+  state->remote_root = uri;
   state->last_list = NULL;
   res->state = state;
 
@@ -200,9 +203,6 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   */
   if (create_dirs)
   {
-    /* strlen("/backups") == strlen("/objects") */
-    char path[strlen(state->remote_root) + strlen("/backups") + 1];
-
     strcpy(path, state->remote_root);
     if (mkdir(path, 0777) == -1)
       if (errno != EEXIST)
@@ -218,6 +218,20 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
     if (mkdir(path, 0777) == -1)
       if (errno != EEXIST)
         goto err;
+
+    strcpy(path, state->remote_root);
+    strcat(path, "/.dplbck");
+    if ((fd = open(path, O_CREAT | O_RDONLY, 0777)) == -1)
+      goto err;
+    close(fd);
+  }
+  else
+  {
+    strcpy(path, state->remote_root);
+    strcat(path, "/.dplbck");
+    if ((fd = open(path, O_RDONLY)) == -1)
+      goto err;
+    close(fd);
   }
 
   return res;
@@ -227,7 +241,5 @@ err:
     free(res);
   if (state != NULL)
     free(state);
-  if (wuri != NULL)
-    free(wuri);
   return NULL;
 }
