@@ -34,7 +34,7 @@
 
 #include <storage/dpl/dpl.h>
 #include <storage/file/file.h>
-#include <usage.h>
+#include <messages.h>
 
 #include "storage.h"
 

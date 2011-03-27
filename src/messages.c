@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "usage.h"
+#include "messages.h"
 
 void usage(FILE *output)
 {

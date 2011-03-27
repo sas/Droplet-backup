@@ -32,7 +32,7 @@ include ../config.mk
 TARGET		= dplbck
 
 SRCS		= dplbck.c			\
-		  usage.c			\
+		  messages.c			\
 		  commands/backup/backup.c	\
 		  commands/help/help.c		\
 		  commands/list/list.c		\
