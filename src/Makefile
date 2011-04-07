@@ -32,7 +32,6 @@ include ../config.mk
 TARGET		= dplbck
 
 SRCS		= dplbck.c			\
-		  messages.c			\
 		  commands/backup/backup.c	\
 		  commands/help/help.c		\
 		  commands/list/list.c		\
@@ -41,6 +40,7 @@ SRCS		= dplbck.c			\
 		  storage/dpl/dpl.c		\
 		  storage/file/file.c		\
 		  storage/storage.c		\
+		  utils/messages.c		\
 
 OBJS		= $(SRCS:.c=.o)
 

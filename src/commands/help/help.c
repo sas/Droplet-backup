@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <messages.h>
+#include <utils/messages.h>
 
 #include "help.h"
 

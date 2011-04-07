@@ -35,7 +35,7 @@
 #include <commands/list/list.h>
 #include <commands/restore/restore.h>
 #include <commands/stats/stats.h>
-#include <messages.h>
+#include <utils/messages.h>
 
 int main(int argc, char *argv[])
 {

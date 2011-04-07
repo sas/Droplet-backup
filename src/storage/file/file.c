@@ -39,7 +39,7 @@
 #include <unistd.h>
 
 #include <storage/storage.h>
-#include <messages.h>
+#include <utils/messages.h>
 
 #include "file.h"
 
