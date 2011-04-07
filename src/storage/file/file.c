@@ -221,7 +221,7 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
 
     strcpy(path, state->remote_root);
     strcat(path, "/.dplbck");
-    if ((fd = open(path, O_CREAT | O_RDONLY, 0777)) == -1)
+    if ((fd = open(path, O_CREAT | O_RDONLY, 0666)) == -1)
       goto err;
     close(fd);
   }
