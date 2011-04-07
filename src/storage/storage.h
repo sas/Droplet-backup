@@ -38,9 +38,9 @@ struct buffer
 
 # ifdef STORAGE_INTERNAL
 /*
-** If we do not define STORAGE_INTERNAL, i.e.: if we are not an internal storage
-** module, or the abstract storage module itself, we do not have access to
-** internal types.
+** If we do not define STORAGE_INTERNAL (i.e.: if we are not a storage module,
+** or the abstract storage module itself), we do not have access to internal
+** types.
 */
 struct storage
 {
