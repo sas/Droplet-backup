@@ -29,18 +29,19 @@
 
 #include <stdio.h>
 
-#include <storage/storage.h>
 #include <messages.h>
+#include <storage/storage.h>
 
 #include "list.h"
 
 int cmd_list(int argc, char *argv[])
 {
+  storage_t storage;
+  const char *elem;
+
+  /* XXX: No options parsing for the moment. */
   if (argc != 2)
     usage_die();
-
-  struct storage *storage = NULL;
-  const char *elem;
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
     err(EXIT_STORAGE_FAIL, "unable to open storage: %s\n", argv[1]);

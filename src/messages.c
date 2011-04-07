@@ -49,7 +49,7 @@ void usage(FILE *output)
     "        stats:   display stats about a backup folder",
     "        help:    display this help",
     "i.e.:",
-    "    dplbck -v backup /etc dpl://my_backups/backup_folder/",
+    "    dplbck -v backup dpl://my_backups/backup_folder/ /etc",
     "        makes a backup of /etc in the bucket `my_backups', in the folder",
     "        `backup_folder' and enables verbose mode, so all transferts are",
     "        logged on stderr.",
