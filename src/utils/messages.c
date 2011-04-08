@@ -33,10 +33,11 @@
 
 #include "messages.h"
 
+extern char *__progname; /* From crt0.o */
+
 void usage(FILE *output)
 {
   char *message[] = {
-    "usage: dplbck [ options ] <command> [ command_args ]",
     "    options",
     "        --profile-dir, -d: specify the droplet profile drectory to use",
     "        --profile, -p:     specify the droplet profile to use",
@@ -59,6 +60,7 @@ void usage(FILE *output)
     "        folder `/srv/www/htdocs/'.",
   };
 
+  fprintf(output, "usage: %s [ options ] <command> [ command_args ]\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }
@@ -73,7 +75,7 @@ void err(int exit_val, const char *format, ...)
 {
   va_list ap;
 
-  fprintf(stderr, "error: ");
+  fprintf(stderr, "%s: error: ", __progname);
   va_start(ap, format);
   vfprintf(stderr, format, ap);
   va_end(ap);
@@ -85,7 +87,7 @@ void warn(const char *format, ...)
 {
   va_list ap;
 
-  fprintf(stderr, "warning: ");
+  fprintf(stderr, "%s: warning: ", __progname);
   va_start(ap, format);
   vfprintf(stderr, format, ap);
   va_end(ap);
