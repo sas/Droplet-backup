@@ -29,6 +29,7 @@
 
 #define STORAGE_INTERNAL
 
+#include <err.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -53,7 +54,7 @@ storage_t storage_new(const char *uri, int create_dirs)
     if (strncmp(uri, inits[i].scheme, strlen(inits[i].scheme)) == 0)
       return inits[i].initializer(uri + strlen(inits[i].scheme), create_dirs);
 
-  err(EXIT_STORAGE_FAIL, "unknown uri scheme: %s\n", uri);
+  errx(EXIT_STORAGE_FAIL, "unknown uri scheme: %s", uri);
   return NULL;
 }
 

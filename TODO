@@ -1,4 +1,3 @@
-* Remove my err() and warn() functions which already exist in libc
 * Cut files into blocks and upload them in the backup command
 * Do the restore command
 * Add the dpl:// storage type

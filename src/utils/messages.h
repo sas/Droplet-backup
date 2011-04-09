@@ -39,7 +39,5 @@
 
 void usage(FILE *output);
 void usage_die(void);
-void err(int exit_val, const char *format, ...);
-void warn(const char *format, ...);
 
 #endif /* !MESSAGES_H_ */

@@ -70,25 +70,3 @@ void usage_die(void)
   usage(stderr);
   exit(EXIT_USAGE_FAIL);
 }
-
-void err(int exit_val, const char *format, ...)
-{
-  va_list ap;
-
-  fprintf(stderr, "%s: error: ", __progname);
-  va_start(ap, format);
-  vfprintf(stderr, format, ap);
-  va_end(ap);
-
-  exit(exit_val);
-}
-
-void warn(const char *format, ...)
-{
-  va_list ap;
-
-  fprintf(stderr, "%s: warning: ", __progname);
-  va_start(ap, format);
-  vfprintf(stderr, format, ap);
-  va_end(ap);
-}

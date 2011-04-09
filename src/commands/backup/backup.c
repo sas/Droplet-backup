@@ -28,6 +28,7 @@
 */
 
 #include <dirent.h>
+#include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,7 +71,7 @@ static char *path_down(const char *path, char *elem)
   char *res;
 
   if ((res = malloc(path_len + elem_len + 2)) == NULL)
-    err(EXIT_RESOURCE_FAIL, "malloc(): %s\n", strerror(errno));
+    err(EXIT_RESOURCE_FAIL, "malloc()");
 
   strcpy(res, path);
   res[path_len] = '/';
@@ -86,7 +87,7 @@ static const char *hash_directory(storage_t storage, const char *path, DIR *dir)
   struct dirent *ent;
 
   if ((tmp = tmpfile()) == NULL)
-    err(EXIT_RESOURCE_FAIL, "tmpfile(): %s\n", strerror(errno));
+    err(EXIT_RESOURCE_FAIL, "tmpfile()");
 
   while ((ent = readdir(dir)) != NULL)
   {
@@ -132,7 +133,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
   if (lstat(path, &buf) == -1)
   {
-    warn("unable to access %s: %s\n", path, strerror(errno));
+    warn("unable to access %s", path);
     return;
   }
 
@@ -142,7 +143,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
     if ((file = fopen(path, "rb")) == NULL)
     {
-      warn("unable to access %s: %s\n", path, strerror(errno));
+      warn("unable to access %s", path);
       return;
     }
 
@@ -156,7 +157,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
     if ((dir = opendir(path)) == NULL)
     {
-      warn("unable to access %s: %s\n", path, strerror(errno));
+      warn("unable to access %s", path);
       return;
     }
 
@@ -166,32 +167,32 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
   }
   else if (S_ISLNK(buf.st_mode))
   {
-    warn("%s: backuping symbolic links is not supported yet\n", path);
+    warnx("%s: backuping symbolic links is not supported yet", path);
     return;
   }
   else if (S_ISCHR(buf.st_mode))
   {
-    warn("%s: is a character device, not backuping\n", path);
+    warnx("%s: is a character device, not backuping", path);
     return;
   }
   else if (S_ISBLK(buf.st_mode))
   {
-    warn("%s: is a block device, not backuping\n", path);
+    warnx("%s: is a block device, not backuping", path);
     return;
   }
   else if (S_ISFIFO(buf.st_mode))
   {
-    warn("%s: is a named pipe, not backuping\n", path);
+    warnx("%s: is a named pipe, not backuping", path);
     return;
   }
   else if (S_ISSOCK(buf.st_mode))
   {
-    warn("%s: is a socket, not backuping\n", path);
+    warnx("%s: is a socket, not backuping", path);
     return;
   }
   else
   {
-    warn("unknown file type: %s, not backuping\n", path);
+    warnx("unknown file type: %s, not backuping", path);
     return;
   }
 
@@ -215,10 +216,10 @@ int cmd_backup(int argc, char *argv[])
     usage_die();
 
   if ((storage = storage_new(argv[1], 1)) == NULL)
-    err(EXIT_STORAGE_FAIL, "unable to open storage: %s\n", argv[1]);
+    errx(EXIT_STORAGE_FAIL, "unable to open storage: %s", argv[1]);
 
   if ((backup = tmpfile()) == NULL)
-    err(EXIT_RESOURCE_FAIL, "tmpfile(): %s\n", strerror(errno));
+    err(EXIT_RESOURCE_FAIL, "tmpfile()");
 
   for (int i = 2; i < argc; ++i)
     hash_dispatch(storage, backup, argv[i]);
