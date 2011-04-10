@@ -32,11 +32,6 @@
 
 # include <stdio.h>
 
-# define EXIT_USAGE_FAIL    1
-# define EXIT_STORAGE_FAIL  2
-# define EXIT_RESOURCE_FAIL 3
-# define EXIT_FAIL_OTHER    4
-
 void usage(FILE *output);
 void usage_die(void);
 

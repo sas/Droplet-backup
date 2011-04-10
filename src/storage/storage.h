@@ -30,11 +30,7 @@
 #ifndef STORAGE_H_
 # define STORAGE_H_
 
-struct buffer
-{
-  unsigned int size;
-  unsigned char data[];
-};
+# include <utils/buffer.h>
 
 # ifdef STORAGE_INTERNAL
 /*

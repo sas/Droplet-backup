@@ -29,6 +29,7 @@
 
 #include <err.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <storage/storage.h>
 #include <utils/messages.h>
@@ -45,7 +46,7 @@ int cmd_list(int argc, char *argv[])
     usage_die();
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
-    errx(EXIT_STORAGE_FAIL, "unable to open storage: %s", argv[1]);
+    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
 
   elem = storage_list(storage, "backups");
   while (elem != NULL)

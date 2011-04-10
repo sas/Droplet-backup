@@ -68,5 +68,5 @@ void usage(FILE *output)
 void usage_die(void)
 {
   usage(stderr);
-  exit(EXIT_USAGE_FAIL);
+  exit(EXIT_FAILURE);
 }

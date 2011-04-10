@@ -71,7 +71,7 @@ static char *path_down(const char *path, char *elem)
   char *res;
 
   if ((res = malloc(path_len + elem_len + 2)) == NULL)
-    err(EXIT_RESOURCE_FAIL, "malloc()");
+    err(EXIT_FAILURE, "malloc()");
 
   strcpy(res, path);
   res[path_len] = '/';
@@ -87,7 +87,7 @@ static const char *hash_directory(storage_t storage, const char *path, DIR *dir)
   struct dirent *ent;
 
   if ((tmp = tmpfile()) == NULL)
-    err(EXIT_RESOURCE_FAIL, "tmpfile()");
+    err(EXIT_FAILURE, "tmpfile()");
 
   while ((ent = readdir(dir)) != NULL)
   {
@@ -216,10 +216,10 @@ int cmd_backup(int argc, char *argv[])
     usage_die();
 
   if ((storage = storage_new(argv[1], 1)) == NULL)
-    errx(EXIT_STORAGE_FAIL, "unable to open storage: %s", argv[1]);
+    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
 
   if ((backup = tmpfile()) == NULL)
-    err(EXIT_RESOURCE_FAIL, "tmpfile()");
+    err(EXIT_FAILURE, "tmpfile()");
 
   for (int i = 2; i < argc; ++i)
     hash_dispatch(storage, backup, argv[i]);

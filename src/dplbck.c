@@ -29,6 +29,7 @@
 
 #include <err.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <commands/backup/backup.h>
@@ -68,5 +69,5 @@ int main(int argc, char *argv[])
       return commands[i].cmd(argc, argv);
 
   /* We never reach this point if there is a valid command. */
-  errx(EXIT_USAGE_FAIL, "unknown command: %s", *argv);
+  errx(EXIT_FAILURE, "unknown command: %s", *argv);
 }
