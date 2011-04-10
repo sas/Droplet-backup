@@ -71,7 +71,7 @@ do {                                                            \
   struct rollsum *srp = Srp;                                    \
   srp->count += 1;                                              \
   srp->a += Data;                                               \
-  srp->b += a;                                                  \
+  srp->b += srp->a;                                             \
 } while (0)
 
 #endif /* !ROLLSUM_H_ */

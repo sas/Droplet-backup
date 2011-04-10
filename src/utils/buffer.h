@@ -38,5 +38,6 @@ struct buffer
 };
 
 struct buffer *buffer_new(unsigned int size);
+void buffer_delete(struct buffer *buf);
 
 #endif /* !BUFFER_H_ */

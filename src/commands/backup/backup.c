@@ -39,25 +39,57 @@
 
 #include <storage/storage.h>
 #include <utils/messages.h>
+#include <utils/rollsum.h>
 
 #include "backup.h"
 
 static void hash_dispatch(storage_t storage, FILE *backup, const char *path);
 
-/* Compute the hash of the file and upload it on the storage. */
-static const char *upload_file(storage_t storage, const char *path, FILE *file)
-{
-  (void) storage;
-  (void) file;
-
-  printf("uploading file: %s\n", path);
-
-  return NULL;
-}
-
 static const char *hash_file(storage_t storage, const char *path, FILE *file)
 {
-  return upload_file(storage, path, file);
+  (void) storage;
+  (void) path;
+
+  //const char *res;
+  FILE *tmp;
+  struct buffer *buf;
+  struct rollsum rs;
+  char file_buf[4096];
+  unsigned int file_buf_cnt;
+  unsigned int file_buf_idx;
+
+  if ((tmp = tmpfile()) == NULL)
+    err(EXIT_FAILURE, "tmpfile()");
+
+  buf = buffer_new(ROLLSUM_MAXSIZE);
+  rollsum_init(&rs);
+
+  while ((file_buf_cnt = fread(file_buf, 1, 4096, file)) > 0)
+  {
+    file_buf_idx = 0;
+
+    while (file_buf_idx < file_buf_cnt)
+    {
+      rollsum_roll(&rs, file_buf[file_buf_idx]);
+      buf->data[buf->used++] = file_buf[file_buf_idx++];
+
+      if (rollsum_onbound(&rs))
+      {
+        /* XXX: Upload the block! */
+        /* fprintf(tmp, "%s\n", storage_store_buf(storage, buf); */
+        rollsum_init(&rs);
+        buf->used = 0;
+      }
+    }
+  }
+
+  /* XXX: Upload the tmpfile! */
+  /* res = storage_store_file(storage, tmp); */
+
+  buffer_delete(buf);
+  fclose(tmp);
+
+  return NULL; // should be retur res;
 }
 
 /*
@@ -82,7 +114,7 @@ static char *path_down(const char *path, char *elem)
 
 static const char *hash_directory(storage_t storage, const char *path, DIR *dir)
 {
-  const char *res;
+  //const char *res;
   FILE *tmp;
   struct dirent *ent;
 
@@ -99,11 +131,12 @@ static const char *hash_directory(storage_t storage, const char *path, DIR *dir)
     free(new_path);
   }
 
-  res = upload_file(storage, path, tmp);
+  /* XXX: Upload the file! */
+  /* fprintf(tmp, "%s\n", storage_store_file(storage, tmp); */
 
   fclose(tmp);
 
-  return res;
+  return NULL; // should be return res;
 }
 
 /*
@@ -224,7 +257,8 @@ int cmd_backup(int argc, char *argv[])
   for (int i = 2; i < argc; ++i)
     hash_dispatch(storage, backup, argv[i]);
 
-  upload_file(storage, "backup root", backup);
+  /* XXX: Upload the actual backup! */
+  /* storage_store_file(storage, backup); */
 
   fclose(backup);
   storage_delete(storage);

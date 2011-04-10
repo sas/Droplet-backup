@@ -40,6 +40,7 @@ SRCS		= dplbck.c			\
 		  storage/dpl/dpl.c		\
 		  storage/file/file.c		\
 		  storage/storage.c		\
+		  utils/buffer.c		\
 		  utils/messages.c		\
 
 OBJS		= $(SRCS:.c=.o)

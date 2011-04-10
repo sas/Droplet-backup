@@ -44,3 +44,8 @@ struct buffer *buffer_new(unsigned int size)
 
   return res;
 }
+
+void buffer_delete(struct buffer *buf)
+{
+  free(buf);
+}
