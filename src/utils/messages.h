@@ -32,7 +32,7 @@
 
 # include <stdio.h>
 
-void usage(FILE *output);
-void usage_die(void);
+void   usage(FILE *output);
+void   usage_die(void);
 
 #endif /* !MESSAGES_H_ */

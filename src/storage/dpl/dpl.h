@@ -32,6 +32,6 @@
 
 # include <storage/storage.h>
 
-storage_t sto_dpl_new(const char *uri, int create_dirs);
+storage_t  sto_dpl_new(const char *uri, int create_dirs);
 
 #endif /* !STO_DPL_H_ */

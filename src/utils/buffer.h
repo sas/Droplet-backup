@@ -32,12 +32,12 @@
 
 struct buffer
 {
-  unsigned int size;
-  unsigned int used;
-  unsigned char data[];
+  unsigned int   size;
+  unsigned int   used;
+  unsigned char  data[];
 };
 
 struct buffer *buffer_new(unsigned int size);
-void buffer_delete(struct buffer *buf);
+void           buffer_delete(struct buffer *buf);
 
 #endif /* !BUFFER_H_ */
