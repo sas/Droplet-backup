@@ -1,5 +1,8 @@
-* Cut files into blocks and upload them in the backup command
 * Do the restore command
 * Add the dpl:// storage type
 * Handle the --profile-dir and --profile options for dpl://
 * Handle the -i and -v options
+* Do the purge command
+* Do the stats command
+* Bugs
+  * Remove trailing '/' on backup paths or the basename() function fails
