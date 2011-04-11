@@ -43,35 +43,31 @@ struct rollsum
   unsigned short b;
 };
 
-# define rollsum_init(Srp)                                      \
-do {                                                            \
-  struct rollsum *srp = Srp;                                    \
-  srp->count = 0;                                               \
-  srp->a = 0;                                                   \
-  srp->b = 0;                                                   \
-} while (0)
+static inline void rollsum_init(struct rollsum *srp)
+{
+  srp->count = 0;
+  srp->a = 0;
+  srp->b = 0;
+}
 
-# define rollsum_hash(Srp)                                      \
-({                                                              \
-  struct rollsum *srp = Srp;                                    \
-  srp->a << 16 | srp->b;                                        \
-})
+static inline unsigned int rollsum_hash(struct rollsum *srp)
+{
+  return srp->a << 16 | srp->b;
+}
 
-# define rollsum_onbound(Srp)                                   \
-({                                                              \
-  struct rollsum *srp = Srp;                                    \
-  srp->count >= ROLLSUM_MAXSIZE || (                            \
-    srp->count > ROLLSUM_MINSIZE &&                             \
-    (rollsum_hash(srp) & ROLLSUM_CHECKMASK) == ROLLSUM_BOUNDVAL \
-  );                                                            \
-})
+static inline int rollsum_onbound(struct rollsum *srp)
+{
+  return srp->count >= ROLLSUM_MAXSIZE || (
+      srp->count > ROLLSUM_MINSIZE &&
+      (rollsum_hash(srp) & ROLLSUM_CHECKMASK) == ROLLSUM_BOUNDVAL
+      );
+}
 
-# define rollsum_roll(Srp, Data)                                \
-do {                                                            \
-  struct rollsum *srp = Srp;                                    \
-  srp->count += 1;                                              \
-  srp->a += Data;                                               \
-  srp->b += srp->a;                                             \
-} while (0)
+static inline void rollsum_roll(struct rollsum *srp, unsigned char data)
+{
+  srp->count += 1;
+  srp->a += data;
+  srp->b += srp->a;
+}
 
 #endif /* !ROLLSUM_H_ */
