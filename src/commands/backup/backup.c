@@ -38,6 +38,7 @@
 #include <unistd.h>
 
 #include <storage/storage.h>
+#include <utils/digest.h>
 #include <utils/messages.h>
 #include <utils/rollsum.h>
 
@@ -45,18 +46,36 @@
 
 static void hash_dispatch(storage_t storage, FILE *backup, const char *path);
 
+/*
+** This function takes a path, and a directory to go into. (Used when entering a
+** directory)
+*/
+static char *path_down(const char *path, const char *elem)
+{
+  unsigned int path_len = strlen(path);
+  unsigned int elem_len = strlen(elem);
+  char *res;
+
+  if ((res = malloc(path_len + elem_len + 2)) == NULL)
+    err(EXIT_FAILURE, "malloc()");
+
+  strcpy(res, path);
+  res[path_len] = '/';
+  strcpy(res + path_len + 1, elem);
+
+  return res;
+}
+
 static const char *hash_file(storage_t storage, const char *path, FILE *file)
 {
-  (void) storage;
-  (void) path;
-
-  //const char *res;
+  const char *res;
   FILE *tmp;
   struct buffer *buf;
   struct rollsum rs;
   char file_buf[4096];
   int file_buf_cnt;
   int file_buf_idx;
+  char *upload_path;
 
   if ((tmp = tmpfile()) == NULL)
     err(EXIT_FAILURE, "tmpfile()");
@@ -75,53 +94,51 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
 
       if (rollsum_onbound(&rs))
       {
-        /* XXX: Upload the block! */
-        /* fprintf(tmp, "%s\n", storage_store_buf(storage, buf); */
+        res = digest_buffer(buf);
+        upload_path = path_down("objects", res);
+        if (!storage_store_buffer(storage, upload_path, buf))
+          errx(EXIT_FAILURE, "unable to store file: %s", path);
+        free(upload_path);
+        fprintf(tmp, "%s\n", res);
+
         rollsum_init(&rs);
         buf->used = 0;
       }
     }
   }
 
-  if (file_buf_cnt < 0)
+  if (file_buf_cnt == -1)
   {
-    /* XXX: Check if we are on a failure ! */
+    err(EXIT_FAILURE, "%s", path);
+  }
+  else
+  {
+    res = digest_buffer(buf);
+    upload_path = path_down("objects", res);
+    if (!storage_store_buffer(storage, upload_path, buf))
+      errx(EXIT_FAILURE, "unable to store file: %s", path);
+    free(upload_path);
+    fprintf(tmp, "%s\n", res);
   }
 
-  /* XXX: Upload the tmpfile! */
-  /* res = storage_store_file(storage, tmp); */
+  res = digest_file(tmp);
+  upload_path = path_down("objects", res);
+  if (!storage_store_file(storage, upload_path, tmp))
+    errx(EXIT_FAILURE, "unable to store file: %s", path);
+  free(upload_path);
 
   buffer_delete(buf);
   fclose(tmp);
-
-  return NULL; // should be retur res;
-}
-
-/*
-** This function takes a path, and a directory to go into. (Used when entering a
-** directory)
-*/
-static char *path_down(const char *path, char *elem)
-{
-  unsigned int path_len = strlen(path);
-  unsigned int elem_len = strlen(elem);
-  char *res;
-
-  if ((res = malloc(path_len + elem_len + 2)) == NULL)
-    err(EXIT_FAILURE, "malloc()");
-
-  strcpy(res, path);
-  res[path_len] = '/';
-  strcpy(res + path_len + 1, elem);
 
   return res;
 }
 
 static const char *hash_directory(storage_t storage, const char *path, DIR *dir)
 {
-  //const char *res;
+  const char *res;
   FILE *tmp;
   struct dirent *ent;
+  char *upload_path;
 
   if ((tmp = tmpfile()) == NULL)
     err(EXIT_FAILURE, "tmpfile()");
@@ -136,12 +153,15 @@ static const char *hash_directory(storage_t storage, const char *path, DIR *dir)
     free(new_path);
   }
 
-  /* XXX: Upload the file! */
-  /* fprintf(tmp, "%s\n", storage_store_file(storage, tmp); */
+  res = digest_file(tmp);
+  upload_path = path_down("objects", res);
+  if (!storage_store_file(storage, upload_path, tmp))
+    errx(EXIT_FAILURE, "unable to store file: %s", path);
+  free(upload_path);
 
   fclose(tmp);
 
-  return NULL; // should be return res;
+  return res;
 }
 
 /*
@@ -248,6 +268,8 @@ int cmd_backup(int argc, char *argv[])
 {
   storage_t storage;
   FILE *backup;
+  char *upload_path;
+  const char *backup_hash;
 
   /* XXX: No options parsing for the moment. */
   if (argc < 3)
@@ -262,8 +284,12 @@ int cmd_backup(int argc, char *argv[])
   for (int i = 2; i < argc; ++i)
     hash_dispatch(storage, backup, argv[i]);
 
-  /* XXX: Upload the actual backup! */
-  /* storage_store_file(storage, backup); */
+  
+  backup_hash = digest_file(backup);
+  upload_path = path_down("backups", backup_hash);
+  if (!storage_store_file(storage, upload_path, backup))
+    errx(EXIT_FAILURE, "unable to upload the backup");
+  free(upload_path);
 
   fclose(backup);
   storage_delete(storage);
