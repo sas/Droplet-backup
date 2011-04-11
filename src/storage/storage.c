@@ -47,7 +47,7 @@ storage_t storage_new(const char *uri, int create_dirs)
     storage_t (*initializer)(const char *uri, int create_dirs);
   } inits[] = {
     { "dpl://",   sto_dpl_new },
-    { "file://",   sto_file_new },
+    { "file://",  sto_file_new },
   };
 
   for (unsigned int i = 0; i < sizeof (inits) / sizeof (inits[0]); ++i)
@@ -58,9 +58,14 @@ storage_t storage_new(const char *uri, int create_dirs)
   return NULL;
 }
 
-int storage_store(storage_t storage, const char *path, struct buffer *data)
+int storage_store_file(storage_t storage, const char *path, FILE *file)
 {
-  return storage->store(storage->state, path, data);
+  return storage->store_file(storage->state, path, file);
+}
+
+int storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer)
+{
+  return storage->store_buffer(storage->state, path, buffer);
 }
 
 struct buffer *storage_retrieve(storage_t storage, const char *path)

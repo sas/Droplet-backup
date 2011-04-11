@@ -55,8 +55,8 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   struct buffer *buf;
   struct rollsum rs;
   char file_buf[4096];
-  unsigned int file_buf_cnt;
-  unsigned int file_buf_idx;
+  int file_buf_cnt;
+  int file_buf_idx;
 
   if ((tmp = tmpfile()) == NULL)
     err(EXIT_FAILURE, "tmpfile()");
@@ -81,6 +81,11 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
         buf->used = 0;
       }
     }
+  }
+
+  if (file_buf_cnt < 0)
+  {
+    /* XXX: Check if we are on a failure ! */
   }
 
   /* XXX: Upload the tmpfile! */

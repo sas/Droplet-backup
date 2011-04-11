@@ -32,6 +32,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -49,10 +50,57 @@ struct file_storage_state
   DIR *last_list;
 };
 
-static int sto_file_store(void *state, const char *path, struct buffer *data)
+static int sto_file_store_file(void *state, const char *path, FILE *file)
 {
   struct file_storage_state *s = state;
-  char full_path[strlen(s->remote_root) + strlen(path) + 1];
+  char full_path[strlen(s->remote_root) + strlen(path) + 2];
+  int fd = -1;
+  char file_buf[4096];
+  int file_buf_size;
+  int size, full_size;
+
+  strcpy(full_path, s->remote_root);
+  strcat(full_path, "/");
+  strcat(full_path, path);
+
+  fseek(file, 0, SEEK_SET);
+
+  if ((fd = open(full_path, O_WRONLY | O_EXCL | O_CREAT, 0666)) == -1)
+  {
+    /*
+    ** If file already exists, this means that the data is already stored, so
+    ** this is not an actual failure.
+    */
+    if (errno == EEXIST)
+      return 1;
+    else
+      goto err;
+  }
+
+  while ((file_buf_size = fread(file_buf, 1, 4096, file)) > 0)
+  {
+    full_size = 0;
+    while ((size = write(fd, file_buf + full_size, file_buf_size - full_size)) > 0)
+      full_size += size;
+
+    if (size == -1)
+      goto err;
+  }
+
+  close(fd);
+
+  return 1;
+
+err:
+  if (fd != -1)
+    close(fd);
+  return 0;
+}
+
+static int sto_file_store_buffer(void *state, const char *path, struct buffer *buffer)
+{
+  struct file_storage_state *s = state;
+  char full_path[strlen(s->remote_root) + strlen(path) + 2];
   int fd = -1;
   int size, full_size;
 
@@ -73,7 +121,7 @@ static int sto_file_store(void *state, const char *path, struct buffer *data)
   }
 
   full_size = 0;
-  while ((size = write(fd, data->data + full_size, data->size - full_size)) > 0)
+  while ((size = write(fd, buffer->data + full_size, buffer->used - full_size)) > 0)
     full_size += size;
 
   if (size == -1)
@@ -187,7 +235,8 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   if ((state = malloc(sizeof (struct file_storage_state))) == NULL)
     goto err;
 
-  res->store = sto_file_store;
+  res->store_file = sto_file_store_file;
+  res->store_buffer = sto_file_store_buffer;
   res->retrieve = sto_file_retrieve;
   res->list = sto_file_list;
   res->delete = sto_file_delete;

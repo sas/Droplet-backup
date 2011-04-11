@@ -68,7 +68,8 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   if ((ctx->cur_bucket = strsep(&wuri, "/")) == NULL)
     goto err;
 
-  res->store = NULL;
+  res->store_file = NULL;
+  res->store_buffer = NULL;
   res->retrieve = NULL;
   res->list = NULL;
   res->delete = NULL;
