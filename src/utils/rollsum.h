@@ -30,7 +30,7 @@
 #ifndef ROLLSUM_H_
 # define ROLLSUM_H_
 
-# define ROLLSUM_CHECKBITS  13
+# define ROLLSUM_CHECKBITS  21
 # define ROLLSUM_CHECKMASK  ((1 << ROLLSUM_CHECKBITS) - 1)
 # define ROLLSUM_BOUNDVAL   0x42
 # define ROLLSUM_MINSIZE    (1024 * 1024 / 2)
