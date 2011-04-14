@@ -137,7 +137,46 @@ err:
   return 0;
 }
 
-static struct buffer *sto_file_retrieve(void *state, const char *path)
+static FILE *sto_file_retrieve_file(void *state, const char *path)
+{
+  struct file_storage_state *s = state;
+  char full_path[strlen(s->remote_root) + strlen(path) + 2];
+  FILE *res;
+  int size, full_size;
+  int fd = -1;
+  char buf[4096];
+
+  strcpy(full_path, s->remote_root);
+  strcat(full_path, "/");
+  strcat(full_path, path);
+
+  if ((fd = open(full_path, O_RDONLY)) == -1)
+    goto err;
+
+  if ((res = tmpfile()) == NULL)
+    goto err;
+
+  while ((full_size = read(fd, buf, 4096)) > 0)
+  {
+    size = 0;
+    while (size < full_size)
+      size += fwrite(buf + size, 1, full_size - size, res);
+  }
+
+  if (full_size == -1)
+    goto err;
+
+  close(fd);
+
+  return res;
+
+err:
+  if (fd != -1)
+    close(fd);
+  return NULL;
+}
+
+static struct buffer *sto_file_retrieve_buffer(void *state, const char *path)
 {
   struct file_storage_state *s = state;
   char full_path[strlen(s->remote_root) + strlen(path) + 2];
@@ -174,7 +213,7 @@ err:
   if (fd != -1)
     close(fd);
   if (res != NULL)
-    free(NULL);
+    free(res);
   return NULL;
 }
 
@@ -237,7 +276,8 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
 
   res->store_file = sto_file_store_file;
   res->store_buffer = sto_file_store_buffer;
-  res->retrieve = sto_file_retrieve;
+  res->retrieve_file = sto_file_retrieve_file;
+  res->retrieve_buffer = sto_file_retrieve_buffer;
   res->list = sto_file_list;
   res->delete = sto_file_delete;
   state->remote_root = uri;

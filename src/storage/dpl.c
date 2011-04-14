@@ -70,7 +70,8 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
 
   res->store_file = NULL;
   res->store_buffer = NULL;
-  res->retrieve = NULL;
+  res->retrieve_file = NULL;
+  res->retrieve_buffer = NULL;
   res->list = NULL;
   res->delete = NULL;
   state->remote_root = wuri;

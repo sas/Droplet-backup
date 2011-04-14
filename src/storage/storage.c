@@ -65,9 +65,14 @@ int storage_store_buffer(storage_t storage, const char *path, struct buffer *buf
   return storage->store_buffer(storage->state, path, buffer);
 }
 
-struct buffer *storage_retrieve(storage_t storage, const char *path)
+FILE *storage_retrieve_file(storage_t storage, const char *path)
 {
-  return storage->retrieve(storage->state, path);
+  return storage->retrieve_file(storage->state, path);
+}
+
+struct buffer *storage_retrieve_buffer(storage_t storage, const char *path)
+{
+  return storage->retrieve_buffer(storage->state, path);
 }
 
 const char *storage_list(storage_t storage, const char *path)
