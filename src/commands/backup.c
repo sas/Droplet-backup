@@ -48,7 +48,7 @@
 
 static void hash_dispatch(storage_t storage, FILE *backup, const char *path);
 
-static const char *hash_buffer(storage_t storage, const char *path, struct buffer *buf)
+static const char *hash_blob(storage_t storage, const char *path, struct buffer *buf)
 {
   const char *res;
   char *upload_path;
@@ -89,8 +89,8 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
 
       if (rollsum_onbound(&rs))
       {
-        res = hash_buffer(storage, path, buf);
-        fprintf(tmp, "%s\n", res);
+        res = hash_blob(storage, path, buf);
+        fprintf(tmp, "blob %s\n", res);
         rollsum_init(&rs);
         buf->used = 0;
       }
@@ -98,8 +98,8 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   }
 
   /* Upload the last block of data. */
-  res = hash_buffer(storage, path, buf);
-  fprintf(tmp, "%s\n", res);
+  res = hash_blob(storage, path, buf);
+  fprintf(tmp, "blob %s\n", res);
 
   res = digest_file(tmp);
   upload_path = path_concat("objects", res);
@@ -161,6 +161,18 @@ static const char *const_basename(const char *path)
   }
 
   return res;
+}
+
+static const char *mode_to_str(mode_t mode)
+{
+  if (S_ISREG(mode))
+    return "file";
+  if (S_ISDIR(mode))
+    return "tree";
+  if (S_ISLNK(mode))
+    return "link";
+
+  return NULL;
 }
 
 static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
@@ -234,7 +246,8 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
   }
 
   if (hash != NULL)
-    fprintf(backup, "%s %u %u %04o %s\n",
+    fprintf(backup, "%s %s %u %u %04o %s\n",
+        mode_to_str(buf.st_mode),
         hash,
         buf.st_uid,
         buf.st_gid,
