@@ -4,6 +4,5 @@
 * Handle the -i and -v options
 * Do the purge command
 * Do the stats command
-* Handle symlinks
-* Bugs
-  * Remove trailing '/' on backup paths or the basename() function fails
+* Handle symlinks (with readlink())
+* Write man pages
