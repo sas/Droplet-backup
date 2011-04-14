@@ -32,11 +32,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <commands/backup/backup.h>
-#include <commands/help/help.h>
-#include <commands/list/list.h>
-#include <commands/restore/restore.h>
-#include <commands/stats/stats.h>
+#include <commands/backup.h>
+#include <commands/help.h>
+#include <commands/list.h>
+#include <commands/restore.h>
+#include <commands/stats.h>
 #include <utils/messages.h>
 
 int main(int argc, char *argv[])

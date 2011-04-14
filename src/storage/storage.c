@@ -32,8 +32,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <storage/dpl/dpl.h>
-#include <storage/file/file.h>
+#include <storage/dpl.h>
+#include <storage/file.h>
 
 #include "storage.h"
 

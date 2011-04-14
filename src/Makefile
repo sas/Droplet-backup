@@ -31,19 +31,19 @@ include ../config.mk
 
 TARGET		= dplbck
 
-SRCS		= dplbck.c			\
-		  commands/backup/backup.c	\
-		  commands/help/help.c		\
-		  commands/list/list.c		\
-		  commands/restore/restore.c	\
-		  commands/stats/stats.c	\
-		  storage/dpl/dpl.c		\
-		  storage/file/file.c		\
-		  storage/storage.c		\
-		  utils/buffer.c		\
-		  utils/digest.c		\
-		  utils/messages.c		\
-		  utils/path.c			\
+SRCS		= dplbck.c		\
+		  commands/backup.c	\
+		  commands/help.c	\
+		  commands/list.c	\
+		  commands/restore.c	\
+		  commands/stats.c	\
+		  storage/dpl.c		\
+		  storage/file.c	\
+		  storage/storage.c	\
+		  utils/buffer.c	\
+		  utils/digest.c	\
+		  utils/messages.c	\
+		  utils/path.c		\
 
 OBJS		= $(SRCS:.c=.o)
 
