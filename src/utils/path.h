@@ -27,56 +27,9 @@
 **
 */
 
-#define STORAGE_INTERNAL
+#ifndef PATH_H_
+# define PATH_H_
 
-#include <stdlib.h>
-#include <string.h>
+char *path_concat(const char *path, const char *elem);
 
-#include <storage/dpl/dpl.h>
-#include <storage/file/file.h>
-
-#include "storage.h"
-
-storage_t storage_new(const char *uri, int create_dirs)
-{
-  static const struct
-  {
-    const char *scheme;
-    storage_t (*initializer)(const char *uri, int create_dirs);
-  } inits[] = {
-    { "dpl://",   sto_dpl_new },
-    { "file://",  sto_file_new },
-  };
-
-  for (unsigned int i = 0; i < sizeof (inits) / sizeof (inits[0]); ++i)
-    if (strncmp(uri, inits[i].scheme, strlen(inits[i].scheme)) == 0)
-      return inits[i].initializer(uri + strlen(inits[i].scheme), create_dirs);
-
-  return NULL;
-}
-
-int storage_store_file(storage_t storage, const char *path, FILE *file)
-{
-  return storage->store_file(storage->state, path, file);
-}
-
-int storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer)
-{
-  return storage->store_buffer(storage->state, path, buffer);
-}
-
-struct buffer *storage_retrieve(storage_t storage, const char *path)
-{
-  return storage->retrieve(storage->state, path);
-}
-
-const char *storage_list(storage_t storage, const char *path)
-{
-  return storage->list(storage->state, path);
-}
-
-void storage_delete(storage_t storage)
-{
-  storage->delete(storage->state);
-  free(storage);
-}
+#endif /* !PATH_H_ */

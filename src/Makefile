@@ -43,6 +43,7 @@ SRCS		= dplbck.c			\
 		  utils/buffer.c		\
 		  utils/digest.c		\
 		  utils/messages.c		\
+		  utils/path.c			\
 
 OBJS		= $(SRCS:.c=.o)
 

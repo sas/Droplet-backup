@@ -27,56 +27,32 @@
 **
 */
 
-#define STORAGE_INTERNAL
-
+#include <err.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <storage/dpl/dpl.h>
-#include <storage/file/file.h>
+#include "path.h"
 
-#include "storage.h"
-
-storage_t storage_new(const char *uri, int create_dirs)
+/*
+** This function takes a path, and a directory to go into and returns the
+** resulting path.
+** The caller must free the result.
+*/
+char *path_concat(const char *path, const char *elem)
 {
-  static const struct
-  {
-    const char *scheme;
-    storage_t (*initializer)(const char *uri, int create_dirs);
-  } inits[] = {
-    { "dpl://",   sto_dpl_new },
-    { "file://",  sto_file_new },
-  };
+  unsigned int path_len = strlen(path);
+  unsigned int elem_len = strlen(elem);
+  char *res;
 
-  for (unsigned int i = 0; i < sizeof (inits) / sizeof (inits[0]); ++i)
-    if (strncmp(uri, inits[i].scheme, strlen(inits[i].scheme)) == 0)
-      return inits[i].initializer(uri + strlen(inits[i].scheme), create_dirs);
+  if ((res = malloc(path_len + elem_len + 2)) == NULL)
+    err(EXIT_FAILURE, "malloc()");
 
-  return NULL;
-}
+  strcpy(res, path);
+  /* Remove superfluous '/'. */
+  while (res[path_len - 1] == '/' && path_len > 0)
+    --path_len;
+  res[path_len] = '/';
+  strcpy(res + path_len + 1, elem);
 
-int storage_store_file(storage_t storage, const char *path, FILE *file)
-{
-  return storage->store_file(storage->state, path, file);
-}
-
-int storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer)
-{
-  return storage->store_buffer(storage->state, path, buffer);
-}
-
-struct buffer *storage_retrieve(storage_t storage, const char *path)
-{
-  return storage->retrieve(storage->state, path);
-}
-
-const char *storage_list(storage_t storage, const char *path)
-{
-  return storage->list(storage->state, path);
-}
-
-void storage_delete(storage_t storage)
-{
-  storage->delete(storage->state);
-  free(storage);
+  return res;
 }

@@ -33,12 +33,6 @@ const char *digest_file(FILE *file)
   while ((size = fread(buf, 1, 4096, file)) > 0)
     SHA1_Update(&ctx, buf, size);
 
-  if (size == -1)
-  {
-    warn("fread()");
-    return NULL;
-  }
-
   SHA1_Final(md, &ctx);
   update_last_digest(md);
   return last_digest;
