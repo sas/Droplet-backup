@@ -28,25 +28,27 @@
 */
 
 #include <err.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-#include <utils/diefuncs.h>
+#include "diefuncs.h"
 
-#include "buffer.h"
-
-struct buffer *buffer_new(unsigned int size)
+void *emalloc(size_t size)
 {
-  struct buffer *res = NULL;
+  void *res = malloc(size);
 
-  res = emalloc(sizeof (struct buffer) + size);
-
-  res->size = size;
-  res->used = 0;
+  if (res == NULL)
+    err(EXIT_FAILURE, "malloc()");
 
   return res;
 }
 
-void buffer_delete(struct buffer *buf)
+FILE *etmpfile(void)
 {
-  free(buf);
+  FILE *res = tmpfile();
+
+  if (res == NULL)
+    err(EXIT_FAILURE, "tmpfile()");
+
+  return res;
 }

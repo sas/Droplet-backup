@@ -31,6 +31,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <utils/diefuncs.h>
+
 #include "path.h"
 
 /*
@@ -44,8 +46,7 @@ char *path_concat(const char *path, const char *elem)
   unsigned int elem_len = strlen(elem);
   char *res;
 
-  if ((res = malloc(path_len + elem_len + 2)) == NULL)
-    err(EXIT_FAILURE, "malloc()");
+  res = emalloc(path_len + elem_len + 2);
 
   strcpy(res, path);
   /* Remove superfluous '/'. */

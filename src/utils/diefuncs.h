@@ -27,26 +27,20 @@
 **
 */
 
-#include <err.h>
-#include <stdlib.h>
+#ifndef DIEFUNCS_H_
+# define DIEFUNCS_H_
 
-#include <utils/diefuncs.h>
+# include <stddef.h>
+# include <stdio.h>
 
-#include "buffer.h"
+/*
+** These functions are used to remove a small amount of error handling from the
+** core parts of the code. They are meant to be used where an error means the
+** termination of the program (e.g.: when malloc() fails, there is nothing more
+** to do than to die).
+*/
 
-struct buffer *buffer_new(unsigned int size)
-{
-  struct buffer *res = NULL;
+void *emalloc(size_t size);
+FILE *etmpfile(void);
 
-  res = emalloc(sizeof (struct buffer) + size);
-
-  res->size = size;
-  res->used = 0;
-
-  return res;
-}
-
-void buffer_delete(struct buffer *buf)
-{
-  free(buf);
-}
+#endif /* !DIEFUNCS_H_ */

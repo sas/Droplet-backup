@@ -34,6 +34,7 @@
 #include <string.h>
 
 #include <storage/storage.h>
+#include <utils/diefuncs.h>
 
 #include "dpl.h"
 
@@ -46,6 +47,7 @@ struct dpl_storage_state
 storage_t sto_dpl_new(const char *uri, int create_dirs)
 {
   (void) create_dirs;
+
   struct storage *res = NULL;
   struct dpl_storage_state *state = NULL;
   dpl_ctx_t *ctx = NULL;
@@ -58,10 +60,8 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   if ((ctx = dpl_ctx_new(NULL, NULL)) == NULL)
     goto err;
 
-  if ((res = malloc(sizeof (struct storage))) == NULL)
-    goto err;
-  if ((state = malloc(sizeof (struct dpl_storage_state))) == NULL)
-    goto err;
+  res = emalloc(sizeof (struct storage));
+  state = emalloc(sizeof (struct dpl_storage_state));
 
   if ((wuri = strdup(uri)) == NULL)
     goto err;

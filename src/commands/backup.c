@@ -37,6 +37,8 @@
 #include <unistd.h>
 
 #include <storage/storage.h>
+#include <utils/buffer.h>
+#include <utils/diefuncs.h>
 #include <utils/digest.h>
 #include <utils/messages.h>
 #include <utils/path.h>
@@ -71,8 +73,7 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   int file_buf_idx;
   char *upload_path;
 
-  if ((tmp = tmpfile()) == NULL)
-    err(EXIT_FAILURE, "tmpfile()");
+  tmp = etmpfile();
   buf = buffer_new(ROLLSUM_MAXSIZE);
 
   rollsum_init(&rs);
@@ -112,15 +113,14 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   return res;
 }
 
-static const char *hash_directory(storage_t storage, const char *path, DIR *dir)
+static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
 {
   const char *res;
   FILE *tmp;
   struct dirent *ent;
   char *upload_path;
 
-  if ((tmp = tmpfile()) == NULL)
-    err(EXIT_FAILURE, "tmpfile()");
+  tmp = etmpfile();
 
   while ((ent = readdir(dir)) != NULL)
   {
@@ -198,7 +198,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
       return;
     }
 
-    hash = hash_directory(storage, path, dir);
+    hash = hash_tree(storage, path, dir);
 
     closedir(dir);
   }
@@ -257,8 +257,7 @@ int cmd_backup(int argc, char *argv[])
   if ((storage = storage_new(argv[1], 1)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
 
-  if ((backup = tmpfile()) == NULL)
-    err(EXIT_FAILURE, "tmpfile()");
+  backup = etmpfile();
 
   for (int i = 2; i < argc; ++i)
     hash_dispatch(storage, backup, argv[i]);

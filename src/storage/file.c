@@ -40,6 +40,8 @@
 #include <unistd.h>
 
 #include <storage/storage.h>
+#include <utils/buffer.h>
+#include <utils/diefuncs.h>
 #include <utils/messages.h>
 
 #include "file.h"
@@ -153,8 +155,7 @@ static FILE *sto_file_retrieve_file(void *state, const char *path)
   if ((fd = open(full_path, O_RDONLY)) == -1)
     goto err;
 
-  if ((res = tmpfile()) == NULL)
-    goto err;
+  res = etmpfile();
 
   while ((full_size = read(fd, buf, 4096)) > 0)
   {
@@ -195,8 +196,7 @@ static struct buffer *sto_file_retrieve_buffer(void *state, const char *path)
   if (fstat(fd, &buf) == -1)
     goto err;
 
-  if ((res = malloc(sizeof (struct buffer) + buf.st_size)) == NULL)
-    goto err;
+  res = buffer_new(buf.st_size);
 
   full_size = 0;
   while ((size = read(fd, res->data + full_size, res->size - full_size)) > 0)
@@ -269,10 +269,8 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   int fd;
 
 
-  if ((res = malloc(sizeof (struct storage))) == NULL)
-    goto err;
-  if ((state = malloc(sizeof (struct file_storage_state))) == NULL)
-    goto err;
+  res = emalloc(sizeof (struct storage));
+  state = emalloc(sizeof (struct file_storage_state));
 
   res->store_file = sto_file_store_file;
   res->store_buffer = sto_file_store_buffer;
