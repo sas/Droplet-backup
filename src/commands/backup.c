@@ -263,7 +263,7 @@ int cmd_backup(int argc, char *argv[])
   char *upload_path;
   const char *backup_hash;
 
-  /* XXX: No options parsing for the moment. */
+  /* XXX: No option parsing for the moment. */
   if (argc < 3)
     usage_die();
 

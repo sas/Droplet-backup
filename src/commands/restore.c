@@ -27,17 +27,40 @@
 **
 */
 
+#include <err.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <storage/storage.h>
+#include <utils/messages.h>
+#include <utils/path.h>
 
 #include "restore.h"
 
 int cmd_restore(int argc, char *argv[])
 {
-  printf("executing command:");
+  storage_t storage;
+  FILE *backup;
+  char *download_path;
+  char buf[4096];
+  int size;
 
-  for (int i = 0; i < argc; ++i)
-    printf(" %s", argv[i]);
-  printf("\n");
+  /* XXX: No option parsing for the moment. */
+  if (argc != 3)
+    usage_die();
 
-  return 0;
+  if ((storage = storage_new(argv[1], 0)) == NULL)
+    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
+
+  download_path = path_concat("backups", argv[2]);
+  backup = storage_retrieve_file(storage, download_path);
+  free(download_path);
+
+  while ((size = fread(buf, 1, 4096, backup)) > 0)
+    fwrite(buf, 1, size, stdout);
+
+  fclose(backup);
+  storage_delete(storage);
+
+  return EXIT_SUCCESS;
 }

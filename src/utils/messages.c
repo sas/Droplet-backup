@@ -33,7 +33,7 @@
 
 #include "messages.h"
 
-extern char *__progname; /* From crt0.o */
+extern char *__progname; // From crt0.o
 
 void usage(FILE *output)
 {
@@ -50,14 +50,14 @@ void usage(FILE *output)
     "        stats:   display stats about a backup folder",
     "        help:    display this help",
     "i.e.:",
-    "    dplbck -v backup dpl://my_backups/backup_folder/ /etc",
+    "    dplbck -v backup dpl://my_backups/backup_folder /etc",
     "        makes a backup of /etc in the bucket `my_backups', in the folder",
     "        `backup_folder' and enables verbose mode, so all transferts are",
     "        logged on stderr.",
-    "    dplbck -p bck restore dpl://my_save/websrv/htdocs/ /srv/www/htdocs/",
-    "        uses the profile `bck' to restore the latest backup present in",
-    "        the folder `/websrv/htdocs' in the bucket `my_save' in the",
-    "        folder `/srv/www/htdocs/'.",
+    "    dplbck -p bck restore dpl://my_save/websrv webdata-2011",
+    "        uses the profile `bck' to restore the backup named `webdata-2011`",
+    "        present in the folder `/websrv' in the bucket `my_save' to the",
+    "        current directory.",
   };
 
   fprintf(output, "usage: %s [ options ] <command> [ command_args ]\n", __progname);

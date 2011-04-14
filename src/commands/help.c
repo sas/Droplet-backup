@@ -40,5 +40,5 @@ int cmd_help(int argc, char *argv[])
 
   usage(stdout);
 
-  return 0;
+  return EXIT_SUCCESS;
 }

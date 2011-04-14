@@ -167,6 +167,8 @@ static FILE *sto_file_retrieve_file(void *state, const char *path)
   if (full_size == -1)
     goto err;
 
+  fseek(res, 0, SEEK_SET);
+
   close(fd);
 
   return res;

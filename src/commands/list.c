@@ -41,7 +41,7 @@ int cmd_list(int argc, char *argv[])
   storage_t storage;
   const char *elem;
 
-  /* XXX: No options parsing for the moment. */
+  /* XXX: No option parsing for the moment. */
   if (argc != 2)
     usage_die();
 
@@ -57,5 +57,5 @@ int cmd_list(int argc, char *argv[])
 
   storage_delete(storage);
 
-  return 0;
+  return EXIT_SUCCESS;
 }

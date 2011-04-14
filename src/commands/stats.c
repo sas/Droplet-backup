@@ -28,6 +28,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "stats.h"
 
@@ -39,5 +40,5 @@ int cmd_stats(int argc, char *argv[])
     printf(" %s", argv[i]);
   printf("\n");
 
-  return 0;
+  return EXIT_SUCCESS;
 }
