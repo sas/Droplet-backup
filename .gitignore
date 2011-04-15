@@ -1,3 +1,4 @@
 *.o
 dplbck
 .*.swp
+doc/doxygen/html/
