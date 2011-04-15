@@ -30,6 +30,13 @@
 #ifndef CMD_STATS_H_
 # define CMD_STATS_H_
 
+/*!
+** \brief Main function of the `stats` command.
+** Displays statistics about a backup folder.
+** \param argc arguments count
+** \param argv arguments
+** \return A standard error code
+*/
 int  cmd_stats(int argc, char *argv[]);
 
 #endif /* !CMD_STATS_H_ */

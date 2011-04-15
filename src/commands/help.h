@@ -30,6 +30,13 @@
 #ifndef CMD_HELP_H_
 # define CMD_HELP_H_
 
+/*!
+** \brief Main function of the `help` command.
+** Displays the project's help and exits.
+** \param argc arguments count
+** \param argv arguments
+** \return A standard error code
+*/
 int  cmd_help(int argc, char *argv[]);
 
 #endif /* !CMD_HELP_H_ */

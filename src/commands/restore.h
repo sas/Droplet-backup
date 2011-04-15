@@ -30,6 +30,13 @@
 #ifndef CMD_RESTORE_H_
 # define CMD_RESTORE_H_
 
+/*!
+** \brief Main function of the `restore` command.
+** Restores a backup in the current working directory.
+** \param argc arguments count
+** \param argv arguments
+** \return A standard error code
+*/
 int  cmd_restore(int argc, char *argv[]);
 
 #endif /* !CMD_RESTORE_H_ */
