@@ -38,17 +38,19 @@ extern char *__progname; // From crt0.o
 void usage(FILE *output)
 {
   char *message[] = {
+    "",
     "    options",
     "        --profile-dir, -d: specify the droplet profile drectory to use",
     "        --profile, -p:     specify the droplet profile to use",
     "        --verbose, -v:     verbose mode",
     "        --interactive, -i: interactive mode",
     "    commmand",
-    "        backup:  make a backup of a folder",
-    "        restore: restore a backup folder",
-    "        list:    list all available backups",
-    "        stats:   display stats about a backup folder",
+    "        backup:  make a backup",
+    "        restore: restore a backup ",
+    "        list:    list all available backups in a backup directory",
+    "        stats:   print statistics about a backup folder",
     "        help:    display this help",
+    "",
     "i.e.:",
     "    dplbck -v backup dpl://my_backups/backup_folder /etc",
     "        makes a backup of /etc in the bucket `my_backups', in the folder",

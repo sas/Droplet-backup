@@ -41,7 +41,6 @@ int cmd_list(int argc, char *argv[])
   storage_t storage;
   const char *elem;
 
-  /* XXX: No option parsing for the moment. */
   if (argc != 2)
     usage_die();
 

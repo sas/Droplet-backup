@@ -27,18 +27,14 @@
 **
 */
 
-#include <stdio.h>
+#include <err.h>
 #include <stdlib.h>
 
 #include "stats.h"
 
 int cmd_stats(int argc, char *argv[])
 {
-  printf("executing command:");
+  (void) argc; (void) argv;
 
-  for (int i = 0; i < argc; ++i)
-    printf(" %s", argv[i]);
-  printf("\n");
-
-  return EXIT_SUCCESS;
+  errx(EXIT_FAILURE, "`stats' command not supported yet");
 }
