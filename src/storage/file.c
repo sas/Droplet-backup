@@ -184,7 +184,7 @@ static struct buffer *sto_file_retrieve_buffer(void *state, const char *path)
   struct file_storage_state *s = state;
   char full_path[strlen(s->remote_root) + strlen(path) + 2];
   struct buffer *res = NULL;
-  int size, full_size;
+  int size;
   int fd = -1;
   struct stat buf;
 
@@ -200,9 +200,9 @@ static struct buffer *sto_file_retrieve_buffer(void *state, const char *path)
 
   res = buffer_new(buf.st_size);
 
-  full_size = 0;
-  while ((size = read(fd, res->data + full_size, res->size - full_size)) > 0)
-    full_size += size;
+  res->used = 0;
+  while ((size = read(fd, res->data + res->used, res->size - res->used)) > 0)
+    res->used += size;
 
   if (size == -1)
     goto err;
