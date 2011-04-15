@@ -54,11 +54,60 @@ struct object
   char *name;
 };
 
+static void unhash_dispatch(storage_t storage, char *elem, const char *path);
+
+static struct buffer *unhash_blob(storage_t storage, const char *hash, const char *path)
+{
+  char *obj_path;
+  struct buffer *res;
+
+  obj_path = path_concat("objects", hash);
+  if ((res = storage_retrieve_buffer(storage, obj_path)) == NULL)
+    errx(EXIT_FAILURE, "unable to retrieve file: %s", path);
+  free(obj_path);
+
+  return res;
+}
+
 static void unhash_file(storage_t storage, const char *hash, const char *path)
 {
-  (void) storage;
+  char *obj_path;
+  FILE *tmp;
+  char buf[4096];
+  FILE *res;
+  char *blob_hash;
+  struct buffer *blob;
 
-  printf("unhash_file(%s, %s);\n", hash, path);
+  if ((res = fopen(path, "wb")) == NULL)
+    err(EXIT_FAILURE, "%s", path);
+
+  obj_path = path_concat("objects", hash);
+  tmp = storage_retrieve_file(storage, obj_path);
+  free(obj_path);
+
+  while ((blob_hash = fgets(buf, 4096, tmp)) != NULL)
+  {
+    unsigned int size, full_size;
+
+    size = strlen(blob_hash);
+    if (blob_hash[size - 1] != '\n')
+      errx(EXIT_FAILURE, "%s", path);
+    blob_hash[size - 1] = '\0';
+
+    blob = unhash_blob(storage, blob_hash, path);
+    full_size = 0;
+    while (full_size < blob->used)
+    {
+      size = fwrite(blob->data + full_size, 1, blob->used - full_size, res);
+      if (size == 0) // We should never reach this point
+        errx(EXIT_FAILURE, "%s", path);
+      full_size += size;
+    }
+    buffer_delete(blob);
+  }
+
+  fclose(res);
+  fclose(tmp);
 }
 
 static void unhash_tree(storage_t storage, const char *hash, const char *path)
