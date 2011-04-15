@@ -27,43 +27,19 @@
 ##
 ##
 
-include ../config.mk
+TARGET	= html
+INPUT	= Doxyfile
 
-TARGET		= dplbck
-
-SRCS		= dplbck.c		\
-		  commands/backup.c	\
-		  commands/help.c	\
-		  commands/list.c	\
-		  commands/restore.c	\
-		  commands/stats.c	\
-		  storage/dpl.c		\
-		  storage/file.c	\
-		  storage/storage.c	\
-		  utils/buffer.c	\
-		  utils/diefuncs.c	\
-		  utils/digest.c	\
-		  utils/messages.c	\
-		  utils/path.c		\
-
-OBJS		= $(SRCS:.c=.o)
-
-.PHONY: clean distclean
+.PHONY: $(TARGET) clean distclean
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	echo "LD	$@"
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-.c.o:
-	echo "CC	$^"
-	$(CC) $(CFLAGS) -c $^ -o $@
+$(TARGET): $(INPUT)
+	@echo "DOXYGEN	$(TARGET)"
+	@doxygen $^
 
 clean:
-	echo "RM	OBJS"
-	rm -f $(OBJS)
 
-distclean: clean
-	echo "RM	$(TARGET)"
-	rm -f $(TARGET)
+distclean:
+	@echo "RM	$(TARGET)"
+	@rm -rf $(TARGET)

@@ -27,7 +27,7 @@
 ##
 ##
 
-SUBDIRS	= src
+SUBDIRS	= src doc
 
 all:
 	@for dir in $(SUBDIRS); do make -C $$dir; done

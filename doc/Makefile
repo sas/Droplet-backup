@@ -27,43 +27,13 @@
 ##
 ##
 
-include ../config.mk
+SUBDIRS	= doxygen
 
-TARGET		= dplbck
-
-SRCS		= dplbck.c		\
-		  commands/backup.c	\
-		  commands/help.c	\
-		  commands/list.c	\
-		  commands/restore.c	\
-		  commands/stats.c	\
-		  storage/dpl.c		\
-		  storage/file.c	\
-		  storage/storage.c	\
-		  utils/buffer.c	\
-		  utils/diefuncs.c	\
-		  utils/digest.c	\
-		  utils/messages.c	\
-		  utils/path.c		\
-
-OBJS		= $(SRCS:.c=.o)
-
-.PHONY: clean distclean
-
-all: $(TARGET)
-
-$(TARGET): $(OBJS)
-	echo "LD	$@"
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-.c.o:
-	echo "CC	$^"
-	$(CC) $(CFLAGS) -c $^ -o $@
+all:
+	@for dir in $(SUBDIRS); do make -C $$dir; done
 
 clean:
-	echo "RM	OBJS"
-	rm -f $(OBJS)
+	@for dir in $(SUBDIRS); do make -C $$dir clean; done
 
-distclean: clean
-	echo "RM	$(TARGET)"
-	rm -f $(TARGET)
+distclean:
+	@for dir in $(SUBDIRS); do make -C $$dir distclean; done
