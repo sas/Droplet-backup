@@ -27,9 +27,16 @@
 **
 */
 
+/*
+** Restore a backup.
+** Each element of the hash tree is restored with the corresponding unhash_
+** function.
+*/
+
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <storage/storage.h>
 #include <utils/messages.h>
@@ -37,13 +44,80 @@
 
 #include "restore.h"
 
+struct object
+{
+  char *type;
+  char *hash;
+  unsigned int uid;
+  unsigned int gid;
+  unsigned int perm;
+  char *name;
+};
+
+static void unhash_file(storage_t storage, const char *hash, const char *path)
+{
+  (void) storage;
+
+  printf("unhash_file(%s, %s);\n", hash, path);
+}
+
+static void unhash_tree(storage_t storage, const char *hash, const char *path)
+{
+  (void) storage;
+
+  printf("unhash_tree(%s, %s);\n", hash, path);
+}
+
+static void unhash_dispatch(storage_t storage, char *elem, const char *path)
+{
+  struct object obj;
+  char *tmp_elem;
+  char *new_path;
+
+  /* XXX: We should have a more explicit error message here. */
+#define MALFORMED() do { warnx("malformed line"); return; } while (0)
+  if ((obj.type = strsep(&elem, " ")) == NULL)
+    MALFORMED();
+
+  if ((obj.hash = strsep(&elem, " ")) == NULL)
+    MALFORMED();
+
+  tmp_elem = elem;
+  obj.uid = strtol(elem, &elem, 10);
+  if (tmp_elem == elem)
+    MALFORMED();
+
+  tmp_elem = elem;
+  obj.gid = strtol(elem, &elem, 10);
+  if (tmp_elem == elem)
+    MALFORMED();
+
+  tmp_elem = elem;
+  obj.perm = strtol(elem, &elem, 8);
+  if (tmp_elem == elem)
+    MALFORMED();
+
+  ++elem; // Skip the space before the name
+  if ((obj.name = strsep(&elem, "\n")) == NULL)
+    MALFORMED();
+#undef MALFORMED
+
+  new_path = path_concat(path, obj.name);
+
+  if (strcmp(obj.type, "file") == 0)
+    unhash_file(storage, obj.hash, new_path);
+  else if (strcmp(obj.type, "tree") == 0)
+    unhash_tree(storage, obj.hash, new_path);
+
+  free(new_path);
+}
+
 int cmd_restore(int argc, char *argv[])
 {
   storage_t storage;
   FILE *backup;
   char *download_path;
   char buf[4096];
-  int size;
 
   /* XXX: No option parsing for the moment. */
   if (argc != 3)
@@ -53,11 +127,12 @@ int cmd_restore(int argc, char *argv[])
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
 
   download_path = path_concat("backups", argv[2]);
-  backup = storage_retrieve_file(storage, download_path);
+  if ((backup = storage_retrieve_file(storage, download_path)) == NULL)
+    errx(EXIT_FAILURE, "unable to retrieve the backup description file");
   free(download_path);
 
-  while ((size = fread(buf, 1, 4096, backup)) > 0)
-    fwrite(buf, 1, size, stdout);
+  while (fgets(buf, 4096, backup) != NULL)
+    unhash_dispatch(storage, buf, ".");
 
   fclose(backup);
   storage_delete(storage);

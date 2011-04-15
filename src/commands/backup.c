@@ -56,7 +56,7 @@ static const char *hash_blob(storage_t storage, const char *path, struct buffer 
   res = digest_buffer(buf);
   upload_path = path_concat("objects", res);
   if (!storage_store_buffer(storage, upload_path, buf))
-    errx(EXIT_FAILURE, "unable to store file: %s", path);
+    errx(EXIT_FAILURE, "unable to store: %s", path);
   free(upload_path);
 
   return res;
@@ -90,7 +90,7 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
       if (rollsum_onbound(&rs))
       {
         res = hash_blob(storage, path, buf);
-        fprintf(tmp, "blob %s\n", res);
+        fprintf(tmp, "%s\n", res);
         rollsum_init(&rs);
         buf->used = 0;
       }
@@ -99,12 +99,12 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
 
   /* Upload the last block of data. */
   res = hash_blob(storage, path, buf);
-  fprintf(tmp, "blob %s\n", res);
+  fprintf(tmp, "%s\n", res);
 
   res = digest_file(tmp);
   upload_path = path_concat("objects", res);
   if (!storage_store_file(storage, upload_path, tmp))
-    errx(EXIT_FAILURE, "unable to upload: %s", path);
+    errx(EXIT_FAILURE, "unable to store: %s", path);
   free(upload_path);
 
   buffer_delete(buf);
@@ -135,7 +135,7 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   res = digest_file(tmp);
   upload_path = path_concat("objects", res);
   if (!storage_store_file(storage, upload_path, tmp))
-    errx(EXIT_FAILURE, "unable to upload: %s", path);
+    errx(EXIT_FAILURE, "unable to store: %s", path);
   free(upload_path);
 
   fclose(tmp);
@@ -279,7 +279,7 @@ int cmd_backup(int argc, char *argv[])
   backup_hash = digest_file(backup);
   upload_path = path_concat("backups", backup_hash);
   if (!storage_store_file(storage, upload_path, backup))
-    errx(EXIT_FAILURE, "unable to upload the backup description file");
+    errx(EXIT_FAILURE, "unable to store the backup description file");
   free(upload_path);
 
   fclose(backup);
