@@ -1,3 +1,1 @@
-* When backuping a directory, if the user enters the name with a leading '/',
-  the backup works but the resulting backup file is not valid
 * fread() and fwrite() are not checked for errors (with ferror())

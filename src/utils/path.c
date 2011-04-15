@@ -57,3 +57,20 @@ char *path_concat(const char *path, const char *elem)
 
   return res;
 }
+
+/*
+** This function removes trailing slashes from a path. Of course, if the path is
+** '/', it does not remove anything.
+** This function returns the address of the modified string (which is `path').
+*/
+char *path_rmtrlsl(char *path)
+{
+  int idx;
+
+  idx = strlen(path) - 1;
+
+  while (idx > 0 && path[idx] == '/')
+    path[idx--] = '\0';
+
+  return path;
+}
