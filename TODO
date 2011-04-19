@@ -1,4 +1,3 @@
-* Do the restore command
 * Add the dpl:// storage type
 * Handle the --profile-dir and --profile options for dpl://
 * Handle the -i and -v options

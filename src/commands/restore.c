@@ -34,17 +34,22 @@
 */
 
 #include <err.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include <storage/storage.h>
+#include <utils/buffer.h>
 #include <utils/messages.h>
 #include <utils/path.h>
 
 #include "restore.h"
 
-struct object
+struct element
 {
   char *type;
   char *hash;
@@ -54,111 +59,130 @@ struct object
   char *name;
 };
 
-static void unhash_dispatch(storage_t storage, char *elem, const char *path);
+static void unhash_dispatch(storage_t storage, const char *path, char *elem);
 
-static struct buffer *unhash_blob(storage_t storage, const char *hash, const char *path)
+static struct buffer *unhash_blob(storage_t storage, const char *path, const char *hash)
 {
-  char *obj_path;
+  char *download_path;
   struct buffer *res;
 
-  obj_path = path_concat("objects", hash);
-  if ((res = storage_retrieve_buffer(storage, obj_path)) == NULL)
+  download_path = path_concat("objects", hash);
+  if ((res = storage_retrieve_buffer(storage, download_path)) == NULL)
     errx(EXIT_FAILURE, "unable to retrieve file: %s", path);
-  free(obj_path);
+  free(download_path);
 
   return res;
 }
 
-static void unhash_file(storage_t storage, const char *hash, const char *path)
+static void unhash_file(storage_t storage, const char *path, const struct element *elem)
 {
-  char *obj_path;
-  FILE *tmp;
-  char buf[4096];
   FILE *res;
+  char *download_path;
+  FILE *descr;
+  char buf[4096];
   char *blob_hash;
   struct buffer *blob;
 
   if ((res = fopen(path, "wb")) == NULL)
-    err(EXIT_FAILURE, "%s", path);
+    err(EXIT_FAILURE, "fopen(\"%s\")", path);
 
-  obj_path = path_concat("objects", hash);
-  tmp = storage_retrieve_file(storage, obj_path);
-  free(obj_path);
+  download_path = path_concat("objects", elem->hash);
+  descr = storage_retrieve_file(storage, download_path);
+  free(download_path);
 
-  while ((blob_hash = fgets(buf, 4096, tmp)) != NULL)
+  while ((blob_hash = fgets(buf, 4096, descr)) != NULL)
   {
     unsigned int size, full_size;
 
     size = strlen(blob_hash);
     if (blob_hash[size - 1] != '\n')
-      errx(EXIT_FAILURE, "%s", path);
+      errx(EXIT_FAILURE, "invalid backup format in: %s", path);
     blob_hash[size - 1] = '\0';
 
-    blob = unhash_blob(storage, blob_hash, path);
+    blob = unhash_blob(storage, path, blob_hash);
     full_size = 0;
     while (full_size < blob->used)
     {
       size = fwrite(blob->data + full_size, 1, blob->used - full_size, res);
-      if (size == 0) // We should never reach this point
-        errx(EXIT_FAILURE, "%s", path);
       full_size += size;
     }
     buffer_delete(blob);
   }
 
   fclose(res);
-  fclose(tmp);
+  fclose(descr);
 }
 
-static void unhash_tree(storage_t storage, const char *hash, const char *path)
+static void unhash_tree(storage_t storage, const char *path, const struct element *elem)
 {
-  (void) storage;
+  char *download_path;
+  FILE *descr;
+  char buf[4096];
 
-  printf("unhash_tree(%s, %s);\n", hash, path);
+  if (mkdir(path, 0700) == -1 && errno != EEXIST)
+    err(EXIT_FAILURE, "mkdir(\"%s\")", path);
+
+  download_path = path_concat("objects", elem->hash);
+  if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
+    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
+  free(download_path);
+
+  while (fgets(buf, 4096, descr) != NULL)
+    unhash_dispatch(storage, path, buf);
+
+  fclose(descr);
+
+  if (chmod(path, elem->perm) == -1)
+    warn("unable to set mode for %s", path);
+  if (lchown(path, elem->uid, elem->gid) == -1)
+    warn("unable to set uid/gid for %s", path);
 }
 
-static void unhash_dispatch(storage_t storage, char *elem, const char *path)
+static void unhash_dispatch(storage_t storage, const char *path, char *elem_str)
 {
-  struct object obj;
+#define MALFORMED() errx(EXIT_FAILURE, "invalid backup format in: %s", path)
+
+  struct element elem;
   char *tmp_elem;
   char *new_path;
 
-  /* XXX: We should have a more explicit error message here. */
-#define MALFORMED() do { warnx("malformed line"); return; } while (0)
-  if ((obj.type = strsep(&elem, " ")) == NULL)
+  if ((elem.type = strsep(&elem_str, " ")) == NULL)
     MALFORMED();
 
-  if ((obj.hash = strsep(&elem, " ")) == NULL)
+  if ((elem.hash = strsep(&elem_str, " ")) == NULL)
     MALFORMED();
 
-  tmp_elem = elem;
-  obj.uid = strtol(elem, &elem, 10);
-  if (tmp_elem == elem)
+  tmp_elem = elem_str;
+  elem.uid = strtol(elem_str, &elem_str, 10);
+  if (tmp_elem == elem_str)
     MALFORMED();
 
-  tmp_elem = elem;
-  obj.gid = strtol(elem, &elem, 10);
-  if (tmp_elem == elem)
+  tmp_elem = elem_str;
+  elem.gid = strtol(elem_str, &elem_str, 10);
+  if (tmp_elem == elem_str)
     MALFORMED();
 
-  tmp_elem = elem;
-  obj.perm = strtol(elem, &elem, 8);
-  if (tmp_elem == elem)
+  tmp_elem = elem_str;
+  elem.perm = strtol(elem_str, &elem_str, 8);
+  if (tmp_elem == elem_str)
     MALFORMED();
 
-  ++elem; // Skip the space before the name
-  if ((obj.name = strsep(&elem, "\n")) == NULL)
+  ++elem_str; // Skip the space before the name
+  if ((elem.name = strsep(&elem_str, "\n")) == NULL)
     MALFORMED();
-#undef MALFORMED
 
-  new_path = path_concat(path, obj.name);
+  new_path = path_concat(path, elem.name);
 
-  if (strcmp(obj.type, "file") == 0)
-    unhash_file(storage, obj.hash, new_path);
-  else if (strcmp(obj.type, "tree") == 0)
-    unhash_tree(storage, obj.hash, new_path);
+  if (strcmp(elem.type, "file") == 0)
+    unhash_file(storage, new_path, &elem);
+  else if (strcmp(elem.type, "tree") == 0)
+    unhash_tree(storage, new_path, &elem);
+  else
+    MALFORMED();
 
   free(new_path);
+
+#undef MALFORMED
 }
 
 int cmd_restore(int argc, char *argv[])
@@ -181,7 +205,7 @@ int cmd_restore(int argc, char *argv[])
   free(download_path);
 
   while (fgets(buf, 4096, backup) != NULL)
-    unhash_dispatch(storage, buf, ".");
+    unhash_dispatch(storage, "", buf);
 
   fclose(backup);
   storage_delete(storage);

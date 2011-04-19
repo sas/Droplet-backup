@@ -52,8 +52,9 @@ char *path_concat(const char *path, const char *elem)
   /* Remove superfluous '/'. */
   while (res[path_len - 1] == '/' && path_len > 0)
     --path_len;
-  res[path_len] = '/';
-  strcpy(res + path_len + 1, elem);
+  if (path_len > 0)
+    res[path_len++] = '/';
+  strcpy(res + path_len, elem);
 
   return res;
 }

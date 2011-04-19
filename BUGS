@@ -1,1 +1,1 @@
-* fread() and fwrite() are not checked for errors (with ferror())
+* fread(), fwrite() and fgets() are not checked for errors (with ferror())
