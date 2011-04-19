@@ -84,10 +84,11 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
   struct buffer *blob;
 
   if ((res = fopen(path, "wb")) == NULL)
-    err(EXIT_FAILURE, "fopen(\"%s\")", path);
+    err(EXIT_FAILURE, "unable to restore file: %s", path);
 
   download_path = path_concat("objects", elem->hash);
-  descr = storage_retrieve_file(storage, download_path);
+  if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
+    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
   free(download_path);
 
   while ((blob_hash = fgets(buf, 4096, descr)) != NULL)
@@ -120,7 +121,7 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
   char buf[4096];
 
   if (mkdir(path, 0700) == -1 && errno != EEXIST)
-    err(EXIT_FAILURE, "mkdir(\"%s\")", path);
+    err(EXIT_FAILURE, "unable to restore directory: %s", path);
 
   download_path = path_concat("objects", elem->hash);
   if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
@@ -136,6 +137,22 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
     warn("unable to set mode for %s", path);
   if (lchown(path, elem->uid, elem->gid) == -1)
     warn("unable to set uid/gid for %s", path);
+}
+
+static void unhash_link(storage_t storage, const char *path, const struct element *elem)
+{
+  char *download_path;
+  struct buffer *descr;
+
+  download_path = path_concat("objects", elem->hash);
+  if ((descr = storage_retrieve_buffer(storage, download_path)) == NULL)
+    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
+  free(download_path);
+
+  if (symlink((char *) descr->data, path) == -1 && errno != EEXIST)
+    err(EXIT_FAILURE, "unable to restore symlink: %s", path);
+
+  buffer_delete(descr);
 }
 
 static void unhash_dispatch(storage_t storage, const char *path, char *elem_str)
@@ -177,6 +194,8 @@ static void unhash_dispatch(storage_t storage, const char *path, char *elem_str)
     unhash_file(storage, new_path, &elem);
   else if (strcmp(elem.type, "tree") == 0)
     unhash_tree(storage, new_path, &elem);
+  else if (strcmp(elem.type, "link") == 0)
+    unhash_link(storage, new_path, &elem);
   else
     MALFORMED();
 

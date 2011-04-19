@@ -1,1 +1,2 @@
 * fread(), fwrite() and fgets() are not checked for errors (with ferror())
+* rollsum is buggy

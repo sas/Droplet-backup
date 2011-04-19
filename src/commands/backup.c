@@ -143,6 +143,36 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   return res;
 }
 
+static const char  *hash_link(storage_t storage, const char *path)
+{
+  const char *res;
+  struct buffer *tmp;
+  int size;
+  char *upload_path;
+
+  tmp = buffer_new(PATH_MAX);
+  if ((size = readlink(path, (char *) tmp->data, tmp->size)) == -1)
+  {
+    warn("unable to open %s", path);
+    buffer_delete(tmp);
+    return NULL;
+  }
+
+  /* XXX: We can exceed the buffer size by 1 here. */
+  tmp->data[size++] = '\0';
+  tmp->used = size;
+
+  res = digest_buffer(tmp);
+  upload_path = path_concat("objects", res);
+  if (!storage_store_buffer(storage, upload_path, tmp))
+    errx(EXIT_FAILURE, "unable to store: %s", path);
+  free(upload_path);
+
+  buffer_delete(tmp);
+
+  return res;
+}
+
 /*
 ** We could have been using libgen.h's basename() function, but the manpage says
 ** that "Both dirname() and basename() may modify the contents of path". So we
@@ -216,8 +246,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
   }
   else if (S_ISLNK(buf.st_mode))
   {
-    warnx("%s: backuping symbolic links is not supported yet", path);
-    return;
+    hash = hash_link(storage, path);
   }
   else if (S_ISCHR(buf.st_mode))
   {
