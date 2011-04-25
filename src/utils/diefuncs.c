@@ -30,6 +30,7 @@
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "diefuncs.h"
 
@@ -39,6 +40,16 @@ void *emalloc(size_t size)
 
   if (res == NULL)
     err(EXIT_FAILURE, "malloc()");
+
+  return res;
+}
+
+char *estrdup(const char *s)
+{
+  char *res = strdup(s);
+
+  if (res == NULL)
+    err(EXIT_FAILURE, "strdup()");
 
   return res;
 }

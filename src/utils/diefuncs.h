@@ -41,6 +41,7 @@
 */
 
 void *emalloc(size_t size);
+char *estrdup(const char *s);
 FILE *etmpfile(void);
 
 #endif /* !DIEFUNCS_H_ */

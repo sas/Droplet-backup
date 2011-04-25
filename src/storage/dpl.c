@@ -42,7 +42,80 @@ struct dpl_storage_state
 {
   char *remote_root;
   dpl_ctx_t *ctx;
+  void *last_list;
+  dpl_dirent_t last_dirent;
 };
+
+static int sto_dpl_store_file(void *state, const char *path, FILE *file)
+{
+  (void) state;
+  (void) path;
+  (void) file;
+
+  return 0;
+}
+
+static int sto_dpl_store_buffer(void *state, const char *path, struct buffer *buffer)
+{
+  (void) state;
+  (void) path;
+  (void) buffer;
+
+  return 0;
+}
+
+static FILE *sto_dpl_retrieve_file(void *state, const char *path)
+{
+  (void) state;
+  (void) path;
+
+  return NULL;
+}
+
+static struct buffer *sto_dpl_retrieve_buffer(void *state, const char *path)
+{
+  (void) state;
+  (void) path;
+
+  return NULL;
+}
+
+static const char *sto_dpl_list(void *state, const char *path)
+{
+  struct dpl_storage_state *s = state;
+
+  if (path != NULL)
+  {
+    char full_path[strlen(s->remote_root) + strlen(path) + 1];
+
+    strcpy(full_path, s->remote_root);
+    strcat(full_path, "/");
+    strcat(full_path, path);
+
+    if (s->last_list != NULL)
+      dpl_closedir(s->last_list);
+
+    if (dpl_opendir(s->ctx, full_path, &s->last_list) == DPL_FAILURE)
+      return NULL;
+  }
+
+  if (s->last_list == NULL)
+    return NULL;
+
+  if (dpl_readdir(s->last_list, &s->last_dirent) == DPL_FAILURE)
+    return NULL;
+
+  return s->last_dirent.name;
+}
+
+static void sto_dpl_delete(void *state)
+{
+  struct dpl_storage_state *s = state;
+
+  free(s->remote_root);
+  dpl_ctx_free(s->ctx);
+  free(s);
+}
 
 storage_t sto_dpl_new(const char *uri, int create_dirs)
 {
@@ -63,17 +136,16 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   res = emalloc(sizeof (struct storage));
   state = emalloc(sizeof (struct dpl_storage_state));
 
-  if ((wuri = strdup(uri)) == NULL)
-    goto err;
+  wuri = estrdup(uri);
   if ((ctx->cur_bucket = strsep(&wuri, "/")) == NULL)
     goto err;
 
-  res->store_file = NULL;
-  res->store_buffer = NULL;
-  res->retrieve_file = NULL;
-  res->retrieve_buffer = NULL;
-  res->list = NULL;
-  res->delete = NULL;
+  res->store_file = sto_dpl_store_file;
+  res->store_buffer = sto_dpl_store_buffer;
+  res->retrieve_file = sto_dpl_retrieve_file;
+  res->retrieve_buffer = sto_dpl_retrieve_buffer;
+  res->list = sto_dpl_list;
+  res->delete = sto_dpl_delete;
   state->remote_root = wuri;
   state->ctx = ctx;
   res->state = state;
