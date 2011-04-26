@@ -112,19 +112,19 @@ static void sto_dpl_delete(void *state)
 {
   struct dpl_storage_state *s = state;
 
-  free(s->remote_root);
   dpl_ctx_free(s->ctx);
   free(s);
 }
 
 storage_t sto_dpl_new(const char *uri, int create_dirs)
 {
-  (void) create_dirs;
-
   struct storage *res = NULL;
   struct dpl_storage_state *state = NULL;
   dpl_ctx_t *ctx = NULL;
-  char *wuri = NULL;
+  /* strlen("/backups") == strlen("/objects") == strlen("/.dplbck") */
+  char path[strlen(uri) + strlen("/backups") + 1];
+  dpl_status_t ret;
+  dpl_dict_t *dict;
 
   if (dpl_init() != DPL_SUCCESS)
     goto err;
@@ -136,8 +136,8 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   res = emalloc(sizeof (struct storage));
   state = emalloc(sizeof (struct dpl_storage_state));
 
-  wuri = estrdup(uri);
-  if ((ctx->cur_bucket = strsep(&wuri, "/")) == NULL)
+  state->remote_root = estrdup(uri);
+  if ((ctx->cur_bucket = strsep(&state->remote_root, "/")) == NULL)
     goto err;
 
   res->store_file = sto_dpl_store_file;
@@ -146,20 +146,56 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   res->retrieve_buffer = sto_dpl_retrieve_buffer;
   res->list = sto_dpl_list;
   res->delete = sto_dpl_delete;
-  state->remote_root = wuri;
   state->ctx = ctx;
   res->state = state;
+
+  /*
+  ** Ensure we have access to the directory where we want to backup, and create
+  ** required subdirectories (e.g.: `backups`, `objects`) if they do not exist
+  ** yet.
+  */
+  if (create_dirs)
+  {
+    strcpy(path, state->remote_root);
+    ret = dpl_mkdir(ctx, path);
+    if (ret != DPL_SUCCESS && ret != DPL_EEXIST)
+      goto err;
+
+    strcat(path, "/backups");
+    ret = dpl_mkdir(ctx, path);
+    if (ret != DPL_SUCCESS && ret != DPL_EEXIST)
+      goto err;
+
+    strcpy(path, state->remote_root);
+    strcat(path, "/objects");
+    ret = dpl_mkdir(ctx, path);
+    if (ret != DPL_SUCCESS && ret != DPL_EEXIST)
+      goto err;
+
+    strcpy(path, state->remote_root);
+    strcat(path, "/.dplbck");
+    ret = dpl_mknod(ctx, path);
+    if (ret != DPL_SUCCESS && ret != DPL_EEXIST)
+      goto err;
+  }
+  else
+  {
+    strcpy(path, state->remote_root);
+    strcat(path, "/.dplbck");
+    ret = dpl_head(ctx, ctx->cur_bucket, path, NULL, NULL, &dict);
+    if (ret != DPL_SUCCESS)
+      goto err;
+    free(dict);
+  }
 
   return res;
 
 err:
-  if (ctx != NULL)
-    dpl_ctx_free(ctx);
-  if (res != NULL)
-    free(res);
   if (state != NULL)
     free(state);
-  if (wuri != NULL)
-    free(wuri);
+  if (res != NULL)
+    free(res);
+  if (ctx != NULL)
+    dpl_ctx_free(ctx);
   return NULL;
 }
