@@ -102,10 +102,16 @@ static const char *sto_dpl_list(void *state, const char *path)
   if (s->last_list == NULL)
     return NULL;
 
+  if (dpl_eof(s->last_list))
+    return NULL;
+
   if (dpl_readdir(s->last_list, &s->last_dirent) == DPL_FAILURE)
     return NULL;
 
-  return s->last_dirent.name;
+  if (strcmp(s->last_dirent.name, ".") == 0 || strcmp(s->last_dirent.name, "..") == 0)
+    return sto_dpl_list(state, NULL);
+  else
+    return s->last_dirent.name;
 }
 
 static void sto_dpl_delete(void *state)
