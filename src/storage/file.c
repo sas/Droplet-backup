@@ -270,7 +270,6 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   char path[strlen(uri) + strlen("/backups") + 1];
   int fd;
 
-
   res = emalloc(sizeof (struct storage));
   state = emalloc(sizeof (struct file_storage_state));
 
@@ -293,20 +292,17 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   if (create_dirs)
   {
     strcpy(path, state->remote_root);
-    if (mkdir(path, 0777) == -1)
-      if (errno != EEXIST)
-        goto err;
+    if (mkdir(path, 0777) == -1 && errno != EEXIST)
+      goto err;
 
     strcat(path, "/backups");
-    if (mkdir(path, 0777) == -1)
-      if (errno != EEXIST)
-        goto err;
+    if (mkdir(path, 0777) == -1 && errno != EEXIST)
+      goto err;
 
     strcpy(path, state->remote_root);
     strcat(path, "/objects");
-    if (mkdir(path, 0777) == -1)
-      if (errno != EEXIST)
-        goto err;
+    if (mkdir(path, 0777) == -1 && errno != EEXIST)
+      goto err;
 
     strcpy(path, state->remote_root);
     strcat(path, "/.dplbck");
@@ -318,6 +314,11 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   {
     strcpy(path, state->remote_root);
     strcat(path, "/.dplbck");
+    /*
+    ** XXX: Maybe we should replace this with a call to mknod(), but the manpage
+    ** states that "The only portable use of mknod() is to create a FIFO-special
+    ** file".
+    */
     if ((fd = open(path, O_RDONLY)) == -1)
       goto err;
     close(fd);
