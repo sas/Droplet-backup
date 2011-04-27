@@ -87,10 +87,7 @@ static const char *sto_dpl_list(void *state, const char *path)
   if (path != NULL)
   {
     char full_path[strlen(s->remote_root) + strlen(path) + 2];
-
-    strcpy(full_path, s->remote_root);
-    strcat(full_path, "/");
-    strcat(full_path, path);
+    snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
     if (s->last_list != NULL)
       dpl_closedir(s->last_list);

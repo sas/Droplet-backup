@@ -61,9 +61,7 @@ static int sto_file_store_file(void *state, const char *path, FILE *file)
   int file_buf_size;
   int size, full_size;
 
-  strcpy(full_path, s->remote_root);
-  strcat(full_path, "/");
-  strcat(full_path, path);
+  snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
   fseek(file, 0, SEEK_SET);
 
@@ -106,9 +104,7 @@ static int sto_file_store_buffer(void *state, const char *path, struct buffer *b
   int fd = -1;
   int size, full_size;
 
-  strcpy(full_path, s->remote_root);
-  strcat(full_path, "/");
-  strcat(full_path, path);
+  snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
   if ((fd = open(full_path, O_WRONLY | O_EXCL | O_CREAT, 0666)) == -1)
   {
@@ -148,9 +144,7 @@ static FILE *sto_file_retrieve_file(void *state, const char *path)
   int fd = -1;
   char buf[4096];
 
-  strcpy(full_path, s->remote_root);
-  strcat(full_path, "/");
-  strcat(full_path, path);
+  snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
   if ((fd = open(full_path, O_RDONLY)) == -1)
     goto err;
@@ -188,9 +182,7 @@ static struct buffer *sto_file_retrieve_buffer(void *state, const char *path)
   int fd = -1;
   struct stat buf;
 
-  strcpy(full_path, s->remote_root);
-  strcat(full_path, "/");
-  strcat(full_path, path);
+  snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
   if ((fd = open(full_path, O_RDONLY)) == -1)
     goto err;
@@ -227,10 +219,7 @@ static const char *sto_file_list(void *state, const char *path)
   if (path != NULL)
   {
     char full_path[strlen(s->remote_root) + strlen(path) + 2];
-
-    strcpy(full_path, s->remote_root);
-    strcat(full_path, "/");
-    strcat(full_path, path);
+    snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
     if (s->last_list != NULL)
       closedir(s->last_list);
