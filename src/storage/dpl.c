@@ -54,6 +54,7 @@ static int sto_dpl_store_file(void *state, const char *path, FILE *file)
   size_t file_size;
   char file_buf[4096];
   int file_buf_size;
+  dpl_status_t err;
 
   fseek(file, 0, SEEK_END);
   file_size = ftell(file);
@@ -65,9 +66,13 @@ static int sto_dpl_store_file(void *state, const char *path, FILE *file)
 
     snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
-    if (dpl_openwrite(s->ctx, full_path, DPL_VFILE_FLAG_CREAT | DPL_VFILE_FLAG_EXCL,
-                      NULL, DPL_CANNED_ACL_AUTHENTICATED_READ, file_size,
-                      &vfile) != DPL_SUCCESS)
+    err = dpl_openwrite(s->ctx, full_path, DPL_VFILE_FLAG_CREAT | DPL_VFILE_FLAG_EXCL,
+                        NULL, DPL_CANNED_ACL_AUTHENTICATED_READ, file_size,
+                        &vfile);
+
+    if (err == DPL_EEXIST)
+      return 1;
+    else if (err != DPL_SUCCESS)
       return 0;
 
     while ((file_buf_size = fread(file_buf, 1, 4096, file)) > 0)
@@ -90,6 +95,7 @@ static int sto_dpl_store_buffer(void *state, const char *path, struct buffer *bu
 {
   struct dpl_storage_state *s = state;
   dpl_vfile_t *vfile;
+  dpl_status_t err;
 
   if (path != NULL)
   {
@@ -97,9 +103,13 @@ static int sto_dpl_store_buffer(void *state, const char *path, struct buffer *bu
 
     snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
-    if (dpl_openwrite(s->ctx, full_path, DPL_VFILE_FLAG_CREAT | DPL_VFILE_FLAG_EXCL,
+    err = dpl_openwrite(s->ctx, full_path, DPL_VFILE_FLAG_CREAT | DPL_VFILE_FLAG_EXCL,
                       NULL, DPL_CANNED_ACL_AUTHENTICATED_READ, buffer->used,
-                      &vfile) != DPL_SUCCESS)
+                      &vfile);
+
+    if (err == DPL_EEXIST)
+      return 1;
+    else if (err != DPL_SUCCESS)
       return 0;
 
     if (dpl_write(vfile, (char*)buffer->data, buffer->used) != DPL_SUCCESS)
