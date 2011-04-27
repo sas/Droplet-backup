@@ -302,8 +302,8 @@ int cmd_backup(int argc, char *argv[])
   backup = etmpfile();
 
   for (int i = 2; i < argc; ++i)
-    hash_dispatch(storage, backup, path_rmtrlsl(argv[i]));
-  
+    hash_dispatch(storage, backup, path_rm_trailing_slashes(argv[i]));
+
   /* Hash the file describing the whole backup and upload it. */
   backup_hash = digest_file(backup);
   upload_path = path_concat("backups", backup_hash);

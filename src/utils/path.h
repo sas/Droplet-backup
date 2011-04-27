@@ -31,6 +31,6 @@
 # define PATH_H_
 
 char *path_concat(const char *path, const char *elem);
-char *path_rmtrlsl(char *path);
+char *path_rm_trailing_slashes(char *path);
 
 #endif /* !PATH_H_ */

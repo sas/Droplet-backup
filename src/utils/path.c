@@ -64,7 +64,7 @@ char *path_concat(const char *path, const char *elem)
 ** '/', it does not remove anything.
 ** This function returns the address of the modified string (which is `path').
 */
-char *path_rmtrlsl(char *path)
+char *path_rm_trailing_slashes(char *path)
 {
   int idx;
 
