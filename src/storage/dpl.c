@@ -132,12 +132,29 @@ static int sto_dpl_retrieve(struct dpl_storage_state *s, const char *path,
   return 0;
 }
 
+static dpl_status_t sto_dpl_retrieve_file_cb(void *arg, char *data, unsigned int len)
+{
+  FILE *res = arg;
+  size_t written = 0;
+
+  while (written < len)
+    written += fwrite(data + written, 1, len - written, res);
+
+  return DPL_SUCCESS;
+}
+
 static FILE *sto_dpl_retrieve_file(void *state, const char *path)
 {
-  (void) state;
-  (void) path;
+  FILE *res = etmpfile();
 
-  return NULL;
+  if (!sto_dpl_retrieve(state, path, sto_dpl_retrieve_file_cb, res))
+  {
+    fclose(res);
+    return NULL;
+  }
+
+  fseek(res, 0, SEEK_SET);
+  return res;
 }
 
 static dpl_status_t sto_dpl_retrieve_buffer_cb(void *arg, char *data, unsigned int len)
