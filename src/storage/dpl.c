@@ -92,7 +92,7 @@ static const char *sto_dpl_list(void *state, const char *path)
     if (s->last_list != NULL)
       dpl_closedir(s->last_list);
 
-    if (dpl_opendir(s->ctx, full_path, &s->last_list) == DPL_FAILURE)
+    if (dpl_opendir(s->ctx, full_path, &s->last_list) != DPL_SUCCESS)
       return NULL;
   }
 
@@ -102,7 +102,7 @@ static const char *sto_dpl_list(void *state, const char *path)
   if (dpl_eof(s->last_list))
     return NULL;
 
-  if (dpl_readdir(s->last_list, &s->last_dirent) == DPL_FAILURE)
+  if (dpl_readdir(s->last_list, &s->last_dirent) != DPL_SUCCESS)
     return NULL;
 
   if (strcmp(s->last_dirent.name, ".") == 0 || strcmp(s->last_dirent.name, "..") == 0)
