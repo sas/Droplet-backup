@@ -86,7 +86,7 @@ static const char *sto_dpl_list(void *state, const char *path)
 
   if (path != NULL)
   {
-    char full_path[strlen(s->remote_root) + strlen(path) + 1];
+    char full_path[strlen(s->remote_root) + strlen(path) + 2];
 
     strcpy(full_path, s->remote_root);
     strcat(full_path, "/");
