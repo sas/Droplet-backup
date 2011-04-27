@@ -40,7 +40,7 @@ void usage(FILE *output)
   char *message[] = {
     "",
     "    options",
-    "        --profile-dir, -d: specify the droplet profile drectory to use",
+    "        --profile-dir, -d: specify the droplet profile directory to use",
     "        --profile, -p:     specify the droplet profile to use",
     "        --verbose, -v:     verbose mode",
     "        --interactive, -i: interactive mode",
