@@ -88,9 +88,29 @@ static int sto_dpl_store_file(void *state, const char *path, FILE *file)
 
 static int sto_dpl_store_buffer(void *state, const char *path, struct buffer *buffer)
 {
-  (void) state;
-  (void) path;
-  (void) buffer;
+  struct dpl_storage_state *s = state;
+  dpl_vfile_t *vfile;
+
+  if (path != NULL)
+  {
+    char full_path[strlen(s->remote_root) + strlen(path) + 2];
+
+    snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
+
+    if (dpl_openwrite(s->ctx, full_path, DPL_VFILE_FLAG_CREAT | DPL_VFILE_FLAG_EXCL,
+                      NULL, DPL_CANNED_ACL_AUTHENTICATED_READ, buffer->used,
+                      &vfile) != DPL_SUCCESS)
+      return 0;
+
+    if (dpl_write(vfile, (char*)buffer->data, buffer->used) != DPL_SUCCESS)
+    {
+      dpl_close(vfile);
+      return 0;
+    }
+
+    dpl_close(vfile);
+    return 1;
+  }
 
   return 0;
 }
