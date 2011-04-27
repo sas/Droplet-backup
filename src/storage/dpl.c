@@ -49,9 +49,39 @@ struct dpl_storage_state
 
 static int sto_dpl_store_file(void *state, const char *path, FILE *file)
 {
-  (void) state;
-  (void) path;
-  (void) file;
+  struct dpl_storage_state *s = state;
+  dpl_vfile_t *vfile;
+  size_t file_size;
+  char file_buf[4096];
+  int file_buf_size;
+
+  fseek(file, 0, SEEK_END);
+  file_size = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  if (path != NULL)
+  {
+    char full_path[strlen(s->remote_root) + strlen(path) + 2];
+
+    snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
+
+    if (dpl_openwrite(s->ctx, full_path, DPL_VFILE_FLAG_CREAT | DPL_VFILE_FLAG_EXCL,
+                      NULL, DPL_CANNED_ACL_AUTHENTICATED_READ, file_size,
+                      &vfile) != DPL_SUCCESS)
+      return 0;
+
+    while ((file_buf_size = fread(file_buf, 1, 4096, file)) > 0)
+    {
+      if (dpl_write(vfile, file_buf, file_buf_size) != DPL_SUCCESS)
+      {
+        dpl_close(vfile);
+        return 0;
+      }
+    }
+
+    dpl_close(vfile);
+    return 1;
+  }
 
   return 0;
 }
