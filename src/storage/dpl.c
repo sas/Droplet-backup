@@ -35,6 +35,7 @@
 
 #include <storage/storage.h>
 #include <utils/diefuncs.h>
+#include <utils/rollsum.h>
 
 #include "dpl.h"
 
@@ -64,6 +65,23 @@ static int sto_dpl_store_buffer(void *state, const char *path, struct buffer *bu
   return 0;
 }
 
+static int sto_dpl_retrieve(struct dpl_storage_state *s, const char *path,
+                            dpl_buffer_func_t cb, void *cb_arg)
+{
+  if (path != NULL)
+  {
+    char full_path[strlen(s->remote_root) + strlen(path) + 2];
+    snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
+
+    if (dpl_openread(s->ctx, full_path, 0, NULL, cb, cb_arg, NULL) != DPL_SUCCESS)
+      return 0;
+
+    return 1;
+  }
+
+  return 0;
+}
+
 static FILE *sto_dpl_retrieve_file(void *state, const char *path)
 {
   (void) state;
@@ -72,12 +90,29 @@ static FILE *sto_dpl_retrieve_file(void *state, const char *path)
   return NULL;
 }
 
+static dpl_status_t sto_dpl_retrieve_buffer_cb(void *arg, char *data, unsigned int len)
+{
+  struct buffer *buf = arg;
+
+  if (len + buf->used > buf->size)
+    return DPL_FAILURE;
+
+  memcpy(buf->data + buf->used, data, len);
+  buf->used += len;
+  return DPL_SUCCESS;
+}
+
 static struct buffer *sto_dpl_retrieve_buffer(void *state, const char *path)
 {
-  (void) state;
-  (void) path;
+  struct buffer *buf = buffer_new(ROLLSUM_MAXSIZE);
 
-  return NULL;
+  if (!sto_dpl_retrieve(state, path, sto_dpl_retrieve_buffer_cb, buf))
+  {
+    buffer_delete(buf);
+    return NULL;
+  }
+
+  return buf;
 }
 
 static const char *sto_dpl_list(void *state, const char *path)
