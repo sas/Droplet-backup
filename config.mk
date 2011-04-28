@@ -8,7 +8,7 @@ LDFLAGS		=
 MAKEFLAGS	= --silent
 
 # required flags
-CFLAGS		+= -I. -std=c99 -D_BSD_SOURCE -D_FILE_OFFSET_BITS=64
+CFLAGS		+= -I. -std=c99 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
 
 # openssl
 CFLAGS		+= `pkg-config --cflags openssl`

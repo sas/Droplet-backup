@@ -36,6 +36,7 @@
 #include <storage/storage.h>
 #include <utils/diefuncs.h>
 #include <utils/rollsum.h>
+#include <utils/options.h>
 
 #include "dpl.h"
 
@@ -244,8 +245,7 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   if (dpl_init() != DPL_SUCCESS)
     goto err;
 
-  /* XXX: We should use --profile-dir and --profile here. */
-  if ((ctx = dpl_ctx_new(NULL, NULL)) == NULL)
+  if ((ctx = dpl_ctx_new(options['d'], options['p'])) == NULL)
     goto err;
 
   res = emalloc(sizeof (struct storage));

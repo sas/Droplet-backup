@@ -38,25 +38,27 @@
 #include <commands/restore.h>
 #include <commands/stats.h>
 #include <utils/messages.h>
+#include <utils/options.h>
+
+static const struct {
+  char *cmd_name;
+  int (*cmd)(int, char *[]);
+} commands[] = {
+  { "backup",   cmd_backup, },
+  { "restore",  cmd_restore, },
+  { "list",     cmd_list, },
+  { "stats",    cmd_stats, },
+  { "help",     cmd_help, },
+};
 
 int main(int argc, char *argv[])
 {
-  struct {
-    char *cmd_name;
-    int (*cmd)(int, char *[]);
-  } commands[] = {
-    { "backup",   cmd_backup, },
-    { "restore",  cmd_restore, },
-    { "list",     cmd_list, },
-    { "stats",    cmd_stats, },
-    { "help",     cmd_help, },
-  };
+  int cmd_offset;
 
-  --argc; ++argv;
+  cmd_offset = options_init(argc, argv);
 
-  /* XXX: We skip the arguments for now. */
-  while (argc && *argv[0] == '-')
-    --argc, ++argv;
+  argc -= cmd_offset;
+  argv += cmd_offset;
 
   if (argc == 0)
   {
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
   }
 
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
-    if (strcmp(*argv, commands[i].cmd_name) == 0)
+    if (strcmp(argv[0], commands[i].cmd_name) == 0)
       return commands[i].cmd(argc, argv);
 
   /* We never reach this point if there is a valid command. */
