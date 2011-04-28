@@ -17,3 +17,6 @@ LDFLAGS		+= `pkg-config --libs openssl`
 # libdroplets
 CFLAGS		+= `PKG_CONFIG_PATH=$(DPL_PKG_CONFIG) pkg-config --cflags droplet-1.0`
 LDFLAGS		+= `PKG_CONFIG_PATH=$(DPL_PKG_CONFIG) pkg-config --libs droplet-1.0`
+
+# readline
+LDFLAGS		+= -lreadline

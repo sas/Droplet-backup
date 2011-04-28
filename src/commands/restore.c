@@ -41,10 +41,14 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <readline/readline.h>
 
 #include <commands/help.h>
+#include <commands/list.h>
 #include <storage/storage.h>
 #include <utils/buffer.h>
+#include <utils/diefuncs.h>
+#include <utils/options.h>
 #include <utils/path.h>
 
 #include "restore.h"
@@ -208,16 +212,30 @@ int cmd_restore(int argc, char *argv[])
 {
   storage_t storage;
   FILE *backup;
+  char *backup_name;
   char *download_path;
   char buf[4096];
 
-  if (argc != 3)
+  if (!(argc == 3 || (argc == 2 && options['i'])))
     return cmd_help(0, NULL);
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
 
-  download_path = path_concat("backups", argv[2]);
+  if (argc == 3)
+  {
+    backup_name = estrdup(argv[2]);
+  }
+  else
+  {
+    printf("Available backups:\n");
+    if (cmd_list(argc, argv) == EXIT_FAILURE)
+      return EXIT_FAILURE;
+    backup_name = readline("Enter the backup name: ");
+  }
+
+  download_path = path_concat("backups", backup_name);
+  free(backup_name);
   if ((backup = storage_retrieve_file(storage, download_path)) == NULL)
     errx(EXIT_FAILURE, "unable to retrieve the backup description file");
   free(download_path);

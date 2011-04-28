@@ -1,4 +1,3 @@
-* Handle the -i option in restore
 * Handle the -v option in backup and restore
 * Do the purge command
 * Do the stats command

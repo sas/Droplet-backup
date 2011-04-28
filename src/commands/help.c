@@ -96,12 +96,12 @@ static void help_restore(void)
     "        --verbose, -v:",
     "            Verbose mode. A line is displayed for each file restored.",
     "        --interactive, -i:",
-    "            Interactively select the backup to restore instead of specifying",
-    "            it on the command line.",
+    "            Interractively ask for a backup name, with a list of available",
+    "            backups if no backup name is specified on the command line.",
     "",
   };
 
-  printf("\nusage: %s restore [ options ] <storage> <backups...>\n", __progname);
+  printf("\nusage: %s restore [ options ] <storage> <backups>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     printf("%s\n", message[i]);
 }
