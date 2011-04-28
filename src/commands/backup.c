@@ -34,6 +34,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <commands/help.h>
@@ -41,6 +42,7 @@
 #include <utils/buffer.h>
 #include <utils/diefuncs.h>
 #include <utils/digest.h>
+#include <utils/options.h>
 #include <utils/path.h>
 #include <utils/rollsum.h>
 
@@ -290,7 +292,8 @@ int cmd_backup(int argc, char *argv[])
   storage_t storage;
   FILE *backup;
   char *upload_path;
-  const char *backup_hash;
+  const char *backup_name;
+  char backup_date[20]; // Exactly the required size for "%Y.%m.%d-%H.%M.%S"
 
   if (argc < 3)
     return cmd_help(0, NULL);
@@ -304,8 +307,22 @@ int cmd_backup(int argc, char *argv[])
     hash_dispatch(storage, backup, path_rm_trailing_slashes(argv[i]));
 
   /* Hash the file describing the whole backup and upload it. */
-  backup_hash = digest_file(backup);
-  upload_path = path_concat("backups", backup_hash);
+  backup_name = options['n'];
+
+  if (backup_name == NULL)
+  {
+    time_t cur_time;
+    struct tm *t;
+
+    time(&cur_time);
+    t = gmtime(&cur_time);
+    if (strftime(backup_date, sizeof (backup_date), "%Y.%m.%d-%H.%M.%S", t) == 0)
+      errx(EXIT_FAILURE, "strftime()");
+
+    backup_name = backup_date;
+  }
+
+  upload_path = path_concat("backups", backup_name);
   if (!storage_store_file(storage, upload_path, backup))
     errx(EXIT_FAILURE, "unable to store the backup description file");
   free(upload_path);

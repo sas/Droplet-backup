@@ -60,10 +60,7 @@ int main(int argc, char *argv[])
   argv += cmd_offset;
 
   if (argc == 0)
-  {
-    //usage(stderr);
-    return EXIT_FAILURE;
-  }
+    return cmd_help(0, NULL);
 
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
     if (strcmp(argv[0], commands[i].cmd_name) == 0)
