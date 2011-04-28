@@ -1,7 +1,5 @@
-* Add the dpl:// storage type
 * Handle the --profile-dir and --profile options for dpl://
 * Handle the -i and -v options
 * Do the purge command
 * Do the stats command
-* Handle symlinks (with readlink())
 * Write man pages
