@@ -75,6 +75,9 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   int file_buf_idx;
   char *upload_path;
 
+  if (options['v'])
+    printf("%s\n", path);
+
   tmp = etmpfile();
   buf = buffer_new(ROLLSUM_MAXSIZE);
 
@@ -122,6 +125,9 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   struct dirent *ent;
   char *upload_path;
 
+  if (options['v'])
+    printf("%s\n", path);
+
   tmp = etmpfile();
 
   while ((ent = readdir(dir)) != NULL)
@@ -151,6 +157,9 @@ static const char  *hash_link(storage_t storage, const char *path)
   struct buffer *tmp;
   int size;
   char *upload_path;
+
+  if (options['v'])
+    printf("%s\n", path);
 
   tmp = buffer_new(PATH_MAX);
   if ((size = readlink(path, (char *) tmp->data, tmp->size)) == -1)

@@ -1,6 +1,4 @@
-* Handle the -v option in backup and restore
 * Do the purge command
-* Do the stats command
 * Write man pages
 * When a command fails, it should display its own help instead of the general
   help
