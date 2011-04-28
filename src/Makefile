@@ -43,7 +43,6 @@ SRCS		= dplbck.c		\
 		  utils/buffer.c	\
 		  utils/diefuncs.c	\
 		  utils/digest.c	\
-		  utils/messages.c	\
 		  utils/options.c	\
 		  utils/path.c		\
 

@@ -36,11 +36,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <commands/help.h>
 #include <storage/storage.h>
 #include <utils/buffer.h>
 #include <utils/diefuncs.h>
 #include <utils/digest.h>
-#include <utils/messages.h>
 #include <utils/path.h>
 #include <utils/rollsum.h>
 
@@ -292,9 +292,8 @@ int cmd_backup(int argc, char *argv[])
   char *upload_path;
   const char *backup_hash;
 
-  /* XXX: No option parsing for the moment. */
   if (argc < 3)
-    usage_die();
+    return cmd_help(0, NULL);
 
   if ((storage = storage_new(argv[1], 1)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);

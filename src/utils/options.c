@@ -8,16 +8,16 @@
 static const struct option possible_options[] =
 {
   {
-    .name = "profile-dir",
-    .has_arg = required_argument,
-    .flag = NULL,
-    .val = 'd',
-  },
-  {
     .name = "profile",
     .has_arg = required_argument,
     .flag = NULL,
     .val = 'p',
+  },
+  {
+    .name = "profile-dir",
+    .has_arg = required_argument,
+    .flag = NULL,
+    .val = 'd',
   },
   {
     .name = "verbose",
@@ -40,21 +40,21 @@ int options_init(int argc, char *argv[])
 {
   int flag;
 
-  while ((flag = getopt_long(argc, argv, "d:p:vi", possible_options, NULL)) != -1)
+  while ((flag = getopt_long(argc, argv, "p:d:vi", possible_options, NULL)) != -1)
   {
     switch (flag)
     {
-      case '?':
-        exit(EXIT_FAILURE);
+      case 'p':
       case 'd':
-      case'p':
         options[flag] = optarg;
         break;
       case 'v':
       case 'i':
-        /* We will use this value as a boolean. */
+        /* This value is used as a simple boolean. */
         options[flag] = (void *) 0x42;
         break;
+      case '?':
+        exit(EXIT_FAILURE);
     };
   }
 

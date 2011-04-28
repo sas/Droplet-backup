@@ -42,7 +42,6 @@
 #include <storage/storage.h>
 #include <utils/buffer.h>
 #include <utils/diefuncs.h>
-#include <utils/messages.h>
 
 #include "file.h"
 

@@ -37,7 +37,6 @@
 #include <commands/list.h>
 #include <commands/restore.h>
 #include <commands/stats.h>
-#include <utils/messages.h>
 #include <utils/options.h>
 
 static const struct {
@@ -62,8 +61,8 @@ int main(int argc, char *argv[])
 
   if (argc == 0)
   {
-    usage(stderr);
-    return 1;
+    //usage(stderr);
+    return EXIT_FAILURE;
   }
 
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)

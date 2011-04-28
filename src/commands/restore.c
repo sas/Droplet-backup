@@ -42,9 +42,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <commands/help.h>
 #include <storage/storage.h>
 #include <utils/buffer.h>
-#include <utils/messages.h>
 #include <utils/path.h>
 
 #include "restore.h"
@@ -211,9 +211,8 @@ int cmd_restore(int argc, char *argv[])
   char *download_path;
   char buf[4096];
 
-  /* XXX: No option parsing for the moment. */
   if (argc != 3)
-    usage_die();
+    return cmd_help(0, NULL);
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);

@@ -31,8 +31,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <commands/help.h>
 #include <storage/storage.h>
-#include <utils/messages.h>
 
 #include "list.h"
 
@@ -42,7 +42,7 @@ int cmd_list(int argc, char *argv[])
   const char *elem;
 
   if (argc != 2)
-    usage_die();
+    return cmd_help(0, NULL);
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
