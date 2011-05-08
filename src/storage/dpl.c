@@ -85,6 +85,9 @@ static int sto_dpl_store_file(void *state, const char *path, FILE *file)
       }
     }
 
+    if (ferror(file))
+      return 0;
+
     dpl_close(vfile);
     return 1;
   }
@@ -146,10 +149,14 @@ static int sto_dpl_retrieve(struct dpl_storage_state *s, const char *path,
 static dpl_status_t sto_dpl_retrieve_file_cb(void *arg, char *data, unsigned int len)
 {
   FILE *res = arg;
-  size_t written = 0;
+  size_t size, full_size;
 
-  while (written < len)
-    written += fwrite(data + written, 1, len - written, res);
+  full_size = 0;
+  while ((size = fwrite(data + full_size, 1, len - full_size, res)) > 0)
+    full_size += size;
+
+  if (ferror(res))
+    return DPL_FAILURE;
 
   return DPL_SUCCESS;
 }

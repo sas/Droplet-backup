@@ -57,7 +57,7 @@ static int sto_file_store_file(void *state, const char *path, FILE *file)
   char full_path[strlen(s->remote_root) + strlen(path) + 2];
   int fd = -1;
   char file_buf[4096];
-  int file_buf_size;
+  size_t file_buf_size;
   int size, full_size;
 
   snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
@@ -85,6 +85,9 @@ static int sto_file_store_file(void *state, const char *path, FILE *file)
     if (size == -1)
       goto err;
   }
+
+  if (ferror(file))
+    goto err;
 
   close(fd);
 
@@ -138,10 +141,11 @@ static FILE *sto_file_retrieve_file(void *state, const char *path)
 {
   struct file_storage_state *s = state;
   char full_path[strlen(s->remote_root) + strlen(path) + 2];
-  FILE *res;
-  int size, full_size;
+  FILE *res = NULL;
   int fd = -1;
-  char buf[4096];
+  char file_buf[4096];
+  int file_buf_size;
+  size_t size, full_size;
 
   snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
@@ -150,14 +154,17 @@ static FILE *sto_file_retrieve_file(void *state, const char *path)
 
   res = etmpfile();
 
-  while ((full_size = read(fd, buf, 4096)) > 0)
+  while ((file_buf_size = read(fd, file_buf, 4096)) > 0)
   {
-    size = 0;
-    while (size < full_size)
-      size += fwrite(buf + size, 1, full_size - size, res);
+    full_size = 0;
+    while ((size = fwrite(file_buf + full_size, 1, file_buf_size - full_size, res)) > 0)
+      full_size += size;
+
+    if (ferror(res))
+      goto err;
   }
 
-  if (full_size == -1)
+  if (file_buf_size == -1)
     goto err;
 
   fseek(res, 0, SEEK_SET);
@@ -169,6 +176,8 @@ static FILE *sto_file_retrieve_file(void *state, const char *path)
 err:
   if (fd != -1)
     close(fd);
+  if (res != NULL)
+    fclose(res);
   return NULL;
 }
 
