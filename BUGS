@@ -1,2 +1,1 @@
-* fread(), fwrite() and fgets() are not checked for errors (with ferror())
 * rollsum constants are not well adapted

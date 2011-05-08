@@ -102,6 +102,9 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
     }
   }
 
+  if (ferror(file))
+    errx(EXIT_FAILURE, "unable to store: %s", path);
+
   /* Upload the last block of data. */
   res = hash_blob(storage, path, buf);
   fprintf(tmp, "%s\n", res);

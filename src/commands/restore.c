@@ -100,7 +100,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
 
   while ((blob_hash = fgets(buf, 4096, descr)) != NULL)
   {
-    unsigned int size, full_size;
+    size_t size, full_size;
 
     size = strlen(blob_hash);
     if (blob_hash[size - 1] != '\n')
@@ -108,14 +108,16 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
     blob_hash[size - 1] = '\0';
 
     blob = unhash_blob(storage, path, blob_hash);
+
     full_size = 0;
-    while (full_size < blob->used)
-    {
-      size = fwrite(blob->data + full_size, 1, blob->used - full_size, res);
+    while ((size = fwrite(blob->data + full_size, 1, blob->used - full_size, res)) > 0)
       full_size += size;
-    }
+
     buffer_delete(blob);
   }
+
+  if (ferror(descr))
+    errx(EXIT_FAILURE, "unable to restore file: %s", path);
 
   fclose(res);
   fclose(descr);
@@ -140,6 +142,9 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
 
   while (fgets(buf, 4096, descr) != NULL)
     unhash_dispatch(storage, path, buf);
+
+  if (ferror(descr))
+    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
 
   fclose(descr);
 
@@ -251,6 +256,9 @@ int cmd_restore(int argc, char *argv[])
 
   while (fgets(buf, 4096, backup) != NULL)
     unhash_dispatch(storage, "", buf);
+
+  if (ferror(backup))
+    errx(EXIT_FAILURE, "unable to restore the backup");
 
   fclose(backup);
   storage_delete(storage);
