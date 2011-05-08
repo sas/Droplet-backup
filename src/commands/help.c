@@ -45,10 +45,9 @@ static void help(FILE *output)
     "        restore:   Restore a backup.",
     "        list:      List all available backups in a backup directory.",
     "        help:      Display detailed help about each command.",
-    "",
   };
 
-  fprintf(output, "\nusage: %s <command> [ options ] <args>\n", __progname);
+  fprintf(output, "usage: %s <command> [ options ] <args>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }
@@ -57,8 +56,6 @@ static void help_backup(FILE *output)
 {
   static const char *message[] =
   {
-    "",
-    "Make a backup.",
     "",
     "    Options:",
     "        --profile, -p:",
@@ -70,13 +67,12 @@ static void help_backup(FILE *output)
     "        --name, -n:",
     "            Give a name to the backup, to use with the `restore` command.",
     "",
-    "There are currently two schemes of URIs supported:",
-    "    dpl://   to backup to an S3 compatible cloud storage",
-    "    file://  to backup to a local dirctory",
-    "",
+    "    Supported URI schemes:",
+    "        dpl://   to backup to an S3 compatible cloud storage",
+    "        file://  to backup to a local dirctory",
   };
 
-  fprintf(output, "\nusage: %s backup [ options ] <storage> <elements...>\n", __progname);
+  fprintf(output, "usage: %s backup [ options ] <storage> <elements...>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }
@@ -85,8 +81,6 @@ static void help_restore(FILE *output)
 {
   static const char *message[] =
   {
-    "",
-    "Restore a backup.",
     "",
     "    Options:",
     "        --profile, -p:",
@@ -98,10 +92,9 @@ static void help_restore(FILE *output)
     "        --interactive, -i:",
     "            Interractively ask for a backup name, with a list of available",
     "            backups if no backup name is specified on the command line.",
-    "",
   };
 
-  fprintf(output, "\nusage: %s restore [ options ] <storage> <backups>\n", __progname);
+  fprintf(output, "usage: %s restore [ options ] <storage> <backups>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }
@@ -110,8 +103,6 @@ static void help_list(FILE *output)
 {
   static const char *message[] =
   {
-    "",
-    "List available backups.",
     "",
   };
 
@@ -124,8 +115,6 @@ static void help_help(FILE *output)
 {
   static const char *message[] =
   {
-    "",
-    "lolwut?",
     "",
   };
 
