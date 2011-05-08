@@ -30,13 +30,6 @@
 #ifndef CMD_LIST_H_
 # define CMD_LIST_H_
 
-/*!
-** \brief Main function of the `list` command.
-** Lists every backup present in the backup directory passed as argument.
-** \param argc arguments count
-** \param argv arguments
-** \return A standard error code
-*/
 int  cmd_list(int argc, char *argv[]);
 
 #endif /* !CMD_LIST_H_ */

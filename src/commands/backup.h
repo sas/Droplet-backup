@@ -30,13 +30,6 @@
 #ifndef CMD_BACKUP_H_
 # define CMD_BACKUP_H_
 
-/*!
-** \brief Main function of the `backup` command.
-** Does a backup (and uploads it) of all its arguments.
-** \param argc arguments count
-** \param argv arguments
-** \return A standard error code
-*/
 int  cmd_backup(int argc, char *argv[]);
 
 #endif /* !CMD_BACKUP_H_ */
