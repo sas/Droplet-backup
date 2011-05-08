@@ -246,6 +246,9 @@ int cmd_restore(int argc, char *argv[])
     if (cmd_list(argc, argv) == EXIT_FAILURE)
       return EXIT_FAILURE;
     backup_name = readline("Enter the backup name: ");
+    /* Cleanly exit if the user did not enter any backup to restore. */
+    if (backup_name == NULL || strlen(backup_name) == 0)
+      return EXIT_SUCCESS;
   }
 
   download_path = path_concat("backups", backup_name);
