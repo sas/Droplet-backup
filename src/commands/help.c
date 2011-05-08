@@ -43,6 +43,7 @@ static void help(FILE *output)
     "    Commmands:",
     "        backup:    Make a backup.",
     "        restore:   Restore a backup.",
+    "        delete:    Delete a backup.",
     "        list:      List all available backups in a backup directory.",
     "        help:      Display detailed help about each command.",
   };
@@ -94,7 +95,7 @@ static void help_restore(FILE *output)
     "            backups if no backup name is specified on the command line.",
   };
 
-  fprintf(output, "usage: %s restore [ options ] <storage> <backups>\n", __progname);
+  fprintf(output, "usage: %s restore [ options ] <storage> <backup>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }
@@ -104,9 +105,34 @@ static void help_list(FILE *output)
   static const char *message[] =
   {
     "",
+    "    Options:",
+    "        --profile, -p:",
+    "            Profile to use with the `dpl` type storage.",
+    "        --profile-dir, -d:",
+    "            Directory in which the `dpl` profile should be searched.",
   };
 
-  fprintf(output, "\nusage: %s list [ options ] <storage>\n", __progname);
+  fprintf(output, "usage: %s list [ options ] <storage>\n", __progname);
+  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
+    fprintf(output, "%s\n", message[i]);
+}
+
+static void help_delete(FILE *output)
+{
+  static const char *message[] =
+  {
+    "",
+    "    Options:",
+    "        --profile, -p:",
+    "            Profile to use with the `dpl` type storage.",
+    "        --profile-dir, -d:",
+    "            Directory in which the `dpl` profile should be searched.",
+    "        --interactive, -i:",
+    "            Interractively ask for a backup name, with a list of available",
+    "            backups if no backup name is specified on the command line.",
+  };
+
+  fprintf(output, "usage: %s delete [ options ] <storage> <backup>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }
@@ -118,7 +144,7 @@ static void help_help(FILE *output)
     "",
   };
 
-  fprintf(output, "\nusage: %s help <topic>\n", __progname);
+  fprintf(output, "usage: %s help <topic>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }
@@ -144,6 +170,8 @@ int cmd_help(int argc, char *argv[])
     help_backup(output);
   else if (strcmp(argv[1], "restore") == 0)
     help_restore(output);
+  else if (strcmp(argv[1], "delete") == 0)
+    help_delete(output);
   else if (strcmp(argv[1], "list") == 0)
     help_list(output);
   else if (strcmp(argv[1], "help") == 0)

@@ -33,6 +33,7 @@ TARGET		= dplbck
 
 SRCS		= dplbck.c		\
 		  commands/backup.c	\
+		  commands/delete.c	\
 		  commands/help.c	\
 		  commands/list.c	\
 		  commands/restore.c	\

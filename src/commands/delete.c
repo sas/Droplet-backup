@@ -30,46 +30,55 @@
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <readline/readline.h>
 
-#include <commands/backup.h>
-#include <commands/delete.h>
 #include <commands/help.h>
 #include <commands/list.h>
-#include <commands/restore.h>
+#include <storage/storage.h>
+#include <utils/diefuncs.h>
 #include <utils/options.h>
+#include <utils/path.h>
 
-static const struct {
-  char *cmd_name;
-  int (*cmd)(int, char *[]);
-} commands[] = {
-  { "backup",   cmd_backup, },
-  { "restore",  cmd_restore, },
-  { "delete",   cmd_delete, },
-  { "list",     cmd_list, },
-  { "help",     cmd_help, },
-};
+#include "delete.h"
 
-int main(int argc, char *argv[])
+int cmd_delete(int argc, char *argv[])
 {
-  int cmd_offset;
+  storage_t storage;
+  char *backup_name;
+  char *unlink_path;
 
-  cmd_offset = options_init(argc, argv);
-
-  argc -= cmd_offset;
-  argv += cmd_offset;
-
-  if (argc == 0)
+  if (!(argc == 3 || (argc == 2 && options['i'])))
   {
-    int help_argc = 1;
-    char *help_argv[] = { "help", NULL };
+    int help_argc = 2;
+    char *help_argv[] = { "help_err", "delete", NULL };
     return cmd_help(help_argc, help_argv);
   }
 
-  for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
-    if (strcmp(argv[0], commands[i].cmd_name) == 0)
-      return commands[i].cmd(argc, argv);
+  if ((storage = storage_new(argv[1], 0)) == NULL)
+    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
 
-  /* We never reach this point if there is a valid command. */
-  errx(EXIT_FAILURE, "unknown command: %s", *argv);
+  if (argc == 3)
+  {
+    backup_name = estrdup(argv[2]);
+  }
+  else
+  {
+    printf("Available backups:\n");
+    if (cmd_list(argc, argv) == EXIT_FAILURE)
+      return EXIT_FAILURE;
+    backup_name = readline("Enter the backup name to delete: ");
+    /* Cleanly exit if the user did not enter any backup to delete. */
+    if (backup_name == NULL || strlen(backup_name) == 0)
+      return EXIT_SUCCESS;
+  }
+
+  unlink_path = path_concat("backups", backup_name);
+  free(backup_name);
+  if (!storage_unlink(storage, unlink_path))
+    errx(EXIT_FAILURE, "unable to delete the backup");
+  free(unlink_path);
+
+  storage_delete(storage);
+
+  return EXIT_SUCCESS;
 }
