@@ -11,8 +11,11 @@
 
 /*
 ** These function return a static buffer containing the requested hash.
-** These buffers shall not be free'd by the user. And should be considered
+** These buffers shall not be free'd by the user and should be considered
 ** invalid after any subsequent call to a digest_file() or digest_buffer().
+**
+** digest_buffer() can't fail. digest_file() can fail and return NULL if an I/O
+** error occurs.
 */
 const char *digest_file(FILE *file);
 const char *digest_buffer(struct buffer *buffer);

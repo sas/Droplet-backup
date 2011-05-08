@@ -106,7 +106,8 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   res = hash_blob(storage, path, buf);
   fprintf(tmp, "%s\n", res);
 
-  res = digest_file(tmp);
+  if ((res = digest_file(tmp)) == NULL)
+    errx(EXIT_FAILURE, "unable to store: %s", path);
   upload_path = path_concat("objects", res);
   if (!storage_store_file(storage, upload_path, tmp))
     errx(EXIT_FAILURE, "unable to store: %s", path);
@@ -140,7 +141,8 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
     free(new_path);
   }
 
-  res = digest_file(tmp);
+  if ((res = digest_file(tmp)) == NULL)
+    errx(EXIT_FAILURE, "unable to store: %s", path);
   upload_path = path_concat("objects", res);
   if (!storage_store_file(storage, upload_path, tmp))
     errx(EXIT_FAILURE, "unable to store: %s", path);
