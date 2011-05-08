@@ -72,7 +72,7 @@ static struct buffer *unhash_blob(storage_t storage, const char *path, const cha
 
   download_path = path_concat("objects", hash);
   if ((res = storage_retrieve_buffer(storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "unable to retrieve file: %s", path);
+    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
   free(download_path);
 
   return res;
@@ -91,7 +91,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
     printf("%s\n", path);
 
   if ((res = fopen(path, "wb")) == NULL)
-    err(EXIT_FAILURE, "unable to restore file: %s", path);
+    err(EXIT_FAILURE, "unable to restore: %s", path);
 
   download_path = path_concat("objects", elem->hash);
   if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
@@ -104,7 +104,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
 
     size = strlen(blob_hash);
     if (blob_hash[size - 1] != '\n')
-      errx(EXIT_FAILURE, "invalid backup format in: %s", path);
+      errx(EXIT_FAILURE, "invalid description file: %s", path);
     blob_hash[size - 1] = '\0';
 
     blob = unhash_blob(storage, path, blob_hash);
@@ -117,7 +117,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
   }
 
   if (ferror(descr))
-    errx(EXIT_FAILURE, "unable to restore file: %s", path);
+    errx(EXIT_FAILURE, "unable to restore: %s", path);
 
   fclose(res);
   fclose(descr);
@@ -133,7 +133,7 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
     printf("%s\n", path);
 
   if (mkdir(path, 0700) == -1 && errno != EEXIST)
-    err(EXIT_FAILURE, "unable to restore directory: %s", path);
+    err(EXIT_FAILURE, "unable to restore: %s", path);
 
   download_path = path_concat("objects", elem->hash);
   if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
@@ -144,7 +144,7 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
     unhash_dispatch(storage, path, buf);
 
   if (ferror(descr))
-    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
+    errx(EXIT_FAILURE, "unable to restore: %s", path);
 
   fclose(descr);
 
@@ -168,43 +168,41 @@ static void unhash_link(storage_t storage, const char *path, const struct elemen
   free(download_path);
 
   if (symlink((char *) descr->data, path) == -1 && errno != EEXIST)
-    err(EXIT_FAILURE, "unable to restore symlink: %s", path);
+    err(EXIT_FAILURE, "unable to restore: %s", path);
 
   buffer_delete(descr);
 }
 
 static void unhash_dispatch(storage_t storage, const char *path, char *elem_str)
 {
-#define MALFORMED() errx(EXIT_FAILURE, "invalid backup format in: %s", path)
-
   struct element elem;
   char *tmp_elem;
   char *new_path;
 
   if ((elem.type = strsep(&elem_str, " ")) == NULL)
-    MALFORMED();
+    errx(EXIT_FAILURE, "invalid description file: %s", path);
 
   if ((elem.hash = strsep(&elem_str, " ")) == NULL)
-    MALFORMED();
+    errx(EXIT_FAILURE, "invalid description file: %s", path);
 
   tmp_elem = elem_str;
   elem.uid = strtol(elem_str, &elem_str, 10);
   if (tmp_elem == elem_str)
-    MALFORMED();
+    errx(EXIT_FAILURE, "invalid description file: %s", path);
 
   tmp_elem = elem_str;
   elem.gid = strtol(elem_str, &elem_str, 10);
   if (tmp_elem == elem_str)
-    MALFORMED();
+    errx(EXIT_FAILURE, "invalid description file: %s", path);
 
   tmp_elem = elem_str;
   elem.perm = strtol(elem_str, &elem_str, 8);
   if (tmp_elem == elem_str)
-    MALFORMED();
+    errx(EXIT_FAILURE, "invalid description file: %s", path);
 
   ++elem_str; // Skip the space before the name
   if ((elem.name = strsep(&elem_str, "\n")) == NULL)
-    MALFORMED();
+    errx(EXIT_FAILURE, "invalid description file: %s", path);
 
   new_path = path_concat(path, elem.name);
 
@@ -215,11 +213,9 @@ static void unhash_dispatch(storage_t storage, const char *path, char *elem_str)
   else if (strcmp(elem.type, "link") == 0)
     unhash_link(storage, new_path, &elem);
   else
-    MALFORMED();
+    errx(EXIT_FAILURE, "invalid description file: %s", path);
 
   free(new_path);
-
-#undef MALFORMED
 }
 
 int cmd_restore(int argc, char *argv[])
@@ -249,7 +245,7 @@ int cmd_restore(int argc, char *argv[])
     printf("Available backups:\n");
     if (cmd_list(argc, argv) == EXIT_FAILURE)
       return EXIT_FAILURE;
-    backup_name = readline("Enter the backup name: ");
+    backup_name = readline("Enter the backup name to restore: ");
     /* Cleanly exit if the user did not enter any backup to restore. */
     if (backup_name == NULL || strlen(backup_name) == 0)
       return EXIT_SUCCESS;

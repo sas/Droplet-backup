@@ -109,14 +109,14 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   }
 
   if (ferror(file))
-    errx(EXIT_FAILURE, "unable to store: %s", path);
+    errx(EXIT_FAILURE, "unable to backup: %s", path);
 
   /* Upload the last block of data. */
   res = hash_blob(storage, path, buf);
   fprintf(tmp, "%s\n", res);
 
   if ((res = digest_file(tmp)) == NULL)
-    errx(EXIT_FAILURE, "unable to store: %s", path);
+    errx(EXIT_FAILURE, "unable to backup: %s", path);
   upload_path = path_concat("objects", res);
   if (!storage_store_file(storage, upload_path, tmp))
     errx(EXIT_FAILURE, "unable to store: %s", path);
@@ -151,7 +151,7 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   }
 
   if ((res = digest_file(tmp)) == NULL)
-    errx(EXIT_FAILURE, "unable to store: %s", path);
+    errx(EXIT_FAILURE, "unable to backup: %s", path);
   upload_path = path_concat("objects", res);
   if (!storage_store_file(storage, upload_path, tmp))
     errx(EXIT_FAILURE, "unable to store: %s", path);
@@ -162,7 +162,7 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   return res;
 }
 
-static const char  *hash_link(storage_t storage, const char *path)
+static const char *hash_link(storage_t storage, const char *path)
 {
   const char *res;
   struct buffer *tmp;
@@ -175,7 +175,7 @@ static const char  *hash_link(storage_t storage, const char *path)
   tmp = buffer_new(PATH_MAX + 1);
   if ((size = readlink(path, (char *) tmp->data, tmp->size - 1)) == -1)
   {
-    warn("unable to open %s", path);
+    warn("%s", path);
     buffer_delete(tmp);
     return NULL;
   }
@@ -233,7 +233,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
   if (lstat(path, &buf) == -1)
   {
-    warn("unable to stat %s", path);
+    warn("%s", path);
     return;
   }
 
@@ -243,7 +243,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
     if ((file = fopen(path, "rb")) == NULL)
     {
-      warn("unable to open %s", path);
+      warn("%s", path);
       return;
     }
 
@@ -257,7 +257,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
     if ((dir = opendir(path)) == NULL)
     {
-      warn("unable to open %s", path);
+      warn("%s", path);
       return;
     }
 
@@ -329,7 +329,6 @@ int cmd_backup(int argc, char *argv[])
   for (int i = 2; i < argc; ++i)
     hash_dispatch(storage, backup, path_rm_trailing_slashes(argv[i]));
 
-  /* Hash the file describing the whole backup and upload it. */
   backup_name = options['n'];
 
   if (backup_name == NULL)
