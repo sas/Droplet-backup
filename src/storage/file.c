@@ -275,6 +275,7 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   res->retrieve_file = sto_file_retrieve_file;
   res->retrieve_buffer = sto_file_retrieve_buffer;
   res->list = sto_file_list;
+  res->unlink = NULL;
   res->delete = sto_file_delete;
   state->remote_root = uri;
   state->last_list = NULL;

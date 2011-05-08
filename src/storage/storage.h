@@ -47,6 +47,7 @@ struct storage
   FILE          *(*retrieve_file)(void *state, const char *path);
   struct buffer *(*retrieve_buffer)(void *state, const char *path);
   const char    *(*list)(void *state, const char *path);
+  int            (*unlink)(void *state, const char *path);
   void           (*delete)(void *state);
   void          *state;
 };
@@ -60,6 +61,7 @@ int            storage_store_buffer(storage_t storage, const char *path, struct 
 FILE          *storage_retrieve_file(storage_t storage, const char *path);
 struct buffer *storage_retrieve_buffer(storage_t storage, const char *path);
 const char    *storage_list(storage_t storage, const char *path);
+int            storage_unlink(storage_t storage, const char *path);
 void           storage_delete(storage_t storage);
 
 #endif /* !STORAGE_H_ */

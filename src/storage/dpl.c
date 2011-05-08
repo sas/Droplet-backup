@@ -267,6 +267,7 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   res->retrieve_file = sto_dpl_retrieve_file;
   res->retrieve_buffer = sto_dpl_retrieve_buffer;
   res->list = sto_dpl_list;
+  res->unlink = NULL;
   res->delete = sto_dpl_delete;
   state->ctx = ctx;
   res->state = state;
