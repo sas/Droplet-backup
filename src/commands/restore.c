@@ -231,7 +231,11 @@ int cmd_restore(int argc, char *argv[])
   char buf[4096];
 
   if (!(argc == 3 || (argc == 2 && options['i'])))
-    return cmd_help(0, NULL);
+  {
+    int help_argc = 2;
+    char *help_argv[] = { "help_err", "restore", NULL };
+    return cmd_help(help_argc, help_argv);
+  }
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);

@@ -310,7 +310,11 @@ int cmd_backup(int argc, char *argv[])
   char backup_date[20]; // Exactly the required size for "%Y.%m.%d-%H.%M.%S"
 
   if (argc < 3)
-    return cmd_help(0, NULL);
+  {
+    int help_argc = 2;
+    char *help_argv[] = { "help_err", "backup", NULL };
+    return cmd_help(help_argc, help_argv);
+  }
 
   if ((storage = storage_new(argv[1], 1)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);

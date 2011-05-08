@@ -60,7 +60,11 @@ int main(int argc, char *argv[])
   argv += cmd_offset;
 
   if (argc == 0)
-    return cmd_help(0, NULL);
+  {
+    int help_argc = 1;
+    char *help_argv[] = { "help", NULL };
+    return cmd_help(help_argc, help_argv);
+  }
 
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
     if (strcmp(argv[0], commands[i].cmd_name) == 0)

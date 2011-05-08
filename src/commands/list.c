@@ -42,7 +42,11 @@ int cmd_list(int argc, char *argv[])
   const char *elem;
 
   if (argc != 2)
-    return cmd_help(0, NULL);
+  {
+    int help_argc = 2;
+    char *help_argv[] = { "help_err", "list", NULL };
+    return cmd_help(help_argc, help_argv);
+  }
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);

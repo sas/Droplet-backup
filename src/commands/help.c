@@ -53,7 +53,7 @@ static void help(FILE *output)
     fprintf(output, "%s\n", message[i]);
 }
 
-static void help_backup(void)
+static void help_backup(FILE *output)
 {
   static const char *message[] =
   {
@@ -76,12 +76,12 @@ static void help_backup(void)
     "",
   };
 
-  printf("\nusage: %s backup [ options ] <storage> <elements...>\n", __progname);
+  fprintf(output, "\nusage: %s backup [ options ] <storage> <elements...>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    printf("%s\n", message[i]);
+    fprintf(output, "%s\n", message[i]);
 }
 
-static void help_restore(void)
+static void help_restore(FILE *output)
 {
   static const char *message[] =
   {
@@ -101,12 +101,12 @@ static void help_restore(void)
     "",
   };
 
-  printf("\nusage: %s restore [ options ] <storage> <backups>\n", __progname);
+  fprintf(output, "\nusage: %s restore [ options ] <storage> <backups>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    printf("%s\n", message[i]);
+    fprintf(output, "%s\n", message[i]);
 }
 
-static void help_list(void)
+static void help_list(FILE *output)
 {
   static const char *message[] =
   {
@@ -115,12 +115,12 @@ static void help_list(void)
     "",
   };
 
-  printf("\nusage: %s list [ options ] <storage>\n", __progname);
+  fprintf(output, "\nusage: %s list [ options ] <storage>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    printf("%s\n", message[i]);
+    fprintf(output, "%s\n", message[i]);
 }
 
-static void help_help(void)
+static void help_help(FILE *output)
 {
   static const char *message[] =
   {
@@ -129,35 +129,42 @@ static void help_help(void)
     "",
   };
 
-  printf("\nusage: %s help <topic>\n", __progname);
+  fprintf(output, "\nusage: %s help <topic>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    printf("%s\n", message[i]);
+    fprintf(output, "%s\n", message[i]);
 }
 
 int cmd_help(int argc, char *argv[])
 {
-  if (argc == 0)
+  FILE *output = stdout;
+  int res = EXIT_SUCCESS;
+
+  if (strcmp(argv[0], "help_err") == 0)
   {
-    help(stderr);
-    return EXIT_FAILURE;
+    output = stderr;
+    res = EXIT_FAILURE;
   }
 
   if (argc == 1)
   {
-    help(stdout);
-    return EXIT_SUCCESS;
+    help(output);
+    return res;
   }
 
   if (strcmp(argv[1], "backup") == 0)
-    help_backup();
+    help_backup(output);
   else if (strcmp(argv[1], "restore") == 0)
-    help_restore();
+    help_restore(output);
   else if (strcmp(argv[1], "list") == 0)
-    help_list();
+    help_list(output);
   else if (strcmp(argv[1], "help") == 0)
-    help_help();
+    help_help(output);
   else
-    return cmd_help(0, NULL);
+  {
+    int help_argc = 2;
+    char *help_argv[] = { "help_err", "help", NULL };
+    return cmd_help(help_argc, help_argv);
+  }
 
-  return EXIT_SUCCESS;
+  return res;
 }
