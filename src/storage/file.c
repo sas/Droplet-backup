@@ -227,6 +227,7 @@ static const char *sto_file_list(void *state, const char *path)
   if (path != NULL)
   {
     char full_path[strlen(s->remote_root) + strlen(path) + 2];
+
     snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
     if (s->last_list != NULL)
@@ -248,6 +249,16 @@ static const char *sto_file_list(void *state, const char *path)
   }
   else
     return NULL;
+}
+
+static int sto_file_unlink(void *state, const char *path)
+{
+  struct file_storage_state *s = state;
+  char full_path[strlen(s->remote_root) + strlen(path) + 2];
+
+  snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
+
+  return unlink(full_path) == 0;
 }
 
 static void sto_file_delete(void *state)
@@ -275,7 +286,7 @@ struct storage *sto_file_new(const char *uri, int create_dirs)
   res->retrieve_file = sto_file_retrieve_file;
   res->retrieve_buffer = sto_file_retrieve_buffer;
   res->list = sto_file_list;
-  res->unlink = NULL;
+  res->unlink = sto_file_unlink;
   res->delete = sto_file_delete;
   state->remote_root = uri;
   state->last_list = NULL;

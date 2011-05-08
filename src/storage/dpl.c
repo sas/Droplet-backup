@@ -231,6 +231,13 @@ static const char *sto_dpl_list(void *state, const char *path)
     return s->last_dirent.name;
 }
 
+static int sto_dpl_unlink(void *state, const char *path)
+{
+  (void) state; (void) path;
+
+  return 0;
+}
+
 static void sto_dpl_delete(void *state)
 {
   struct dpl_storage_state *s = state;
@@ -267,7 +274,7 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   res->retrieve_file = sto_dpl_retrieve_file;
   res->retrieve_buffer = sto_dpl_retrieve_buffer;
   res->list = sto_dpl_list;
-  res->unlink = NULL;
+  res->unlink = sto_dpl_unlink;
   res->delete = sto_dpl_delete;
   state->ctx = ctx;
   res->state = state;
