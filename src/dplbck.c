@@ -36,7 +36,6 @@
 #include <commands/help.h>
 #include <commands/list.h>
 #include <commands/restore.h>
-#include <commands/stats.h>
 #include <utils/options.h>
 
 static const struct {
@@ -46,7 +45,6 @@ static const struct {
   { "backup",   cmd_backup, },
   { "restore",  cmd_restore, },
   { "list",     cmd_list, },
-  { "stats",    cmd_stats, },
   { "help",     cmd_help, },
 };
 
