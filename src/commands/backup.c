@@ -27,6 +27,12 @@
 **
 */
 
+/*
+** Make a backup.
+** Each element of the hash tree is backuped with the corresponding hash_
+** function.
+*/
+
 #include <dirent.h>
 #include <err.h>
 #include <stdio.h>
@@ -166,15 +172,14 @@ static const char  *hash_link(storage_t storage, const char *path)
   if (options['v'])
     printf("%s\n", path);
 
-  tmp = buffer_new(PATH_MAX);
-  if ((size = readlink(path, (char *) tmp->data, tmp->size)) == -1)
+  tmp = buffer_new(PATH_MAX + 1);
+  if ((size = readlink(path, (char *) tmp->data, tmp->size - 1)) == -1)
   {
     warn("unable to open %s", path);
     buffer_delete(tmp);
     return NULL;
   }
 
-  /* XXX: We can exceed the buffer size by 1 here. */
   tmp->data[size++] = '\0';
   tmp->used = size;
 
