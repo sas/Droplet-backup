@@ -207,6 +207,7 @@ static const char *sto_dpl_list(void *state, const char *path)
   if (path != NULL)
   {
     char full_path[strlen(s->remote_root) + strlen(path) + 2];
+
     snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
 
     if (s->last_list != NULL)
@@ -233,9 +234,12 @@ static const char *sto_dpl_list(void *state, const char *path)
 
 static int sto_dpl_unlink(void *state, const char *path)
 {
-  (void) state; (void) path;
+  struct dpl_storage_state *s = state;
+  char full_path[strlen(s->remote_root) + strlen(path) + 2];
 
-  return 0;
+  snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
+
+  return dpl_unlink(s->ctx, full_path) == DPL_SUCCESS;
 }
 
 static void sto_dpl_delete(void *state)
