@@ -33,14 +33,16 @@
 # define ROLLSUM_CHECKBITS  21
 # define ROLLSUM_CHECKMASK  ((1 << ROLLSUM_CHECKBITS) - 1)
 # define ROLLSUM_BOUNDVAL   0x42
-# define ROLLSUM_MINSIZE    (1024 * 1024 / 2)
-# define ROLLSUM_MAXSIZE    (1024 * 1024 * 5)
+# define ROLLSUM_MINSIZE    (1024 * 1024 / 2) /* 512Kb */
+# define ROLLSUM_MAXSIZE    (1024 * 1024 * 5) /* 5Mb */
+
+# define MOD_ADLER          65521
 
 struct rollsum
 {
   unsigned long  count;
-  unsigned short a;
-  unsigned short b;
+  unsigned long  a;
+  unsigned long  b;
 };
 
 static inline void rollsum_init(struct rollsum *srp)
@@ -52,7 +54,7 @@ static inline void rollsum_init(struct rollsum *srp)
 
 static inline unsigned int rollsum_hash(struct rollsum *srp)
 {
-  return srp->a << 16 | srp->b;
+  return srp->b << 16 | srp->a;
 }
 
 static inline int rollsum_onbound(struct rollsum *srp)
@@ -66,8 +68,8 @@ static inline int rollsum_onbound(struct rollsum *srp)
 static inline void rollsum_roll(struct rollsum *srp, unsigned char data)
 {
   srp->count += 1;
-  srp->a += data;
-  srp->b += srp->a;
+  srp->a = (srp->a + data) % MOD_ADLER;
+  srp->b = (srp->b + srp->a) % MOD_ADLER;
 }
 
 #endif /* !ROLLSUM_H_ */
