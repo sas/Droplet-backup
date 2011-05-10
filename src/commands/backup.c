@@ -172,7 +172,11 @@ static const char *hash_link(storage_t storage, const char *path)
   if (options['v'])
     printf("%s\n", path);
 
-  tmp = buffer_new(PATH_MAX + 1);
+  /*
+  ** We should use PATH_MAX instead of 4096 here, but this macro is not defined
+  ** on all systems so a static size does the job.
+  */
+  tmp = buffer_new(4096);
   if ((size = readlink(path, (char *) tmp->data, tmp->size - 1)) == -1)
   {
     warn("%s", path);
