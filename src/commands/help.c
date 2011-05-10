@@ -91,8 +91,8 @@ static void help_restore(FILE *output)
     "        --verbose, -v:",
     "            Verbose mode. A line is displayed for each file restored.",
     "        --interactive, -i:",
-    "            Interractively ask for a backup name, with a list of available",
-    "            backups if no backup name is specified on the command line.",
+    "            Interactively ask for the name of the backup to restore if",
+    "            none was specified on the command line.",
   };
 
   fprintf(output, "usage: %s restore [ options ] <storage> <backup>\n", __progname);
