@@ -30,10 +30,10 @@
 SUBDIRS	= src doc
 
 all:
-	@for dir in $(SUBDIRS); do make -C $$dir || exit $?; done
+	@for dir in $(SUBDIRS); do $(MAKE) -C $$dir || exit $?; done
 
 clean:
-	@for dir in $(SUBDIRS); do make -C $$dir clean || exit $?; done
+	@for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean || exit $?; done
 
 distclean:
-	@for dir in $(SUBDIRS); do make -C $$dir distclean || exit $?; done
+	@for dir in $(SUBDIRS); do $(MAKE) -C $$dir distclean || exit $?; done
