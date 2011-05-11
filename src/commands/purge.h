@@ -27,51 +27,9 @@
 **
 */
 
-#include <err.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifndef CMD_PURGE_H_
+# define CMD_PURGE_H_
 
-#include <commands/backup.h>
-#include <commands/delete.h>
-#include <commands/help.h>
-#include <commands/list.h>
-#include <commands/purge.h>
-#include <commands/restore.h>
-#include <utils/options.h>
+int  cmd_purge(int argc, char *argv[]);
 
-static const struct {
-  char *cmd_name;
-  int (*cmd)(int, char *[]);
-} commands[] = {
-  { "backup",   cmd_backup, },
-  { "restore",  cmd_restore, },
-  { "delete",   cmd_delete, },
-  { "purge",    cmd_purge, },
-  { "list",     cmd_list, },
-  { "help",     cmd_help, },
-};
-
-int main(int argc, char *argv[])
-{
-  int cmd_offset;
-
-  cmd_offset = options_init(argc, argv);
-
-  argc -= cmd_offset;
-  argv += cmd_offset;
-
-  if (argc == 0)
-  {
-    int help_argc = 1;
-    char *help_argv[] = { "help", NULL };
-    return cmd_help(help_argc, help_argv);
-  }
-
-  for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
-    if (strcmp(argv[0], commands[i].cmd_name) == 0)
-      return commands[i].cmd(argc, argv);
-
-  /* We never reach this point if there is a valid command. */
-  errx(EXIT_FAILURE, "unknown command: %s", *argv);
-}
+#endif /* !CMD_PURGE_H_ */

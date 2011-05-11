@@ -36,6 +36,7 @@ SRCS		= dplbck.c		\
 		  commands/delete.c	\
 		  commands/help.c	\
 		  commands/list.c	\
+		  commands/purge.c	\
 		  commands/restore.c	\
 		  storage/dpl.c		\
 		  storage/file.c	\

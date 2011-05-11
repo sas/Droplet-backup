@@ -28,50 +28,41 @@
 */
 
 #include <err.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include <commands/backup.h>
-#include <commands/delete.h>
 #include <commands/help.h>
-#include <commands/list.h>
-#include <commands/purge.h>
-#include <commands/restore.h>
-#include <utils/options.h>
+#include <storage/storage.h>
+#include <utils/strset.h>
 
-static const struct {
-  char *cmd_name;
-  int (*cmd)(int, char *[]);
-} commands[] = {
-  { "backup",   cmd_backup, },
-  { "restore",  cmd_restore, },
-  { "delete",   cmd_delete, },
-  { "purge",    cmd_purge, },
-  { "list",     cmd_list, },
-  { "help",     cmd_help, },
-};
+#include "purge.h"
 
-int main(int argc, char *argv[])
+int cmd_purge(int argc, char *argv[])
 {
-  int cmd_offset;
+  storage_t storage;
+  strset_t ss;
+  const char *elem;
 
-  cmd_offset = options_init(argc, argv);
-
-  argc -= cmd_offset;
-  argv += cmd_offset;
-
-  if (argc == 0)
+  if (argc != 2)
   {
-    int help_argc = 1;
-    char *help_argv[] = { "help", NULL };
+    int help_argc = 2;
+    char *help_argv[] = { "help_err", "purge", NULL };
     return cmd_help(help_argc, help_argv);
   }
 
-  for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
-    if (strcmp(argv[0], commands[i].cmd_name) == 0)
-      return commands[i].cmd(argc, argv);
+  if ((storage = storage_new(argv[1], 0)) == NULL)
+    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
 
-  /* We never reach this point if there is a valid command. */
-  errx(EXIT_FAILURE, "unknown command: %s", *argv);
+  ss = strset_new();
+
+  elem = storage_list(storage, "objects");
+  while (elem != NULL)
+  {
+    strset_add(ss, elem);
+    elem = storage_list(storage, NULL);
+  }
+
+  strset_delete(ss);
+  storage_delete(storage);
+
+  return EXIT_SUCCESS;
 }

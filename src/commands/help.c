@@ -44,6 +44,7 @@ static void help(FILE *output)
     "        backup:    Make a backup.",
     "        restore:   Restore a backup.",
     "        delete:    Delete a backup.",
+    "        purge:     Purge a backup directory from unused blocks.",
     "        list:      List all available backups in a backup directory.",
     "        help:      Display detailed help about each command.",
   };
@@ -96,6 +97,25 @@ static void help_restore(FILE *output)
   };
 
   fprintf(output, "usage: %s restore [ options ] <storage> <backup>\n", __progname);
+  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
+    fprintf(output, "%s\n", message[i]);
+}
+
+static void help_purge(FILE *output)
+{
+  static const char *message[] =
+  {
+    "",
+    "    Options:",
+    "        --profile, -p:",
+    "            Profile to use with the `dpl` type storage.",
+    "        --profile-dir, -d:",
+    "            Directory in which the `dpl` profile should be searched.",
+    "        --verbose, -v:",
+    "            Verbose mode. A line is displayed for each file purged.",
+  };
+
+  fprintf(output, "usage: %s purge [ options ] <storage>\n", __progname);
   for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
     fprintf(output, "%s\n", message[i]);
 }
@@ -172,6 +192,8 @@ int cmd_help(int argc, char *argv[])
     help_restore(output);
   else if (strcmp(argv[1], "delete") == 0)
     help_delete(output);
+  else if (strcmp(argv[1], "purge") == 0)
+    help_purge(output);
   else if (strcmp(argv[1], "list") == 0)
     help_list(output);
   else if (strcmp(argv[1], "help") == 0)
