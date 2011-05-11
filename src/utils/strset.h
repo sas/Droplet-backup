@@ -39,6 +39,7 @@ strset_t   strset_new(void);
 bool       strset_contains(strset_t ss, const char *str);
 bool       strset_add(strset_t ss, const char *str);
 bool       strset_del(strset_t ss, const char *str);
+void       strset_foreach(strset_t ss, void (*fun)(const char *, void *), void *data);
 void       strset_delete(strset_t ss);
 
 #endif /* !STRSET_H_ */

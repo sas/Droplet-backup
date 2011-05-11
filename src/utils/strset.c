@@ -98,6 +98,12 @@ bool strset_del(strset_t ss, const char *str)
   return false;
 }
 
+void strset_foreach(strset_t ss, void (*fun)(const char *, void *), void *data)
+{
+  for (unsigned int i = 0; i < ss->used; ++i)
+    fun(ss->strs[i], data);
+}
+
 void strset_delete(strset_t ss)
 {
   for (unsigned int i = 0; i < ss->used; ++i)
