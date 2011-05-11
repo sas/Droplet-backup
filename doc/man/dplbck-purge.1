@@ -26,21 +26,21 @@
 .\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\" 
 .\" 
-.TH DPLBCK-BACKUP 1 "2011" "" ""
+.TH DPLBCK-PURGE 1 "2011" "" ""
 .SH NAME
-dplbck-backup \- backup a local folder tree on a remote storage
+dplbck-purge \- purge unused blocks of a backup directory
 .SH SYNOPSIS
-.B dplbck backup [
+.B dplbck purge [
 .I options
 .B ] <
 .I storage
-.B > <
-.I elements...
 .B >
 .SH DESCRIPTION
-.B dplbck backup
-makes an incremental backup of a local tree on a remote storage by
-traversing a file hierarchy and checksuming all files blocks.
+.B dplbck purge
+removes all the unused blocks from a backup directory. This command is
+meant to be used after one or multiple uses of the
+.I dplbck delete
+command.
 .SH OPTIONS
 .TP
 .B --profile, -p
@@ -54,14 +54,9 @@ Directory in which the
 profile should be searched.
 .TP
 .B --verbose, -v
-Verbose mode. A line is displayed for each file backuped.
-.TP
-.B --name, -n
-Give a name to the backup, to use with the
-.I restore
-command.
+Verbose mode. A line is displayed for each file purged.
 .SH RETURN VALUE
-.B dplbck backup
+.B dplbck restore
 returns 0 on success, and non-zero on error.
 .SH BUGS
 Please send problems, bugs, questions, desirable enhancements, patches
@@ -70,7 +65,7 @@ etc. to sas@cd80.net.
 Stephane Sezer <sas@cd80.net>
 .SH SEE ALSO
 .BR dplbck (1),
-.BR dplbck-restore (1),
+.BR dplbck-backup (1),
+.BR dplbck-restore (1)
 .BR dplbck-delete (1)
-.BR dplbck-purge (1)
 .BR dplbck-list (1)
