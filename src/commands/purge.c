@@ -27,20 +27,143 @@
 **
 */
 
+/*
+** Purge a backup directory from unused blocks.
+** Every element of the hash tree is marked as being used with the corresponding
+** purge_ function.
+*/
+
 #include <err.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <commands/help.h>
 #include <storage/storage.h>
+#include <utils/path.h>
 #include <utils/strset.h>
 
 #include "purge.h"
 
+static void purge_dispatch(storage_t storage, strset_t objects, char *elem_str);
+
+static void purge_file(storage_t storage, strset_t objects, char *hash)
+{
+  char *download_path;
+  FILE *descr;
+  char buf[4096];
+  char *blob_hash;
+
+  download_path = path_concat("objects", hash);
+  if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
+    errx(EXIT_FAILURE, "unable to retrieve: %s", hash);
+  free(download_path);
+
+  while ((blob_hash = fgets(buf, 4096, descr)) != NULL)
+  {
+    size_t size;
+
+    size = strlen(blob_hash);
+    if (blob_hash[size - 1] != '\n')
+      errx(EXIT_FAILURE, "invalid object: %s", hash);
+    blob_hash[size - 1] = '\0';
+
+    strset_del(objects, blob_hash);
+  }
+
+  if (ferror(descr))
+    errx(EXIT_FAILURE, "unable to purge: %s", hash);
+
+  fclose(descr);
+}
+
+static void purge_tree(storage_t storage, strset_t objects, char *hash)
+{
+  char *download_path;
+  FILE *descr;
+  char buf[4096];
+
+  download_path = path_concat("objects", hash);
+  if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
+    errx(EXIT_FAILURE, "unable to retrieve: %s", hash);
+  free(download_path);
+
+  while (fgets(buf, 4096, descr) != NULL)
+    purge_dispatch(storage, objects, buf);
+
+  if (ferror(descr))
+    errx(EXIT_FAILURE, "unable to purge: %s", hash);
+
+  fclose(descr);
+}
+
+static void purge_dispatch(storage_t storage, strset_t objects, char *elem_str)
+{
+  char *type;
+  char *hash;
+
+  if ((type = strsep(&elem_str, " ")) == NULL)
+    errx(EXIT_FAILURE, "invalid description file: %s", elem_str);
+
+  if ((hash = strsep(&elem_str, " ")) == NULL)
+    errx(EXIT_FAILURE, "invalid description file: %s", elem_str);
+
+  strset_del(objects, hash);
+
+  if (strcmp(type, "file") == 0)
+    purge_file(storage, objects, hash);
+  else if (strcmp(type, "tree") == 0)
+    purge_tree(storage, objects, hash);
+  else if (strcmp(type, "link") == 0)
+    return; /* No need to recurse. */
+  else
+    errx(EXIT_FAILURE, "invalid description file: %s", elem_str);
+}
+
+struct mark_backup_args
+{
+  storage_t storage;
+  strset_t objects;
+};
+
+static void mark_backup(const char *str, void *data)
+{
+  struct mark_backup_args *args = data;
+  char *download_path;
+  FILE *backup;
+  char buf[4096];
+
+  download_path = path_concat("backups", str);
+  if ((backup = storage_retrieve_file(args->storage, download_path)) == NULL)
+    errx(EXIT_FAILURE, "%s: unable to retrieve the description file", str);
+  free(download_path);
+
+  while (fgets(buf, 4096, backup) != NULL)
+    purge_dispatch(args->storage, args->objects, buf);
+
+  if (ferror(backup))
+    errx(EXIT_FAILURE, "unable to restore the backup");
+
+  fclose(backup);
+}
+
+static void delete_object(const char *str, void *data)
+{
+  storage_t storage = (storage_t) data;
+  char *unlink_path;
+
+  unlink_path = path_concat("objects", str);
+  if (!storage_unlink(storage, unlink_path))
+    errx(EXIT_FAILURE, "%s: unable to delete object", str);
+  free(unlink_path);
+}
+
 int cmd_purge(int argc, char *argv[])
 {
   storage_t storage;
-  strset_t ss;
+  strset_t backups;
+  strset_t objects;
   const char *elem;
+  struct mark_backup_args args;
 
   if (argc != 2)
   {
@@ -52,16 +175,38 @@ int cmd_purge(int argc, char *argv[])
   if ((storage = storage_new(argv[1], 0)) == NULL)
     errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
 
-  ss = strset_new();
+  backups = strset_new();
+  objects = strset_new();
 
-  elem = storage_list(storage, "objects");
+  /* Get the list of backups. */
+  elem = storage_list(storage, "backups");
   while (elem != NULL)
   {
-    strset_add(ss, elem);
+    strset_add(backups, elem);
     elem = storage_list(storage, NULL);
   }
 
-  strset_delete(ss);
+  /* Get the list of objects. */
+  elem = storage_list(storage, "objects");
+  while (elem != NULL)
+  {
+    strset_add(objects, elem);
+    elem = storage_list(storage, NULL);
+  }
+
+  /*
+  ** For each backup, call mark_backup, which will mark all the objects of a
+  ** backup as used (it will actually remove them from the `objects` strset.
+  */
+  args.objects = objects;
+  args.storage = storage;
+  strset_foreach(backups, mark_backup, &args);
+
+  /* Delete every object remaining in the `objects` strset. */
+  strset_foreach(objects, delete_object, (void *) storage);
+
+  strset_delete(backups);
+  strset_delete(objects);
   storage_delete(storage);
 
   return EXIT_SUCCESS;
