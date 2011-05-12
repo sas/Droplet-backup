@@ -39,6 +39,7 @@
 
 #include <commands/help.h>
 #include <storage/storage.h>
+#include <utils/options.h>
 #include <utils/path.h>
 #include <utils/strset.h>
 
@@ -150,6 +151,9 @@ static void delete_object(const char *str, void *data)
 {
   storage_t storage = (storage_t) data;
   char *unlink_path;
+
+  if (options['v'])
+    printf("%s\n", str);
 
   unlink_path = path_concat("objects", str);
   if (!storage_unlink(storage, unlink_path))
