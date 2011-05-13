@@ -86,7 +86,6 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
 
   tmp = etmpfile();
   buf = buffer_new(ROLLSUM_MAXSIZE);
-
   rollsum_init(&rs);
 
   while ((file_buf_cnt = fread(file_buf, 1, 4096, file)) > 0)
@@ -95,16 +94,17 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
 
     while (file_buf_idx < file_buf_cnt)
     {
-      rollsum_roll(&rs, file_buf[file_buf_idx]);
-      buf->data[buf->used++] = file_buf[file_buf_idx++];
+      buf->data[buf->used++] = file_buf[file_buf_idx];
 
-      if (rollsum_onbound(&rs))
+      if (rollsum_roll(&rs, file_buf[file_buf_idx]))
       {
         res = hash_blob(storage, path, buf);
         fprintf(tmp, "%s\n", res);
-        rollsum_init(&rs);
         buf->used = 0;
+        rollsum_init(&rs);
       }
+
+      ++file_buf_idx;
     }
   }
 
@@ -307,7 +307,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
         buf.st_gid,
         buf.st_mode & 07777,
         const_basename(path)
-    );
+        );
 }
 
 int cmd_backup(int argc, char *argv[])

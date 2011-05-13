@@ -30,46 +30,64 @@
 #ifndef ROLLSUM_H_
 # define ROLLSUM_H_
 
-# define ROLLSUM_CHECKBITS  21
-# define ROLLSUM_CHECKMASK  ((1 << ROLLSUM_CHECKBITS) - 1)
-# define ROLLSUM_BOUNDVAL   0x42
-# define ROLLSUM_MINSIZE    (1024 * 1024 / 2) /* 512Kb */
-# define ROLLSUM_MAXSIZE    (1024 * 1024 * 5) /* 5Mb */
+# define ROLLSUM_CHECKBITS          13
+# define ROLLSUM_CHECKMASK          ((1 << ROLLSUM_CHECKBITS) - 1)
+# define ROLLSUM_CHECKAVGCHUNKSIZE  (1 << ROLLSUM_CHECKBITS)
+# define ROLLSUM_BOUNDVAL           0x1ba8
+# define ROLLSUM_CHAROFFSET         31
+# define ROLLSUM_ROLLWINDOW         48
+# define ROLLSUM_MINSIZE            512
+# define ROLLSUM_MAXSIZE            (ROLLSUM_CHECKAVGCHUNKSIZE * 2)
 
-# define MOD_ADLER          65521
+# define rollsumMinima(Sum) ((((Sum)->s1) & ROLLSUM_CHECKMASK) == ROLLSUM_BOUNDVAL)
+
+# define rollsumRotate(Sum, Out, In)                                    \
+do                                                                      \
+{                                                                       \
+  (Sum)->s1 += (In) - (Out);                                            \
+  (Sum)->s2 += (Sum)->s1 - (Sum)->count * ((Out) + ROLLSUM_CHAROFFSET); \
+} while (0)
 
 struct rollsum
 {
-  unsigned long  count;
-  unsigned long  a;
-  unsigned long  b;
+  int             count;
+  unsigned char   window[ROLLSUM_ROLLWINDOW];
+  int             window_count;
+  int             window_cursor;
+  unsigned long   s1;
+  unsigned long   s2;
 };
 
-static inline void rollsum_init(struct rollsum *srp)
+static inline void rollsum_init(struct rollsum *rs)
 {
-  srp->count = 0;
-  srp->a = 0;
-  srp->b = 0;
+  memset(rs, 0, sizeof (struct rollsum));
 }
 
-static inline unsigned int rollsum_hash(struct rollsum *srp)
+static inline int rollsum_roll(struct rollsum *rs, unsigned char c)
 {
-  return srp->b << 16 | srp->a;
-}
+  int reached_boundary = 0;
 
-static inline int rollsum_onbound(struct rollsum *srp)
-{
-  return srp->count >= ROLLSUM_MAXSIZE || (
-      srp->count > ROLLSUM_MINSIZE &&
-      (rollsum_hash(srp) & ROLLSUM_CHECKMASK) == ROLLSUM_BOUNDVAL
-      );
-}
+  ++rs->count;
 
-static inline void rollsum_roll(struct rollsum *srp, unsigned char data)
-{
-  srp->count += 1;
-  srp->a = (srp->a + data) % MOD_ADLER;
-  srp->b = (srp->b + srp->a) % MOD_ADLER;
+  if (rs->count == ROLLSUM_MAXSIZE)
+  {
+    reached_boundary = 1;
+  }
+  else if (rs->count > ROLLSUM_MINSIZE)
+  {
+    rollsumRotate(rs, rs->window[rs->window_cursor], c);
+
+    rs->window[rs->window_cursor++] = c;
+    rs->window_count++;
+
+    if (rs->window_cursor == ROLLSUM_ROLLWINDOW)
+      rs->window_cursor = 0;
+
+    if (rs->window_count >= ROLLSUM_ROLLWINDOW && rollsumMinima(rs))
+      reached_boundary = 1;
+  }
+
+  return reached_boundary;
 }
 
 #endif /* !ROLLSUM_H_ */
