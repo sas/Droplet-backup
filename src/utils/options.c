@@ -37,6 +37,12 @@ static const struct option possible_options[] =
     .flag = NULL,
     .val = 'n',
   },
+  {
+    .name = "change-dir",
+    .has_arg = required_argument,
+    .flag = NULL,
+    .val = 'c',
+  },
   { NULL, 0, NULL, 0, },
 };
 
@@ -46,13 +52,14 @@ int options_init(int argc, char *argv[])
 {
   int flag;
 
-  while ((flag = getopt_long(argc, argv, "p:d:vin:", possible_options, NULL)) != -1)
+  while ((flag = getopt_long(argc, argv, "p:d:vin:c:", possible_options, NULL)) != -1)
   {
     switch (flag)
     {
       case 'p':
       case 'd':
       case 'n':
+      case 'c':
         options[flag] = optarg;
         break;
       case 'v':

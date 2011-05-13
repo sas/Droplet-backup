@@ -68,6 +68,8 @@ static void help_backup(FILE *output)
     "            Verbose mode. A line is displayed for each file backuped.",
     "        --name, -n:",
     "            Give a name to the backup, to use with the `restore` command.",
+    "        --change-dir, -c:",
+    "            Change directory before executing the backup.",
     "",
     "    Supported URI schemes:",
     "        dpl://   to backup to an S3 compatible cloud storage",
@@ -94,6 +96,8 @@ static void help_restore(FILE *output)
     "        --interactive, -i:",
     "            Interactively ask for the name of the backup to restore if",
     "            none was specified on the command line.",
+    "        --change-dir, -c:",
+    "            Change directory before executing the restore.",
   };
 
   fprintf(output, "usage: %s restore [ options ] <storage> <backup>\n", __progname);

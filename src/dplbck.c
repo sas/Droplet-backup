@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <commands/backup.h>
 #include <commands/delete.h>
@@ -67,6 +68,9 @@ int main(int argc, char *argv[])
     char *help_argv[] = { "help", NULL };
     return cmd_help(help_argc, help_argv);
   }
+
+  if (options['c'] && chdir(options['c']) == -1)
+    err(EXIT_FAILURE, "%s", options['c']);
 
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
     if (strcmp(argv[0], commands[i].cmd_name) == 0)
