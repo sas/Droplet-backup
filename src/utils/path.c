@@ -28,6 +28,7 @@
 */
 
 #include <err.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -74,4 +75,28 @@ char *path_rm_trailing_slashes(char *path)
     path[idx--] = '\0';
 
   return path;
+}
+
+/*
+** This functions compares two paths for equality. The actual processing uses
+** the realpath() function to get a connonical path out of the two paths passed
+** as arguments.
+*/
+bool path_equal(const char *path1, const char *path2)
+{
+  bool res;
+  char *realpath1, *realpath2;
+
+  realpath1 = realpath(path1, NULL);
+  realpath2 = realpath(path2, NULL);
+
+  if (realpath1 == NULL || realpath2 == NULL)
+    return false;
+
+  res = (strcmp(realpath1, realpath2) == 0);
+
+  free(realpath1);
+  free(realpath2);
+
+  return res;
 }

@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     return cmd_help(help_argc, help_argv);
   }
 
-  if (options['c'] && chdir(options['c']) == -1)
+  if (options['c'] != NULL && chdir(options['c']) == -1)
     err(EXIT_FAILURE, "%s", options['c']);
 
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)

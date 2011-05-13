@@ -30,7 +30,10 @@
 #ifndef PATH_H_
 # define PATH_H_
 
-char *path_concat(const char *path, const char *elem);
-char *path_rm_trailing_slashes(char *path);
+# include <stdbool.h>
+
+char  *path_concat(const char *path, const char *elem);
+char  *path_rm_trailing_slashes(char *path);
+bool   path_equal(const char *path1, const char *path2);
 
 #endif /* !PATH_H_ */
