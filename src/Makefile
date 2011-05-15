@@ -42,7 +42,6 @@ SRCS		= dplbck.c		\
 		  storage/file.c	\
 		  storage/storage.c	\
 		  utils/buffer.c	\
-		  utils/diefuncs.c	\
 		  utils/digest.c	\
 		  utils/options.c	\
 		  utils/path.c		\

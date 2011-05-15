@@ -30,8 +30,11 @@
 #ifndef DIEFUNCS_H_
 # define DIEFUNCS_H_
 
+# include <err.h>
 # include <stddef.h>
 # include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
 
 /*
 ** These functions are used to remove a small amount of error handling from the
@@ -40,8 +43,34 @@
 ** to do than to die).
 */
 
-void *emalloc(size_t size);
-char *estrdup(const char *s);
-FILE *etmpfile(void);
+static inline void *emalloc(size_t size)
+{
+  void *res = malloc(size);
+
+  if (res == NULL)
+    err(EXIT_FAILURE, "malloc()");
+
+  return res;
+}
+
+static inline char *estrdup(const char *s)
+{
+  char *res = strdup(s);
+
+  if (res == NULL)
+    err(EXIT_FAILURE, "strdup()");
+
+  return res;
+}
+
+static inline FILE *etmpfile(void)
+{
+  FILE *res = tmpfile();
+
+  if (res == NULL)
+    err(EXIT_FAILURE, "tmpfile()");
+
+  return res;
+}
 
 #endif /* !DIEFUNCS_H_ */
