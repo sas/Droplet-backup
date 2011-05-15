@@ -28,9 +28,10 @@
 */
 
 #include <err.h>
+#include <readline.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <readline/readline.h>
+#include <string.h>
 
 #include <commands/help.h>
 #include <commands/list.h>

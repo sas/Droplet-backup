@@ -35,13 +35,13 @@
 
 #include <err.h>
 #include <errno.h>
+#include <readline.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <readline/readline.h>
 
 #include <commands/help.h>
 #include <commands/list.h>
