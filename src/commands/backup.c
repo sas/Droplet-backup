@@ -333,7 +333,7 @@ int cmd_backup(int argc, char *argv[])
   for (int i = 2; i < argc; ++i)
     hash_dispatch(storage, backup, path_rm_trailing_slashes(argv[i]));
 
-  backup_name = options['n'];
+  backup_name = options[OPT_NAME];
 
   if (backup_name == NULL)
   {

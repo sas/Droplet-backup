@@ -7,42 +7,48 @@
 
 static const struct option possible_options[] =
 {
+  /* General options. */
   {
-    .name = "profile",
+    .name = "change-dir",
     .has_arg = required_argument,
     .flag = NULL,
-    .val = 'p',
-  },
-  {
-    .name = "profile-dir",
-    .has_arg = required_argument,
-    .flag = NULL,
-    .val = 'd',
-  },
-  {
-    .name = "verbose",
-    .has_arg = no_argument,
-    .flag = NULL,
-    .val = 'v',
+    .val = OPT_CHANGEDIR,
   },
   {
     .name = "interactive",
     .has_arg = no_argument,
     .flag = NULL,
-    .val = 'i',
+    .val = OPT_INTERACTIVE,
   },
   {
     .name = "name",
     .has_arg = required_argument,
     .flag = NULL,
-    .val = 'n',
+    .val = OPT_NAME,
   },
+
+  /* Logging options. */
   {
-    .name = "change-dir",
+    .name = "verbose",
     .has_arg = required_argument,
     .flag = NULL,
-    .val = 'c',
+    .val = OPT_VERBOSE,
   },
+
+  /* Droplet related options. */
+  {
+    .name = "profile",
+    .has_arg = required_argument,
+    .flag = NULL,
+    .val = OPT_PROFILE,
+  },
+  {
+    .name = "profile-dir",
+    .has_arg = required_argument,
+    .flag = NULL,
+    .val = OPT_PROFILEDIR,
+  },
+
   { NULL, 0, NULL, 0, },
 };
 
@@ -52,21 +58,31 @@ int options_init(int argc, char *argv[])
 {
   int flag;
 
-  while ((flag = getopt_long(argc, argv, "p:d:vin:c:", possible_options, NULL)) != -1)
+  while ((flag = getopt_long(argc, argv, "c:in:vp:d:", possible_options, NULL)) != -1)
   {
     switch (flag)
     {
-      case 'p':
-      case 'd':
-      case 'n':
-      case 'c':
+      case OPT_CHANGEDIR:
         options[flag] = optarg;
         break;
-      case 'v':
-      case 'i':
-        /* This value is used as a simple boolean. */
-        options[flag] = (void *) 0x42;
+      case OPT_INTERACTIVE:
+        options[flag] = (void *) 0x42; /* Boolean. */
         break;
+      case OPT_NAME:
+        options[flag] = optarg;
+        break;
+
+      case OPT_VERBOSE:
+        options[flag] = (void *) 0x42; /* Boolean. */
+        break;
+
+      case OPT_PROFILE:
+        options[flag] = optarg;
+        break;
+      case OPT_PROFILEDIR:
+        options[flag] = optarg;
+        break;
+
       case '?':
         exit(EXIT_FAILURE);
     };

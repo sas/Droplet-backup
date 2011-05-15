@@ -226,7 +226,7 @@ int cmd_restore(int argc, char *argv[])
   char *download_path;
   char buf[4096];
 
-  if (!(argc == 3 || (argc == 2 && options['i'])))
+  if (!(argc == 3 || (argc == 2 && options[OPT_INTERACTIVE])))
   {
     int help_argc = 2;
     char *help_argv[] = { "help_err", "restore", NULL };

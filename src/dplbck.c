@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
     return cmd_help(help_argc, help_argv);
   }
 
-  if (options['c'] != NULL && chdir(options['c']) == -1)
-    err(EXIT_FAILURE, "%s", options['c']);
+  if (options[OPT_CHANGEDIR] != NULL && chdir(options[OPT_CHANGEDIR]) == -1)
+    err(EXIT_FAILURE, "%s", options[OPT_CHANGEDIR]);
 
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
     if (strcmp(argv[0], commands[i].cmd_name) == 0)

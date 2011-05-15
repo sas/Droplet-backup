@@ -263,7 +263,7 @@ storage_t sto_dpl_new(const char *uri, int create_dirs)
   if (dpl_init() != DPL_SUCCESS)
     goto err;
 
-  if ((ctx = dpl_ctx_new(options['d'], options['p'])) == NULL)
+  if ((ctx = dpl_ctx_new(options[OPT_PROFILEDIR], options[OPT_PROFILE])) == NULL)
     goto err;
 
   res = emalloc(sizeof (struct storage));
