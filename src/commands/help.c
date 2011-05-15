@@ -33,7 +33,7 @@
 
 #include "help.h"
 
-extern char *__progname; // From crt0.o
+extern char *__progname; /* From crt0.o. */
 
 static void help(FILE *output)
 {
