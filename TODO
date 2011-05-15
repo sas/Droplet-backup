@@ -1,0 +1,12 @@
+* --exclude /  --exclude-file (prefix)
+* not cross filesystem
+* verbose mode should have a least 4 different modes:
+    * silent: no output but errors
+    * report: provide just a line with stats (duration, speed, volume, #files, #buckets)
+    * verbose (default): see basic but important information (which file is being migrated)
+    * debug: tool debug mode
+    * trace: include libdroplet debug mode
+* output to a file
+* dry-run mode for backup and restore
+* local cache, --cache-dir for archive meta information
+* rpm/deb
