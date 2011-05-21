@@ -1,6 +1,7 @@
-* --exclude /  --exclude-file (prefix)
-* not cross filesystem
-* dry-run mode for backup and restore
-* local cache, --cache-dir for archive meta information
-* rpm/deb
-* print a report at the end of an operation
+* replace calls to err()/errx()/warn()/warnx() by calls to the logger
+* --exclude --exclude-file (exclude paths matching the argument)
+* --cross-dev (de not descend directories on other filesystems)
+* --dry-run mode (do not actually backup or restore the files)
+* print a report at the end of an operation with small stats
+* --cache-dir (local cache for directory description files)
+* rpm/deb packages
