@@ -87,7 +87,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
   char *blob_hash;
   struct buffer *blob;
 
-  if (options['v'])
+  if (options_get()->verbose)
     printf("%s\n", path);
 
   if ((res = fopen(path, "wb")) == NULL)
@@ -129,7 +129,7 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
   FILE *descr;
   char buf[4096];
 
-  if (options['v'])
+  if (options_get()->verbose)
     printf("%s\n", path);
 
   if (mkdir(path, 0700) == -1 && errno != EEXIST)
@@ -159,7 +159,7 @@ static void unhash_link(storage_t storage, const char *path, const struct elemen
   char *download_path;
   struct buffer *descr;
 
-  if (options['v'])
+  if (options_get()->verbose)
     printf("%s\n", path);
 
   download_path = path_concat("objects", elem->hash);
@@ -226,7 +226,7 @@ int cmd_restore(int argc, char *argv[])
   char *download_path;
   char buf[4096];
 
-  if (!(argc == 3 || (argc == 2 && options[OPT_INTERACTIVE])))
+  if (!(argc == 3 || (argc == 2 && options_get()->interactive)))
   {
     int help_argc = 2;
     char *help_argv[] = { "help_err", "restore", NULL };

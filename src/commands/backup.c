@@ -81,7 +81,7 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   int file_buf_idx;
   char *upload_path;
 
-  if (options['v'])
+  if (options_get()->verbose)
     printf("%s\n", path);
 
   tmp = etmpfile();
@@ -135,7 +135,7 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   struct dirent *ent;
   char *upload_path;
 
-  if (options['v'])
+  if (options_get()->verbose)
     printf("%s\n", path);
 
   tmp = etmpfile();
@@ -169,7 +169,7 @@ static const char *hash_link(storage_t storage, const char *path)
   int size;
   char *upload_path;
 
-  if (options['v'])
+  if (options_get()->verbose)
     printf("%s\n", path);
 
   /*
@@ -333,7 +333,7 @@ int cmd_backup(int argc, char *argv[])
   for (int i = 2; i < argc; ++i)
     hash_dispatch(storage, backup, path_rm_trailing_slashes(argv[i]));
 
-  backup_name = options[OPT_NAME];
+  backup_name = options_get()->name;
 
   if (backup_name == NULL)
   {

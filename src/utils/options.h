@@ -1,20 +1,19 @@
 #ifndef OPTIONS_H_
 # define OPTIONS_H_
 
-/* General options. */
-# define OPT_CHANGEDIR    'c'
-# define OPT_INTERACTIVE  'i'
-# define OPT_NAME         'n'
+# include <stdbool.h>
 
-/* Logging options. */
-# define OPT_VERBOSE      'v'
+struct options
+{
+  const char  *change_dir;
+  bool         interactive;
+  const char  *name;
+  bool         verbose;
+  const char  *profile;
+  const char  *profile_dir;
+};
 
-/* Droplet related options. */
-# define OPT_PROFILE      'p'
-# define OPT_PROFILEDIR   'd'
-
-extern const char *options[128];
-
-int options_init(int argc, char *argv[]);
+int              options_init(int argc, char *argv[]);
+struct options  *options_get(void);
 
 #endif /* !OPTIONS_H_ */

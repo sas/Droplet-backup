@@ -152,7 +152,7 @@ static void delete_object(const char *str, void *data)
   storage_t storage = (storage_t) data;
   char *unlink_path;
 
-  if (options['v'])
+  if (options_get()->verbose)
     printf("%s\n", str);
 
   unlink_path = path_concat("objects", str);

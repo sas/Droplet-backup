@@ -56,11 +56,18 @@ static const struct {
 int main(int argc, char *argv[])
 {
   int cmd_offset;
+  const char *change_dir;
 
   cmd_offset = options_init(argc, argv);
 
   argc -= cmd_offset;
   argv += cmd_offset;
+
+  change_dir = options_get()->change_dir;
+
+  if (change_dir != NULL)
+    if (chdir(change_dir) == -1)
+      err(EXIT_FAILURE, "%s", change_dir);
 
   if (argc == 0)
   {
@@ -69,13 +76,10 @@ int main(int argc, char *argv[])
     return cmd_help(help_argc, help_argv);
   }
 
-  if (options[OPT_CHANGEDIR] != NULL && chdir(options[OPT_CHANGEDIR]) == -1)
-    err(EXIT_FAILURE, "%s", options[OPT_CHANGEDIR]);
-
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
     if (strcmp(argv[0], commands[i].cmd_name) == 0)
       return commands[i].cmd(argc, argv);
 
-  /* We never reach this point if there is a valid command. */
+  /* We should never reach this point if a valid command was found. */
   errx(EXIT_FAILURE, "unknown command: %s", *argv);
 }

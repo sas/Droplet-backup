@@ -1,9 +1,23 @@
 #include <getopt.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "options.h"
+
+/* General options. */
+#define OPT_CHANGEDIR     'c'
+#define OPT_INTERACTIVE   'i'
+#define OPT_NAME          'n'
+
+/* Logging options. */
+#define OPT_VERBOSE       'v'
+
+/* Droplet related options. */
+#define OPT_PROFILEDIR    'd'
+#define OPT_PROFILE       'p'
 
 static const struct option possible_options[] =
 {
@@ -37,50 +51,52 @@ static const struct option possible_options[] =
 
   /* Droplet related options. */
   {
-    .name = "profile",
-    .has_arg = required_argument,
-    .flag = NULL,
-    .val = OPT_PROFILE,
-  },
-  {
     .name = "profile-dir",
     .has_arg = required_argument,
     .flag = NULL,
     .val = OPT_PROFILEDIR,
   },
+  {
+    .name = "profile",
+    .has_arg = required_argument,
+    .flag = NULL,
+    .val = OPT_PROFILE,
+  },
 
   { NULL, 0, NULL, 0, },
 };
 
-const char *options[128] = { 0 };
+static struct options options;
 
 int options_init(int argc, char *argv[])
 {
   int flag;
 
-  while ((flag = getopt_long(argc, argv, "c:in:vp:d:", possible_options, NULL)) != -1)
+  memset(&options, 0, sizeof (struct options));
+
+  while ((flag = getopt_long(argc, argv, "c:in:vd:p:", possible_options, NULL)) != -1)
   {
     switch (flag)
     {
       case OPT_CHANGEDIR:
-        options[flag] = optarg;
+        options.change_dir = optarg;
         break;
       case OPT_INTERACTIVE:
-        options[flag] = (void *) 0x42; /* Boolean. */
+        options.interactive = true;
         break;
       case OPT_NAME:
-        options[flag] = optarg;
+        options.name = optarg;
         break;
 
       case OPT_VERBOSE:
-        options[flag] = (void *) 0x42; /* Boolean. */
+        options.verbose = true;
         break;
 
-      case OPT_PROFILE:
-        options[flag] = optarg;
-        break;
       case OPT_PROFILEDIR:
-        options[flag] = optarg;
+        options.profile_dir = optarg;
+        break;
+      case OPT_PROFILE:
+        options.profile = optarg;
         break;
 
       case '?':
@@ -89,4 +105,9 @@ int options_init(int argc, char *argv[])
   }
 
   return optind;
+}
+
+struct options *options_get(void)
+{
+  return &options;
 }

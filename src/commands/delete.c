@@ -48,7 +48,7 @@ int cmd_delete(int argc, char *argv[])
   char *backup_name;
   char *unlink_path;
 
-  if (!(argc == 3 || (argc == 2 && options[OPT_INTERACTIVE])))
+  if (!(argc == 3 || (argc == 2 && options_get()->interactive)))
   {
     int help_argc = 2;
     char *help_argv[] = { "help_err", "delete", NULL };
