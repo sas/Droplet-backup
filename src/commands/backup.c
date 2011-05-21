@@ -48,6 +48,7 @@
 #include <utils/buffer.h>
 #include <utils/diefuncs.h>
 #include <utils/digest.h>
+#include <utils/logger.h>
 #include <utils/options.h>
 #include <utils/path.h>
 #include <utils/rollsum.h>
@@ -81,8 +82,7 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   int file_buf_idx;
   char *upload_path;
 
-  if (options_get()->verbose)
-    printf("%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", path);
 
   tmp = etmpfile();
   buf = buffer_new(ROLLSUM_MAXSIZE);
@@ -135,8 +135,7 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   struct dirent *ent;
   char *upload_path;
 
-  if (options_get()->verbose)
-    printf("%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", path);
 
   tmp = etmpfile();
 
@@ -169,8 +168,7 @@ static const char *hash_link(storage_t storage, const char *path)
   int size;
   char *upload_path;
 
-  if (options_get()->verbose)
-    printf("%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", path);
 
   /*
   ** We should use PATH_MAX instead of 4096 here, but this macro is not defined

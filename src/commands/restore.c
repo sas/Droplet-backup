@@ -87,8 +87,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
   char *blob_hash;
   struct buffer *blob;
 
-  if (options_get()->verbose)
-    printf("%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", path);
 
   if ((res = fopen(path, "wb")) == NULL)
     err(EXIT_FAILURE, "unable to restore: %s", path);
@@ -129,8 +128,7 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
   FILE *descr;
   char buf[4096];
 
-  if (options_get()->verbose)
-    printf("%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", path);
 
   if (mkdir(path, 0700) == -1 && errno != EEXIST)
     err(EXIT_FAILURE, "unable to restore: %s", path);
@@ -159,8 +157,7 @@ static void unhash_link(storage_t storage, const char *path, const struct elemen
   char *download_path;
   struct buffer *descr;
 
-  if (options_get()->verbose)
-    printf("%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", path);
 
   download_path = path_concat("objects", elem->hash);
   if ((descr = storage_retrieve_buffer(storage, download_path)) == NULL)

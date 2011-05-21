@@ -33,12 +33,13 @@
 enum log_level
 {
   LOG_DEBUG   = 1,
-  LOG_INFO    = 2,
-  LOG_WARNING = 3,
-  LOG_ERROR   = 4,
+  LOG_VERBOSE = 2,
+  LOG_INFO    = 3,
+  LOG_WARNING = 4,
+  LOG_ERROR   = 5,
 };
 
-void init_logger(enum log_level level, const char *output);
+void logger_init(enum log_level level, const char *output);
 void logger(enum log_level level, const char *format, ...);
 
 #endif /* !LOGGER_H_ */

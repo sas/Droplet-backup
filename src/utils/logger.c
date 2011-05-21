@@ -38,7 +38,7 @@ extern char *__progname; /* From crt0.o. */
 
 static enum log_level log_level = LOG_WARNING;
 
-void init_logger(enum log_level level, const char *output)
+void logger_init(enum log_level level, const char *output)
 {
   if (level != 0)
     log_level = level;

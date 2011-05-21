@@ -39,6 +39,7 @@
 #include <commands/list.h>
 #include <commands/purge.h>
 #include <commands/restore.h>
+#include <utils/logger.h>
 #include <utils/options.h>
 
 static const struct {
@@ -60,6 +61,7 @@ int main(int argc, char *argv[])
 
   cmd_offset = options_init(argc, argv);
 
+  logger_init(options_get()->verbose, options_get()->log_file);
   argc -= cmd_offset;
   argv += cmd_offset;
 
