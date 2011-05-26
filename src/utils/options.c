@@ -27,7 +27,6 @@
 **
 */
 
-#include <err.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -143,7 +142,7 @@ int options_init(int argc, char *argv[])
           else if (strcmp(optarg, "error") == 0)
             options.verbose = LOG_ERROR;
           else
-            errx(EXIT_FAILURE, "%s: invalid argument", optarg);
+            logger(LOG_ERROR, "%s: invalid argument", optarg);
         }
         break;
       case OPT_LOGFILE:

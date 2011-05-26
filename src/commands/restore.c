@@ -33,7 +33,6 @@
 ** function.
 */
 
-#include <err.h>
 #include <errno.h>
 #include <readline.h>
 #include <stdio.h>
@@ -48,6 +47,7 @@
 #include <storage/storage.h>
 #include <utils/buffer.h>
 #include <utils/diefuncs.h>
+#include <utils/logger.h>
 #include <utils/options.h>
 #include <utils/path.h>
 
@@ -72,7 +72,7 @@ static struct buffer *unhash_blob(storage_t storage, const char *path, const cha
 
   download_path = path_concat("objects", hash);
   if ((res = storage_retrieve_buffer(storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
+    logger(LOG_ERROR, "unable to retrieve: %s", path);
   free(download_path);
 
   return res;
@@ -90,11 +90,11 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
   logger(LOG_VERBOSE, "%s\n", path);
 
   if ((res = fopen(path, "wb")) == NULL)
-    err(EXIT_FAILURE, "unable to restore: %s", path);
+    elogger(LOG_ERROR, "unable to restore: %s", path);
 
   download_path = path_concat("objects", elem->hash);
   if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
+    logger(LOG_ERROR, "unable to retrieve: %s", path);
   free(download_path);
 
   while ((blob_hash = fgets(buf, 4096, descr)) != NULL)
@@ -103,7 +103,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
 
     size = strlen(blob_hash);
     if (blob_hash[size - 1] != '\n')
-      errx(EXIT_FAILURE, "invalid description file: %s", path);
+      logger(LOG_ERROR, "invalid description file: %s", path);
     blob_hash[size - 1] = '\0';
 
     blob = unhash_blob(storage, path, blob_hash);
@@ -116,7 +116,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
   }
 
   if (ferror(descr))
-    errx(EXIT_FAILURE, "unable to restore: %s", path);
+    logger(LOG_ERROR, "unable to restore: %s", path);
 
   fclose(res);
   fclose(descr);
@@ -131,25 +131,25 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
   logger(LOG_VERBOSE, "%s\n", path);
 
   if (mkdir(path, 0700) == -1 && errno != EEXIST)
-    err(EXIT_FAILURE, "unable to restore: %s", path);
+    elogger(LOG_ERROR, "unable to restore: %s", path);
 
   download_path = path_concat("objects", elem->hash);
   if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
+    logger(LOG_ERROR, "unable to retrieve: %s", path);
   free(download_path);
 
   while (fgets(buf, 4096, descr) != NULL)
     unhash_dispatch(storage, path, buf);
 
   if (ferror(descr))
-    errx(EXIT_FAILURE, "unable to restore: %s", path);
+    logger(LOG_ERROR, "unable to restore: %s", path);
 
   fclose(descr);
 
   if (chmod(path, elem->perm) == -1)
-    warn("unable to set mode for %s", path);
+    elogger(LOG_WARNING, "unable to set mode for %s", path);
   if (lchown(path, elem->uid, elem->gid) == -1)
-    warn("unable to set uid/gid for %s", path);
+    elogger(LOG_WARNING, "unable to set uid/gid for %s", path);
 }
 
 static void unhash_link(storage_t storage, const char *path, const struct element *elem)
@@ -161,11 +161,11 @@ static void unhash_link(storage_t storage, const char *path, const struct elemen
 
   download_path = path_concat("objects", elem->hash);
   if ((descr = storage_retrieve_buffer(storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "unable to retrieve: %s", path);
+    logger(LOG_ERROR, "unable to retrieve: %s", path);
   free(download_path);
 
   if (symlink((char *) descr->data, path) == -1 && errno != EEXIST)
-    err(EXIT_FAILURE, "unable to restore: %s", path);
+    elogger(LOG_ERROR, "unable to restore: %s", path);
 
   buffer_delete(descr);
 }
@@ -177,29 +177,29 @@ static void unhash_dispatch(storage_t storage, const char *path, char *elem_str)
   char *new_path;
 
   if ((elem.type = strsep(&elem_str, " ")) == NULL)
-    errx(EXIT_FAILURE, "invalid description file: %s", path);
+    logger(LOG_ERROR, "invalid description file: %s", path);
 
   if ((elem.hash = strsep(&elem_str, " ")) == NULL)
-    errx(EXIT_FAILURE, "invalid description file: %s", path);
+    logger(LOG_ERROR, "invalid description file: %s", path);
 
   tmp_elem = elem_str;
   elem.uid = strtol(elem_str, &elem_str, 10);
   if (tmp_elem == elem_str)
-    errx(EXIT_FAILURE, "invalid description file: %s", path);
+    logger(LOG_ERROR, "invalid description file: %s", path);
 
   tmp_elem = elem_str;
   elem.gid = strtol(elem_str, &elem_str, 10);
   if (tmp_elem == elem_str)
-    errx(EXIT_FAILURE, "invalid description file: %s", path);
+    logger(LOG_ERROR, "invalid description file: %s", path);
 
   tmp_elem = elem_str;
   elem.perm = strtol(elem_str, &elem_str, 8);
   if (tmp_elem == elem_str)
-    errx(EXIT_FAILURE, "invalid description file: %s", path);
+    logger(LOG_ERROR, "invalid description file: %s", path);
 
   ++elem_str; // Skip the space before the name
   if ((elem.name = strsep(&elem_str, "\n")) == NULL)
-    errx(EXIT_FAILURE, "invalid description file: %s", path);
+    logger(LOG_ERROR, "invalid description file: %s", path);
 
   new_path = path_concat(path, elem.name);
 
@@ -210,7 +210,7 @@ static void unhash_dispatch(storage_t storage, const char *path, char *elem_str)
   else if (strcmp(elem.type, "link") == 0)
     unhash_link(storage, new_path, &elem);
   else
-    errx(EXIT_FAILURE, "invalid description file: %s", path);
+    logger(LOG_ERROR, "invalid description file: %s", path);
 
   free(new_path);
 }
@@ -231,7 +231,7 @@ int cmd_restore(int argc, char *argv[])
   }
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
-    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
+    logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
   if (argc == 3)
   {
@@ -251,14 +251,14 @@ int cmd_restore(int argc, char *argv[])
   download_path = path_concat("backups", backup_name);
   free(backup_name);
   if ((backup = storage_retrieve_file(storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "unable to retrieve the backup description file");
+    logger(LOG_ERROR, "unable to retrieve the backup description file");
   free(download_path);
 
   while (fgets(buf, 4096, backup) != NULL)
     unhash_dispatch(storage, "", buf);
 
   if (ferror(backup))
-    errx(EXIT_FAILURE, "unable to restore the backup");
+    logger(LOG_ERROR, "unable to restore the backup");
 
   fclose(backup);
   storage_delete(storage);

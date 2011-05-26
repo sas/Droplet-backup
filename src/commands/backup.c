@@ -34,7 +34,6 @@
 */
 
 #include <dirent.h>
-#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,7 +64,7 @@ static const char *hash_blob(storage_t storage, const char *path, struct buffer 
   res = digest_buffer(buf);
   upload_path = path_concat("objects", res);
   if (!storage_store_buffer(storage, upload_path, buf))
-    errx(EXIT_FAILURE, "unable to store: %s", path);
+    logger(LOG_ERROR, "unable to store: %s", path);
   free(upload_path);
 
   return res;
@@ -109,17 +108,17 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   }
 
   if (ferror(file))
-    errx(EXIT_FAILURE, "unable to backup: %s", path);
+    logger(LOG_ERROR, "unable to backup: %s", path);
 
   /* Upload the last block of data. */
   res = hash_blob(storage, path, buf);
   fprintf(tmp, "%s\n", res);
 
   if ((res = digest_file(tmp)) == NULL)
-    errx(EXIT_FAILURE, "unable to backup: %s", path);
+    logger(LOG_ERROR, "unable to backup: %s", path);
   upload_path = path_concat("objects", res);
   if (!storage_store_file(storage, upload_path, tmp))
-    errx(EXIT_FAILURE, "unable to store: %s", path);
+    logger(LOG_ERROR, "unable to store: %s", path);
   free(upload_path);
 
   buffer_delete(buf);
@@ -150,10 +149,10 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   }
 
   if ((res = digest_file(tmp)) == NULL)
-    errx(EXIT_FAILURE, "unable to backup: %s", path);
+    logger(LOG_ERROR, "unable to backup: %s", path);
   upload_path = path_concat("objects", res);
   if (!storage_store_file(storage, upload_path, tmp))
-    errx(EXIT_FAILURE, "unable to store: %s", path);
+    logger(LOG_ERROR, "unable to store: %s", path);
   free(upload_path);
 
   fclose(tmp);
@@ -177,7 +176,7 @@ static const char *hash_link(storage_t storage, const char *path)
   tmp = buffer_new(4096);
   if ((size = readlink(path, (char *) tmp->data, tmp->size - 1)) == -1)
   {
-    warn("%s", path);
+    elogger(LOG_WARNING, "%s", path);
     buffer_delete(tmp);
     return NULL;
   }
@@ -188,7 +187,7 @@ static const char *hash_link(storage_t storage, const char *path)
   res = digest_buffer(tmp);
   upload_path = path_concat("objects", res);
   if (!storage_store_buffer(storage, upload_path, tmp))
-    errx(EXIT_FAILURE, "unable to store: %s", path);
+    logger(LOG_ERROR, "unable to store: %s", path);
   free(upload_path);
 
   buffer_delete(tmp);
@@ -235,7 +234,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
   if (lstat(path, &buf) == -1)
   {
-    warn("%s", path);
+    elogger(LOG_WARNING, "%s", path);
     return;
   }
 
@@ -245,7 +244,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
     if ((file = fopen(path, "rb")) == NULL)
     {
-      warn("%s", path);
+      elogger(LOG_WARNING, "%s", path);
       return;
     }
 
@@ -259,7 +258,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
 
     if ((dir = opendir(path)) == NULL)
     {
-      warn("%s", path);
+      elogger(LOG_WARNING, "%s", path);
       return;
     }
 
@@ -273,27 +272,27 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
   }
   else if (S_ISCHR(buf.st_mode))
   {
-    warnx("%s: is a character device, not backuping", path);
+    logger(LOG_WARNING, "%s: is a character device, not backuping", path);
     return;
   }
   else if (S_ISBLK(buf.st_mode))
   {
-    warnx("%s: is a block device, not backuping", path);
+    logger(LOG_WARNING, "%s: is a block device, not backuping", path);
     return;
   }
   else if (S_ISFIFO(buf.st_mode))
   {
-    warnx("%s: is a named pipe, not backuping", path);
+    logger(LOG_WARNING, "%s: is a named pipe, not backuping", path);
     return;
   }
   else if (S_ISSOCK(buf.st_mode))
   {
-    warnx("%s: is a socket, not backuping", path);
+    logger(LOG_WARNING, "%s: is a socket, not backuping", path);
     return;
   }
   else
   {
-    warnx("%s: unknown file type, not backuping", path);
+    logger(LOG_WARNING, "%s: unknown file type, not backuping", path);
     return;
   }
 
@@ -324,7 +323,7 @@ int cmd_backup(int argc, char *argv[])
   }
 
   if ((storage = storage_new(argv[1], 1)) == NULL)
-    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
+    logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
   backup = etmpfile();
 
@@ -341,14 +340,14 @@ int cmd_backup(int argc, char *argv[])
     time(&cur_time);
     t = gmtime(&cur_time);
     if (strftime(backup_date, sizeof (backup_date), "%Y.%m.%d-%H.%M.%S", t) == 0)
-      errx(EXIT_FAILURE, "strftime()");
+      logger(LOG_ERROR, "strftime()");
 
     backup_name = backup_date;
   }
 
   upload_path = path_concat("backups", backup_name);
   if (!storage_store_file(storage, upload_path, backup))
-    errx(EXIT_FAILURE, "unable to store the backup description file");
+    logger(LOG_ERROR, "unable to store the backup description file");
   free(upload_path);
 
   fclose(backup);

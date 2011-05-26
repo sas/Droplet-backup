@@ -27,7 +27,6 @@
 **
 */
 
-#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -69,7 +68,7 @@ int main(int argc, char *argv[])
 
   if (change_dir != NULL)
     if (chdir(change_dir) == -1)
-      err(EXIT_FAILURE, "%s", change_dir);
+      elogger(LOG_ERROR, "%s", change_dir);
 
   if (argc == 0)
   {
@@ -83,5 +82,5 @@ int main(int argc, char *argv[])
       return commands[i].cmd(argc, argv);
 
   /* We should never reach this point if a valid command was found. */
-  errx(EXIT_FAILURE, "unknown command: %s", *argv);
+  logger(LOG_ERROR, "unknown command: %s", *argv);
 }

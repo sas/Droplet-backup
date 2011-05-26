@@ -33,12 +33,12 @@
 ** purge_ function.
 */
 
-#include <err.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <commands/help.h>
 #include <storage/storage.h>
+#include <utils/logger.h>
 #include <utils/options.h>
 #include <utils/path.h>
 #include <utils/strset.h>
@@ -56,7 +56,7 @@ static void purge_file(storage_t storage, strset_t objects, char *hash)
 
   download_path = path_concat("objects", hash);
   if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "unable to retrieve: %s", hash);
+    logger(LOG_ERROR, "unable to retrieve: %s", hash);
   free(download_path);
 
   while ((blob_hash = fgets(buf, 4096, descr)) != NULL)
@@ -65,14 +65,14 @@ static void purge_file(storage_t storage, strset_t objects, char *hash)
 
     size = strlen(blob_hash);
     if (blob_hash[size - 1] != '\n')
-      errx(EXIT_FAILURE, "invalid object: %s", hash);
+      logger(LOG_ERROR, "invalid object: %s", hash);
     blob_hash[size - 1] = '\0';
 
     strset_del(objects, blob_hash);
   }
 
   if (ferror(descr))
-    errx(EXIT_FAILURE, "unable to purge: %s", hash);
+    logger(LOG_ERROR, "unable to purge: %s", hash);
 
   fclose(descr);
 }
@@ -85,14 +85,14 @@ static void purge_tree(storage_t storage, strset_t objects, char *hash)
 
   download_path = path_concat("objects", hash);
   if ((descr = storage_retrieve_file(storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "unable to retrieve: %s", hash);
+    logger(LOG_ERROR, "unable to retrieve: %s", hash);
   free(download_path);
 
   while (fgets(buf, 4096, descr) != NULL)
     purge_dispatch(storage, objects, buf);
 
   if (ferror(descr))
-    errx(EXIT_FAILURE, "unable to purge: %s", hash);
+    logger(LOG_ERROR, "unable to purge: %s", hash);
 
   fclose(descr);
 }
@@ -103,10 +103,10 @@ static void purge_dispatch(storage_t storage, strset_t objects, char *elem_str)
   char *hash;
 
   if ((type = strsep(&elem_str, " ")) == NULL)
-    errx(EXIT_FAILURE, "invalid description file: %s", elem_str);
+    logger(LOG_ERROR, "invalid description file: %s", elem_str);
 
   if ((hash = strsep(&elem_str, " ")) == NULL)
-    errx(EXIT_FAILURE, "invalid description file: %s", elem_str);
+    logger(LOG_ERROR, "invalid description file: %s", elem_str);
 
   strset_del(objects, hash);
 
@@ -117,7 +117,7 @@ static void purge_dispatch(storage_t storage, strset_t objects, char *elem_str)
   else if (strcmp(type, "link") == 0)
     return; /* No need to recurse. */
   else
-    errx(EXIT_FAILURE, "invalid description file: %s", elem_str);
+    logger(LOG_ERROR, "invalid description file: %s", elem_str);
 }
 
 struct mark_backup_args
@@ -135,14 +135,14 @@ static void mark_backup(const char *str, void *data)
 
   download_path = path_concat("backups", str);
   if ((backup = storage_retrieve_file(args->storage, download_path)) == NULL)
-    errx(EXIT_FAILURE, "%s: unable to retrieve the description file", str);
+    logger(LOG_ERROR, "%s: unable to retrieve the description file", str);
   free(download_path);
 
   while (fgets(buf, 4096, backup) != NULL)
     purge_dispatch(args->storage, args->objects, buf);
 
   if (ferror(backup))
-    errx(EXIT_FAILURE, "unable to restore the backup");
+    logger(LOG_ERROR, "unable to restore the backup");
 
   fclose(backup);
 }
@@ -156,7 +156,7 @@ static void delete_object(const char *str, void *data)
 
   unlink_path = path_concat("objects", str);
   if (!storage_unlink(storage, unlink_path))
-    errx(EXIT_FAILURE, "%s: unable to delete object", str);
+    logger(LOG_ERROR, "%s: unable to delete object", str);
   free(unlink_path);
 }
 
@@ -176,7 +176,7 @@ int cmd_purge(int argc, char *argv[])
   }
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
-    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
+    logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
   backups = strset_new();
   objects = strset_new();

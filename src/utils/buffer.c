@@ -27,7 +27,6 @@
 **
 */
 
-#include <err.h>
 #include <stdlib.h>
 
 #include <utils/diefuncs.h>

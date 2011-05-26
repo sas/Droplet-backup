@@ -27,7 +27,6 @@
 **
 */
 
-#include <err.h>
 #include <readline.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +36,7 @@
 #include <commands/list.h>
 #include <storage/storage.h>
 #include <utils/diefuncs.h>
+#include <utils/logger.h>
 #include <utils/options.h>
 #include <utils/path.h>
 
@@ -56,7 +56,7 @@ int cmd_delete(int argc, char *argv[])
   }
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
-    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
+    logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
   if (argc == 3)
   {
@@ -76,7 +76,7 @@ int cmd_delete(int argc, char *argv[])
   unlink_path = path_concat("backups", backup_name);
   free(backup_name);
   if (!storage_unlink(storage, unlink_path))
-    errx(EXIT_FAILURE, "unable to delete the backup");
+    logger(LOG_ERROR, "unable to delete the backup");
   free(unlink_path);
 
   storage_delete(storage);

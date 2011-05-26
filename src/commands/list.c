@@ -27,11 +27,11 @@
 **
 */
 
-#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <commands/help.h>
+#include <utils/logger.h>
 #include <storage/storage.h>
 
 #include "list.h"
@@ -49,7 +49,7 @@ int cmd_list(int argc, char *argv[])
   }
 
   if ((storage = storage_new(argv[1], 0)) == NULL)
-    errx(EXIT_FAILURE, "unable to open storage: %s", argv[1]);
+    logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
   elem = storage_list(storage, "backups");
   while (elem != NULL)

@@ -47,7 +47,7 @@ void logger_init(enum log_level level, const char *output)
 
   if (output != NULL)
     if (freopen(output, "w", stderr) == NULL)
-      err(EXIT_FAILURE, "%s", output);
+      elogger(LOG_ERROR, "%s", output);
 }
 
 void logger(enum log_level level, const char *format, ...)
