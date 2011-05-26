@@ -28,9 +28,11 @@
 */
 
 #include <err.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "logger.h"
 
@@ -50,15 +52,44 @@ void logger_init(enum log_level level, const char *output)
 
 void logger(enum log_level level, const char *format, ...)
 {
+  va_list ap;
+
+  va_start(ap, format);
+  vlogger(level, format, ap);
+  va_end(ap);
+}
+
+void elogger(enum log_level level, const char *format, ...)
+{
+  va_list ap;
+
+  va_start(ap, format);
+  velogger(level, format, ap);
+  va_end(ap);
+}
+
+void vlogger(enum log_level level, const char *format, va_list ap)
+{
   if (level >= log_level)
   {
-    va_list ap;
-
-    va_start(ap, format);
-
     fprintf(stderr, "%s: ", __progname);
     vfprintf(stderr, format, ap);
-
-    va_end(ap);
+    fprintf(stderr, "\n");
   }
+
+  if (level == LOG_ERROR)
+    exit(EXIT_FAILURE);
+}
+
+void velogger(enum log_level level, const char *format, va_list ap)
+{
+  if (level >= log_level)
+  {
+    fprintf(stderr, "%s: ", __progname);
+    vfprintf(stderr, format, ap);
+    fprintf(stderr, ": %s\n", strerror(errno));
+  }
+
+  if (level == LOG_ERROR)
+    exit(EXIT_FAILURE);
 }

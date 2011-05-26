@@ -30,6 +30,8 @@
 #ifndef LOGGER_H_
 # define LOGGER_H_
 
+# include <stdarg.h>
+
 enum log_level
 {
   LOG_DEBUG   = 1,
@@ -40,6 +42,11 @@ enum log_level
 };
 
 void logger_init(enum log_level level, const char *output);
+
 void logger(enum log_level level, const char *format, ...);
+void elogger(enum log_level level, const char *format, ...);
+
+void vlogger(enum log_level level, const char *format, va_list ap);
+void velogger(enum log_level level, const char *format, va_list ap);
 
 #endif /* !LOGGER_H_ */
