@@ -88,7 +88,7 @@ static const char *hash_file(struct hash_state *hs, FILE *file)
   int file_buf_idx;
   char *upload_path;
 
-  logger(LOG_VERBOSE, "%s\n", hs->path);
+  logger(LOG_VERBOSE, "%s", hs->path);
 
   tmp = etmpfile();
   buf = buffer_new(ROLLSUM_MAXSIZE);
@@ -141,7 +141,7 @@ static const char *hash_tree(struct hash_state *hs, DIR *dir)
   struct dirent *ent;
   char *upload_path;
 
-  logger(LOG_VERBOSE, "%s\n", hs->path);
+  logger(LOG_VERBOSE, "%s", hs->path);
 
   tmp = etmpfile();
 
@@ -179,7 +179,7 @@ static const char *hash_link(struct hash_state *hs)
   int size;
   char *upload_path;
 
-  logger(LOG_VERBOSE, "%s\n", hs->path);
+  logger(LOG_VERBOSE, "%s", hs->path);
 
   /*
   ** We should use PATH_MAX instead of 4096 here, but this macro is not defined

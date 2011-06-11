@@ -87,7 +87,7 @@ static void unhash_file(storage_t storage, const char *path, const struct elemen
   char *blob_hash;
   struct buffer *blob;
 
-  logger(LOG_VERBOSE, "%s\n", path);
+  logger(LOG_VERBOSE, "%s", path);
 
   if ((res = fopen(path, "wb")) == NULL)
     elogger(LOG_ERROR, "unable to restore: %s", path);
@@ -128,7 +128,7 @@ static void unhash_tree(storage_t storage, const char *path, const struct elemen
   FILE *descr;
   char buf[4096];
 
-  logger(LOG_VERBOSE, "%s\n", path);
+  logger(LOG_VERBOSE, "%s", path);
 
   if (mkdir(path, 0700) == -1 && errno != EEXIST)
     elogger(LOG_ERROR, "unable to restore: %s", path);
@@ -157,7 +157,7 @@ static void unhash_link(storage_t storage, const char *path, const struct elemen
   char *download_path;
   struct buffer *descr;
 
-  logger(LOG_VERBOSE, "%s\n", path);
+  logger(LOG_VERBOSE, "%s", path);
 
   download_path = path_concat("objects", elem->hash);
   if ((descr = storage_retrieve_buffer(storage, download_path)) == NULL)

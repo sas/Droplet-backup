@@ -152,7 +152,7 @@ static void delete_object(const char *str, void *data)
   storage_t storage = (storage_t) data;
   char *unlink_path;
 
-  logger(LOG_VERBOSE, "%s\n", str);
+  logger(LOG_VERBOSE, "%s", str);
 
   unlink_path = path_concat("objects", str);
   if (!storage_unlink(storage, unlink_path))
