@@ -27,6 +27,11 @@
 ##
 ##
 
+.PHONY:	all clean distclean install
+
+PREFIX	?= /usr/local
+PREFIX	:= $(DESTDIR)$(PREFIX)
+
 SUBDIRS	= src doc
 
 all:
@@ -37,3 +42,7 @@ clean:
 
 distclean:
 	@for dir in $(SUBDIRS); do $(MAKE) -C $$dir distclean || exit $?; done
+
+install: all
+	install -d $(PREFIX)/bin
+	install -m 0755 src/dplbck $(PREFIX)/bin
