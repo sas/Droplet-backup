@@ -46,3 +46,4 @@ distclean:
 install: all
 	install -d $(PREFIX)/bin
 	install -m 0755 src/dplbck $(PREFIX)/bin
+	install -m 644 doc/man/*.1.gz $(PREFIX)/share/man/man1

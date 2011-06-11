@@ -27,13 +27,25 @@
 ##
 ##
 
-SUBDIRS	= man
+include ../../config.mk
 
-all:
-	@for dir in $(SUBDIRS); do $(MAKE) -C $$dir; done
+SRCS		= dplbck.1		\
+		  dplbck-backup.1	\
+		  dplbck-delete.1	\
+		  dplbck-list.1		\
+		  dplbck-purge.1	\
+		  dplbck-restore.1	\
 
-clean:
-	@for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
+OBJS		= $(SRCS:.1=.1.gz)
+
+.PHONY: all clean distclean
+
+all: $(OBJS)
+
+%.1.gz: %.1
+	echo "GZ	$^"
+	gzip -c $^ > $@
 
 distclean:
-	@for dir in $(SUBDIRS); do $(MAKE) -C $$dir distclean; done
+	echo "RM	$(OBJS)"
+	rm -f $(OBJS)
