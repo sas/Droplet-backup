@@ -54,23 +54,30 @@
 
 #include "backup.h"
 
-static void hash_dispatch(storage_t storage, FILE *backup, const char *path);
+struct hash_state
+{
+  storage_t storage;
+  char *path;
+  dev_t devid;
+};
 
-static const char *hash_blob(storage_t storage, const char *path, struct buffer *buf)
+static void hash_dispatch(struct hash_state *hs, FILE *backup);
+
+static const char *hash_blob(struct hash_state *hs, struct buffer *buf)
 {
   const char *res;
   char *upload_path;
 
   res = digest_buffer(buf);
   upload_path = path_concat("objects", res);
-  if (!storage_store_buffer(storage, upload_path, buf))
-    logger(LOG_ERROR, "unable to store: %s", path);
+  if (!storage_store_buffer(hs->storage, upload_path, buf))
+    logger(LOG_ERROR, "unable to store: %s", hs->path);
   free(upload_path);
 
   return res;
 }
 
-static const char *hash_file(storage_t storage, const char *path, FILE *file)
+static const char *hash_file(struct hash_state *hs, FILE *file)
 {
   const char *res;
   FILE *tmp;
@@ -81,7 +88,7 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   int file_buf_idx;
   char *upload_path;
 
-  logger(LOG_VERBOSE, "%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", hs->path);
 
   tmp = etmpfile();
   buf = buffer_new(ROLLSUM_MAXSIZE);
@@ -97,7 +104,7 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
 
       if (rollsum_roll(&rs, file_buf[file_buf_idx]))
       {
-        res = hash_blob(storage, path, buf);
+        res = hash_blob(hs, buf);
         fprintf(tmp, "%s\n", res);
         buf->used = 0;
         rollsum_init(&rs);
@@ -108,17 +115,17 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   }
 
   if (ferror(file))
-    logger(LOG_ERROR, "unable to backup: %s", path);
+    logger(LOG_ERROR, "unable to backup: %s", hs->path);
 
   /* Upload the last block of data. */
-  res = hash_blob(storage, path, buf);
+  res = hash_blob(hs, buf);
   fprintf(tmp, "%s\n", res);
 
   if ((res = digest_file(tmp)) == NULL)
-    logger(LOG_ERROR, "unable to backup: %s", path);
+    logger(LOG_ERROR, "unable to backup: %s", hs->path);
   upload_path = path_concat("objects", res);
-  if (!storage_store_file(storage, upload_path, tmp))
-    logger(LOG_ERROR, "unable to store: %s", path);
+  if (!storage_store_file(hs->storage, upload_path, tmp))
+    logger(LOG_ERROR, "unable to store: %s", hs->path);
   free(upload_path);
 
   buffer_delete(buf);
@@ -127,14 +134,14 @@ static const char *hash_file(storage_t storage, const char *path, FILE *file)
   return res;
 }
 
-static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
+static const char *hash_tree(struct hash_state *hs, DIR *dir)
 {
   const char *res;
   FILE *tmp;
   struct dirent *ent;
   char *upload_path;
 
-  logger(LOG_VERBOSE, "%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", hs->path);
 
   tmp = etmpfile();
 
@@ -143,16 +150,21 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
     if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
       continue;
 
-    char *new_path = path_concat(path, ent->d_name);
-    hash_dispatch(storage, tmp, new_path);
+    char *new_path = path_concat(hs->path, ent->d_name);
+    char *old_path = hs->path;
+    hs->path = new_path;
+
+    hash_dispatch(hs, tmp);
+
     free(new_path);
+    hs->path = old_path;
   }
 
   if ((res = digest_file(tmp)) == NULL)
-    logger(LOG_ERROR, "unable to backup: %s", path);
+    logger(LOG_ERROR, "unable to backup: %s", hs->path);
   upload_path = path_concat("objects", res);
-  if (!storage_store_file(storage, upload_path, tmp))
-    logger(LOG_ERROR, "unable to store: %s", path);
+  if (!storage_store_file(hs->storage, upload_path, tmp))
+    logger(LOG_ERROR, "unable to store: %s", hs->path);
   free(upload_path);
 
   fclose(tmp);
@@ -160,23 +172,23 @@ static const char *hash_tree(storage_t storage, const char *path, DIR *dir)
   return res;
 }
 
-static const char *hash_link(storage_t storage, const char *path)
+static const char *hash_link(struct hash_state *hs)
 {
   const char *res;
   struct buffer *tmp;
   int size;
   char *upload_path;
 
-  logger(LOG_VERBOSE, "%s\n", path);
+  logger(LOG_VERBOSE, "%s\n", hs->path);
 
   /*
   ** We should use PATH_MAX instead of 4096 here, but this macro is not defined
   ** on all systems so a static size does the job.
   */
   tmp = buffer_new(4096);
-  if ((size = readlink(path, (char *) tmp->data, tmp->size - 1)) == -1)
+  if ((size = readlink(hs->path, (char *) tmp->data, tmp->size - 1)) == -1)
   {
-    elogger(LOG_WARNING, "%s", path);
+    elogger(LOG_WARNING, "%s", hs->path);
     buffer_delete(tmp);
     return NULL;
   }
@@ -186,8 +198,8 @@ static const char *hash_link(storage_t storage, const char *path)
 
   res = digest_buffer(tmp);
   upload_path = path_concat("objects", res);
-  if (!storage_store_buffer(storage, upload_path, tmp))
-    logger(LOG_ERROR, "unable to store: %s", path);
+  if (!storage_store_buffer(hs->storage, upload_path, tmp))
+    logger(LOG_ERROR, "unable to store: %s", hs->path);
   free(upload_path);
 
   buffer_delete(tmp);
@@ -227,28 +239,37 @@ static const char *mode_to_str(mode_t mode)
   return NULL;
 }
 
-static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
+static void hash_dispatch(struct hash_state *hs, FILE *backup)
 {
   struct stat buf;
   const char *hash = NULL;
 
-  if (lstat(path, &buf) == -1)
+  if (lstat(hs->path, &buf) == -1)
   {
-    elogger(LOG_WARNING, "%s", path);
+    elogger(LOG_WARNING, "%s", hs->path);
     return;
+  }
+
+  /* Skip the current path if we are crossing a device and --xdev is enabled. */
+  if (options_get()->xdev)
+  {
+    if (hs->devid == (dev_t) -1)
+      hs->devid = buf.st_dev;
+    if (hs->devid != buf.st_dev)
+      return;
   }
 
   if (S_ISREG(buf.st_mode))
   {
     FILE *file;
 
-    if ((file = fopen(path, "rb")) == NULL)
+    if ((file = fopen(hs->path, "rb")) == NULL)
     {
-      elogger(LOG_WARNING, "%s", path);
+      elogger(LOG_WARNING, "%s", hs->path);
       return;
     }
 
-    hash = hash_file(storage, path, file);
+    hash = hash_file(hs, file);
 
     fclose(file);
   }
@@ -256,43 +277,43 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
   {
     DIR *dir;
 
-    if ((dir = opendir(path)) == NULL)
+    if ((dir = opendir(hs->path)) == NULL)
     {
-      elogger(LOG_WARNING, "%s", path);
+      elogger(LOG_WARNING, "%s", hs->path);
       return;
     }
 
-    hash = hash_tree(storage, path, dir);
+    hash = hash_tree(hs, dir);
 
     closedir(dir);
   }
   else if (S_ISLNK(buf.st_mode))
   {
-    hash = hash_link(storage, path);
+    hash = hash_link(hs);
   }
   else if (S_ISCHR(buf.st_mode))
   {
-    logger(LOG_WARNING, "%s: is a character device, not backuping", path);
+    logger(LOG_WARNING, "%s: is a character device, not backuping", hs->path);
     return;
   }
   else if (S_ISBLK(buf.st_mode))
   {
-    logger(LOG_WARNING, "%s: is a block device, not backuping", path);
+    logger(LOG_WARNING, "%s: is a block device, not backuping", hs->path);
     return;
   }
   else if (S_ISFIFO(buf.st_mode))
   {
-    logger(LOG_WARNING, "%s: is a named pipe, not backuping", path);
+    logger(LOG_WARNING, "%s: is a named pipe, not backuping", hs->path);
     return;
   }
   else if (S_ISSOCK(buf.st_mode))
   {
-    logger(LOG_WARNING, "%s: is a socket, not backuping", path);
+    logger(LOG_WARNING, "%s: is a socket, not backuping", hs->path);
     return;
   }
   else
   {
-    logger(LOG_WARNING, "%s: unknown file type, not backuping", path);
+    logger(LOG_WARNING, "%s: unknown file type, not backuping", hs->path);
     return;
   }
 
@@ -303,7 +324,7 @@ static void hash_dispatch(storage_t storage, FILE *backup, const char *path)
         buf.st_uid,
         buf.st_gid,
         buf.st_mode & 07777,
-        const_basename(path)
+        const_basename(hs->path)
         );
 }
 
@@ -313,7 +334,7 @@ int cmd_backup(int argc, char *argv[])
   FILE *backup;
   char *upload_path;
   const char *backup_name;
-  char backup_date[20]; // Exactly the required size for "%Y.%m.%d-%H.%M.%S"
+  char backup_date[20]; /* Exactly the required size for "%Y.%m.%d-%H.%M.%S". */
 
   if (argc < 3)
   {
@@ -328,7 +349,15 @@ int cmd_backup(int argc, char *argv[])
   backup = etmpfile();
 
   for (int i = 2; i < argc; ++i)
-    hash_dispatch(storage, backup, path_rm_trailing_slashes(argv[i]));
+  {
+    struct hash_state hs;
+
+    hs.storage = storage;
+    hs.path = path_rm_trailing_slashes(argv[i]);
+    hs.devid = (dev_t) -1;
+
+    hash_dispatch(&hs, backup);
+  }
 
   backup_name = options_get()->name;
 

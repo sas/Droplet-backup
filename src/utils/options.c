@@ -45,6 +45,9 @@
 #define OPT_VERBOSE       'v'
 #define OPT_LOGFILE       'l'
 
+/* Hierarchy traversal options. */
+#define OPT_XDEV          'x'
+
 /* Droplet related options. */
 #define OPT_PROFILEDIR    'd'
 #define OPT_PROFILE       'p'
@@ -85,6 +88,14 @@ static const struct option possible_options[] =
     .val = OPT_LOGFILE,
   },
 
+  /* Hierarchy traversal options. */
+  {
+    .name = "xdev",
+    .has_arg = no_argument,
+    .flag = NULL,
+    .val = OPT_XDEV,
+  },
+
   /* Droplet related options. */
   {
     .name = "profile-dir",
@@ -114,6 +125,7 @@ int options_init(int argc, char *argv[])
   {
     switch (flag)
     {
+      /* General options. */
       case OPT_CHANGEDIR:
         options.change_dir = optarg;
         break;
@@ -124,6 +136,7 @@ int options_init(int argc, char *argv[])
         options.name = optarg;
         break;
 
+      /* Logging options. */
       case OPT_VERBOSE:
         if (optarg == NULL)
         {
@@ -149,6 +162,12 @@ int options_init(int argc, char *argv[])
         options.log_file = optarg;
         break;
 
+      /* Hierarchy traversal options. */
+      case OPT_XDEV:
+        options.xdev = true;
+        break;
+
+      /* Droplet related options. */
       case OPT_PROFILEDIR:
         options.profile_dir = optarg;
         break;

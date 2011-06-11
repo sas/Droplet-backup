@@ -41,8 +41,9 @@ struct options
   const char      *name;
   enum log_level   verbose;
   const char      *log_file;
-  const char      *profile;
+  bool             xdev;
   const char      *profile_dir;
+  const char      *profile;
 };
 
 int              options_init(int argc, char *argv[]);
