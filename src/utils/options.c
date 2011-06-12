@@ -48,6 +48,7 @@
 /* Hierarchy traversal options. */
 #define OPT_XDEV          'x'
 #define OPT_DRYRUN        'r'
+#define OPT_EXCLUDE       'e'
 
 /* Droplet related options. */
 #define OPT_PROFILEDIR    'd'
@@ -102,6 +103,12 @@ static const struct option possible_options[] =
     .flag = NULL,
     .val = OPT_DRYRUN,
   },
+  {
+    .name = "exclude",
+    .has_arg = required_argument,
+    .flag = NULL,
+    .val = OPT_EXCLUDE,
+  },
 
   /* Droplet related options. */
   {
@@ -127,6 +134,7 @@ int options_init(int argc, char *argv[])
   int flag;
 
   memset(&options, 0, sizeof (struct options));
+  options.exclude_list = list_new();
 
   while ((flag = getopt_long(argc, argv, "c:in:vd:p:", possible_options, NULL)) != -1)
   {
@@ -175,6 +183,9 @@ int options_init(int argc, char *argv[])
         break;
       case OPT_DRYRUN:
         options.dry_run = true;
+        break;
+      case OPT_EXCLUDE:
+        list_push_back(options.exclude_list, optarg);
         break;
 
       /* Droplet related options. */

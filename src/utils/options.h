@@ -32,6 +32,7 @@
 
 # include <stdbool.h>
 
+# include <utils/list.h>
 # include <utils/logger.h>
 
 struct options
@@ -43,6 +44,7 @@ struct options
   const char      *log_file;
   bool             xdev;
   bool             dry_run;
+  struct list     *exclude_list;
   const char      *profile_dir;
   const char      *profile;
 };

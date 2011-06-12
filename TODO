@@ -1,4 +1,5 @@
 * --exclude --exclude-file (exclude paths matching the argument)
+  * part in utils/options.c is already done
 * --dry-run mode (do not actually backup or restore the files)
   * part in utils/options.c is already done
 * --cache-dir (local cache for directory description files)
