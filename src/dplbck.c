@@ -56,6 +56,7 @@ static const struct {
 
 int main(int argc, char *argv[])
 {
+  int res = -1;
   int cmd_offset;
   const char *change_dir;
 
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
   argv += cmd_offset;
 
   change_dir = options_get()->change_dir;
+  stats_init();
 
   if (change_dir != NULL)
     if (chdir(change_dir) == -1)
@@ -79,19 +81,15 @@ int main(int argc, char *argv[])
   }
 
   for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
-  {
     if (strcmp(argv[0], commands[i].cmd_name) == 0)
-    {
-      int ret;
+      res = commands[i].cmd(argc, argv);
 
-      stats_init();
-      ret = commands[i].cmd(argc, argv);
-      stats_print();
+  /* We did not find a suitable command to run. */
+  if (res == -1)
+    logger(LOG_ERROR, "unknown command: %s", *argv);
 
-      return ret;
-    }
-  }
+  stats_print();
+  options_end();
 
-  /* We should never reach this point if a valid command was found. */
-  logger(LOG_ERROR, "unknown command: %s", *argv);
+  return res;
 }

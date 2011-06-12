@@ -208,3 +208,8 @@ struct options *options_get(void)
 {
   return &options;
 }
+
+void options_end(void)
+{
+  list_delete(options.exclude_list);
+}

@@ -51,5 +51,6 @@ struct options
 
 int              options_init(int argc, char *argv[]);
 struct options  *options_get(void);
+void             options_end(void);
 
 #endif /* !OPTIONS_H_ */
