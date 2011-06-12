@@ -36,6 +36,7 @@
 
 #include <storage/dpl.h>
 #include <storage/file.h>
+#include <utils/options.h>
 #include <utils/stats.h>
 
 #include "storage.h"

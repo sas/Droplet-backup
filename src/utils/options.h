@@ -42,6 +42,7 @@ struct options
   enum log_level   verbose;
   const char      *log_file;
   bool             xdev;
+  bool             dry_run;
   const char      *profile_dir;
   const char      *profile;
 };

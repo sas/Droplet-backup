@@ -47,6 +47,7 @@
 
 /* Hierarchy traversal options. */
 #define OPT_XDEV          'x'
+#define OPT_DRYRUN        'r'
 
 /* Droplet related options. */
 #define OPT_PROFILEDIR    'd'
@@ -94,6 +95,12 @@ static const struct option possible_options[] =
     .has_arg = no_argument,
     .flag = NULL,
     .val = OPT_XDEV,
+  },
+  {
+    .name = "dry-run",
+    .has_arg = no_argument,
+    .flag = NULL,
+    .val = OPT_DRYRUN,
   },
 
   /* Droplet related options. */
@@ -165,6 +172,9 @@ int options_init(int argc, char *argv[])
       /* Hierarchy traversal options. */
       case OPT_XDEV:
         options.xdev = true;
+        break;
+      case OPT_DRYRUN:
+        options.dry_run = true;
         break;
 
       /* Droplet related options. */
