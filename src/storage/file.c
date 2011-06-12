@@ -51,7 +51,7 @@ struct file_storage_state
   DIR *last_list;
 };
 
-static int sto_file_store_file(void *state, const char *path, FILE *file)
+static enum store_res sto_file_store_file(void *state, const char *path, FILE *file)
 {
   struct file_storage_state *s = state;
   char full_path[strlen(s->remote_root) + strlen(path) + 2];
@@ -71,7 +71,7 @@ static int sto_file_store_file(void *state, const char *path, FILE *file)
     ** this is not an actual failure.
     */
     if (errno == EEXIST)
-      return 1;
+      return STORE_EXISTS;
     else
       goto err;
   }
@@ -91,15 +91,15 @@ static int sto_file_store_file(void *state, const char *path, FILE *file)
 
   close(fd);
 
-  return 1;
+  return STORE_SUCCESS;
 
 err:
   if (fd != -1)
     close(fd);
-  return 0;
+  return STORE_FAILURE;
 }
 
-static int sto_file_store_buffer(void *state, const char *path, struct buffer *buffer)
+static enum store_res sto_file_store_buffer(void *state, const char *path, struct buffer *buffer)
 {
   struct file_storage_state *s = state;
   char full_path[strlen(s->remote_root) + strlen(path) + 2];
@@ -115,7 +115,7 @@ static int sto_file_store_buffer(void *state, const char *path, struct buffer *b
     ** this is not an actual failure.
     */
     if (errno == EEXIST)
-      return 1;
+      return STORE_EXISTS;
     else
       goto err;
   }
@@ -129,12 +129,12 @@ static int sto_file_store_buffer(void *state, const char *path, struct buffer *b
 
   close(fd);
 
-  return 1;
+  return STORE_SUCCESS;
 
 err:
   if (fd != -1)
     close(fd);
-  return 0;
+  return STORE_FAILURE;
 }
 
 static FILE *sto_file_retrieve_file(void *state, const char *path)
@@ -251,7 +251,7 @@ static const char *sto_file_list(void *state, const char *path)
     return NULL;
 }
 
-static int sto_file_unlink(void *state, const char *path)
+static bool sto_file_unlink(void *state, const char *path)
 {
   struct file_storage_state *s = state;
   char full_path[strlen(s->remote_root) + strlen(path) + 2];

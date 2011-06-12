@@ -29,11 +29,14 @@
 
 #define STORAGE_INTERNAL
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include <storage/dpl.h>
 #include <storage/file.h>
+#include <utils/stats.h>
 
 #include "storage.h"
 
@@ -55,33 +58,91 @@ storage_t storage_new(const char *uri, int create_dirs)
   return NULL;
 }
 
-int storage_store_file(storage_t storage, const char *path, FILE *file)
+bool storage_store_file(storage_t storage, const char *path, FILE *file)
 {
-  return storage->store_file(storage->state, path, file);
+  enum store_res ret;
+
+  ret = storage->store_file(storage->state, path, file);
+
+  if (ret == STORE_FAILURE)
+    return false;
+
+  stats_log_transaction();
+
+  if (ret != STORE_EXISTS)
+  {
+    int fd = fileno(file);
+    struct stat buf;
+
+    if (fstat(fd, &buf) == 0)
+      stats_log_tx_bytes(buf.st_size);
+  };
+
+  return true;
 }
 
-int storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer)
+bool storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer)
 {
-  return storage->store_buffer(storage->state, path, buffer);
+  enum store_res ret;
+
+  ret = storage->store_buffer(storage->state, path, buffer);
+
+  if (ret == STORE_FAILURE)
+    return false;
+
+  stats_log_transaction();
+
+  if (ret != STORE_EXISTS)
+    stats_log_tx_bytes(buffer->used);
+
+  return true;
 }
 
 FILE *storage_retrieve_file(storage_t storage, const char *path)
 {
-  return storage->retrieve_file(storage->state, path);
+  FILE *res;
+
+  res = storage->retrieve_file(storage->state, path);
+
+  if (res == NULL)
+    return NULL;
+
+  stats_log_transaction();
+
+  int fd = fileno(res);
+  struct stat buf;
+
+  if (fstat(fd, &buf) == 0)
+    stats_log_rx_bytes(buf.st_size);
+
+  return res;
 }
 
 struct buffer *storage_retrieve_buffer(storage_t storage, const char *path)
 {
-  return storage->retrieve_buffer(storage->state, path);
+  struct buffer *res;
+
+  res = storage->retrieve_buffer(storage->state, path);
+
+  if (res == NULL)
+    return NULL;
+
+  stats_log_transaction();
+  
+  stats_log_rx_bytes(res->used);
+
+  return res;
 }
 
 const char *storage_list(storage_t storage, const char *path)
 {
+  stats_log_transaction();
   return storage->list(storage->state, path);
 }
 
-int storage_unlink(storage_t storage, const char *path)
+bool storage_unlink(storage_t storage, const char *path)
 {
+  stats_log_transaction();
   return storage->unlink(storage->state, path);
 }
 

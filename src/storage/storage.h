@@ -30,6 +30,7 @@
 #ifndef STORAGE_H_
 # define STORAGE_H_
 
+# include <stdbool.h>
 # include <stdio.h>
 
 # include <utils/buffer.h>
@@ -40,28 +41,36 @@
 ** or the abstract storage module itself), we do not have access to internal
 ** types.
 */
+
+enum store_res
+{
+  STORE_FAILURE = 0,
+  STORE_SUCCESS = 1,
+  STORE_EXISTS  = 2,
+};
+
 struct storage
 {
-  int            (*store_file)(void *state, const char *path, FILE *file);
-  int            (*store_buffer)(void *state, const char *path, struct buffer *buffer);
-  FILE          *(*retrieve_file)(void *state, const char *path);
-  struct buffer *(*retrieve_buffer)(void *state, const char *path);
-  const char    *(*list)(void *state, const char *path);
-  int            (*unlink)(void *state, const char *path);
-  void           (*delete)(void *state);
-  void          *state;
+  enum store_res   (*store_file)(void *state, const char *path, FILE *file);
+  enum store_res   (*store_buffer)(void *state, const char *path, struct buffer *buffer);
+  FILE            *(*retrieve_file)(void *state, const char *path);
+  struct buffer   *(*retrieve_buffer)(void *state, const char *path);
+  const char      *(*list)(void *state, const char *path);
+  bool             (*unlink)(void *state, const char *path);
+  void             (*delete)(void *state);
+  void            *state;
 };
 # endif /* STORAGE_INTERNAL */
 
 typedef struct storage *storage_t;
 
 storage_t      storage_new(const char *uri, int create_dirs);
-int            storage_store_file(storage_t storage, const char *path, FILE *file);
-int            storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer);
+bool           storage_store_file(storage_t storage, const char *path, FILE *file);
+bool           storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer);
 FILE          *storage_retrieve_file(storage_t storage, const char *path);
 struct buffer *storage_retrieve_buffer(storage_t storage, const char *path);
 const char    *storage_list(storage_t storage, const char *path);
-int            storage_unlink(storage_t storage, const char *path);
+bool           storage_unlink(storage_t storage, const char *path);
 void           storage_delete(storage_t storage);
 
 #endif /* !STORAGE_H_ */

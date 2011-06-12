@@ -27,71 +27,13 @@
 **
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#ifndef STATS_H_
+# define STATS_H_
 
-#include <commands/backup.h>
-#include <commands/delete.h>
-#include <commands/help.h>
-#include <commands/list.h>
-#include <commands/purge.h>
-#include <commands/restore.h>
-#include <utils/logger.h>
-#include <utils/options.h>
-#include <utils/stats.h>
+void   stats_init(void);
+void   stats_log_rx_bytes(unsigned int count);
+void   stats_log_tx_bytes(unsigned int count);
+void   stats_log_transaction(void);
+void   stats_print(void);
 
-static const struct {
-  char *cmd_name;
-  int (*cmd)(int, char *[]);
-} commands[] = {
-  { "backup",   cmd_backup, },
-  { "restore",  cmd_restore, },
-  { "delete",   cmd_delete, },
-  { "purge",    cmd_purge, },
-  { "list",     cmd_list, },
-  { "help",     cmd_help, },
-};
-
-int main(int argc, char *argv[])
-{
-  int cmd_offset;
-  const char *change_dir;
-
-  cmd_offset = options_init(argc, argv);
-
-  logger_init(options_get()->verbose, options_get()->log_file);
-  argc -= cmd_offset;
-  argv += cmd_offset;
-
-  change_dir = options_get()->change_dir;
-
-  if (change_dir != NULL)
-    if (chdir(change_dir) == -1)
-      elogger(LOG_ERROR, "%s", change_dir);
-
-  if (argc == 0)
-  {
-    int help_argc = 1;
-    char *help_argv[] = { "help", NULL };
-    return cmd_help(help_argc, help_argv);
-  }
-
-  for (unsigned int i = 0; i < sizeof (commands) / sizeof (commands[0]); ++i)
-  {
-    if (strcmp(argv[0], commands[i].cmd_name) == 0)
-    {
-      int ret;
-
-      stats_init();
-      ret = commands[i].cmd(argc, argv);
-      stats_print();
-
-      return ret;
-    }
-  }
-
-  /* We should never reach this point if a valid command was found. */
-  logger(LOG_ERROR, "unknown command: %s", *argv);
-}
+#endif /* !STATS_H_ */

@@ -48,7 +48,7 @@ struct dpl_storage_state
   dpl_dirent_t last_dirent;
 };
 
-static int sto_dpl_store_file(void *state, const char *path, FILE *file)
+static enum store_res sto_dpl_store_file(void *state, const char *path, FILE *file)
 {
   struct dpl_storage_state *s = state;
   dpl_vfile_t *vfile;
@@ -72,30 +72,30 @@ static int sto_dpl_store_file(void *state, const char *path, FILE *file)
                         &vfile);
 
     if (err == DPL_EEXIST)
-      return 1;
+      return STORE_EXISTS;
     else if (err != DPL_SUCCESS)
-      return 0;
+      return STORE_FAILURE;
 
     while ((file_buf_size = fread(file_buf, 1, 4096, file)) > 0)
     {
       if (dpl_write(vfile, file_buf, file_buf_size) != DPL_SUCCESS)
       {
         dpl_close(vfile);
-        return 0;
+        return STORE_FAILURE;
       }
     }
 
     if (ferror(file))
-      return 0;
+      return STORE_FAILURE;
 
     dpl_close(vfile);
-    return 1;
+    return STORE_SUCCESS;
   }
 
-  return 0;
+  return STORE_FAILURE;
 }
 
-static int sto_dpl_store_buffer(void *state, const char *path, struct buffer *buffer)
+static enum store_res sto_dpl_store_buffer(void *state, const char *path, struct buffer *buffer)
 {
   struct dpl_storage_state *s = state;
   dpl_vfile_t *vfile;
@@ -112,21 +112,21 @@ static int sto_dpl_store_buffer(void *state, const char *path, struct buffer *bu
                       &vfile);
 
     if (err == DPL_EEXIST)
-      return 1;
+      return STORE_EXISTS;
     else if (err != DPL_SUCCESS)
-      return 0;
+      return STORE_FAILURE;
 
     if (dpl_write(vfile, (char*)buffer->data, buffer->used) != DPL_SUCCESS)
     {
       dpl_close(vfile);
-      return 0;
+      return STORE_FAILURE;
     }
 
     dpl_close(vfile);
-    return 1;
+    return STORE_SUCCESS;
   }
 
-  return 0;
+  return STORE_FAILURE;
 }
 
 static int sto_dpl_retrieve(struct dpl_storage_state *s, const char *path,
@@ -232,7 +232,7 @@ static const char *sto_dpl_list(void *state, const char *path)
     return s->last_dirent.name;
 }
 
-static int sto_dpl_unlink(void *state, const char *path)
+static bool sto_dpl_unlink(void *state, const char *path)
 {
   struct dpl_storage_state *s = state;
   char full_path[strlen(s->remote_root) + strlen(path) + 2];
