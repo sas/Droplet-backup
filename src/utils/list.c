@@ -30,6 +30,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include <utils/diefuncs.h>
+
 #include "list.h"
 
 struct list_node
@@ -49,8 +51,7 @@ struct list *list_new(void)
 {
   struct list *res;
 
-  if ((res = malloc(sizeof (struct list))) == NULL)
-    return NULL;
+  res = emalloc(sizeof (struct list));
 
   res->head = NULL;
   res->size = 0;
@@ -81,8 +82,7 @@ static unsigned int list_push(struct list *l, void *elem, bool front)
 {
   struct list_node *new;
 
-  if ((new = malloc(sizeof (struct list_node))) == NULL)
-    return 0;
+  new = emalloc(sizeof (struct list_node));
 
   new->elem = elem;
 
