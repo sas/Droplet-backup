@@ -136,7 +136,7 @@ int options_init(int argc, char *argv[])
   memset(&options, 0, sizeof (struct options));
   options.exclude_list = list_new();
 
-  while ((flag = getopt_long(argc, argv, "c:in:vd:p:", possible_options, NULL)) != -1)
+  while ((flag = getopt_long(argc, argv, "c:in:v::l:xre:d:p:", possible_options, NULL)) != -1)
   {
     switch (flag)
     {
