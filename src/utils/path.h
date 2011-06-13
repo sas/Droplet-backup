@@ -32,8 +32,11 @@
 
 # include <stdbool.h>
 
+# include <utils/list.h>
+
 char  *path_concat(const char *path, const char *elem);
 char  *path_rm_trailing_slashes(char *path);
-bool   path_equal(const char *path1, const char *path2);
+bool   path_match(const char *path, const char *pattern);
+bool   path_match_list(const char *path, struct list *pattern_list);
 
 #endif /* !PATH_H_ */

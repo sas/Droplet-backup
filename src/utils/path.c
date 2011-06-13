@@ -27,11 +27,13 @@
 **
 */
 
+#include <fnmatch.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include <utils/diefuncs.h>
+#include <utils/list.h>
 
 #include "path.h"
 
@@ -76,26 +78,34 @@ char *path_rm_trailing_slashes(char *path)
   return path;
 }
 
-/*
-** This functions compares two paths for equality. The actual processing uses
-** the realpath() function to get a connonical path out of the two paths passed
-** as arguments.
-*/
-bool path_equal(const char *path1, const char *path2)
+bool path_match(const char *path, const char *pattern)
 {
-  bool res;
-  char *realpath1, *realpath2;
+  return fnmatch(pattern, path, 0) == 0;
+}
 
-  realpath1 = realpath(path1, NULL);
-  realpath2 = realpath(path2, NULL);
+struct path_match_list_cb_args
+{
+  bool *res;
+  const char *path;
+};
 
-  if (realpath1 == NULL || realpath2 == NULL)
-    return false;
+static void path_match_list_cb(void *arg, void *data)
+{
+  struct path_match_list_cb_args *args = data;
 
-  res = (strcmp(realpath1, realpath2) == 0);
+  if (path_match(args->path, arg))
+    *args->res = true;
+}
 
-  free(realpath1);
-  free(realpath2);
+bool path_match_list(const char *path, struct list *pattern_list)
+{
+  bool res = false;
+  struct path_match_list_cb_args args;
+
+  args.res = &res;
+  args.path = path;
+
+  list_foreach(pattern_list, path_match_list_cb, &args);
 
   return res;
 }
