@@ -27,12 +27,15 @@
 **
 */
 
+#include <errno.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include <utils/diefuncs.h>
 
 #include "options.h"
 
@@ -49,6 +52,7 @@
 #define OPT_XDEV          'x'
 #define OPT_DRYRUN        'r'
 #define OPT_EXCLUDE       'e'
+#define OPT_EXCLUDEFILE   'f'
 
 /* Droplet related options. */
 #define OPT_PROFILEDIR    'd'
@@ -109,6 +113,12 @@ static const struct option possible_options[] =
     .flag = NULL,
     .val = OPT_EXCLUDE,
   },
+  {
+    .name = "exclude-file",
+    .has_arg = required_argument,
+    .flag = NULL,
+    .val = OPT_EXCLUDEFILE,
+  },
 
   /* Droplet related options. */
   {
@@ -129,6 +139,26 @@ static const struct option possible_options[] =
 
 static struct options options;
 
+static void add_exclude_file(const char *path)
+{
+  FILE *file;
+  char line[4096]; /* On most systems, PATH_MAX is 4096. */
+
+  if ((file = fopen(path, "r")) == NULL)
+  {
+    fprintf(stderr, "%s: %s\n", path, strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  while (fgets(line, sizeof (line), file) != NULL)
+  {
+    line[strlen(line) - 1] = 0;
+    list_push_back(options.exclude_list, estrdup(line));
+  }
+
+  fclose(file);
+}
+
 int options_init(int argc, char *argv[])
 {
   int flag;
@@ -136,7 +166,7 @@ int options_init(int argc, char *argv[])
   memset(&options, 0, sizeof (struct options));
   options.exclude_list = list_new();
 
-  while ((flag = getopt_long(argc, argv, "c:in:v::l:xre:d:p:", possible_options, NULL)) != -1)
+  while ((flag = getopt_long(argc, argv, "c:in:v::l:xre:f:d:p:", possible_options, NULL)) != -1)
   {
     switch (flag)
     {
@@ -185,7 +215,10 @@ int options_init(int argc, char *argv[])
         options.dry_run = true;
         break;
       case OPT_EXCLUDE:
-        list_push_back(options.exclude_list, optarg);
+        list_push_back(options.exclude_list, estrdup(optarg));
+        break;
+      case OPT_EXCLUDEFILE:
+        add_exclude_file(optarg);
         break;
 
       /* Droplet related options. */
@@ -209,7 +242,14 @@ struct options *options_get(void)
   return &options;
 }
 
+void free_list_elems_cb(void *arg, void *data)
+{
+  (void) data;
+  free(arg);
+}
+
 void options_end(void)
 {
+  list_foreach(options.exclude_list, free_list_elems_cb, NULL);
   list_delete(options.exclude_list);
 }
