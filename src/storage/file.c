@@ -32,6 +32,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -270,7 +271,7 @@ static void sto_file_delete(void *state)
   free(s);
 }
 
-struct storage *sto_file_new(const char *uri, int create_dirs)
+struct storage *sto_file_new(const char *uri, bool create_dirs)
 {
   struct storage *res = NULL;
   struct file_storage_state *state = NULL;

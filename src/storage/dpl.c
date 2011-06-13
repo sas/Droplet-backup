@@ -30,6 +30,7 @@
 #define STORAGE_INTERNAL
 
 #include <droplet.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -250,7 +251,7 @@ static void sto_dpl_delete(void *state)
   free(s);
 }
 
-storage_t sto_dpl_new(const char *uri, int create_dirs)
+storage_t sto_dpl_new(const char *uri, bool create_dirs)
 {
   struct storage *res = NULL;
   struct dpl_storage_state *state = NULL;

@@ -41,12 +41,12 @@
 
 #include "storage.h"
 
-storage_t storage_new(const char *uri, int create_dirs)
+storage_t storage_new(const char *uri, bool create_dirs)
 {
   static const struct
   {
     const char *scheme;
-    storage_t (*initializer)(const char *uri, int create_dirs);
+    storage_t (*initializer)(const char *uri, bool create_dirs);
   } inits[] = {
     { "dpl://",   sto_dpl_new },
     { "file://",  sto_file_new },
