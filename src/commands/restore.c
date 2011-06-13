@@ -203,6 +203,13 @@ static void unhash_dispatch(storage_t storage, const char *path, char *elem_str)
 
   new_path = path_concat(path, elem.name);
 
+  /* Skip the current path if it matches the exclude list. */
+  if (path_match_list(new_path, options_get()->exclude_list))
+  {
+    free(new_path);
+    return;
+  }
+
   if (strcmp(elem.type, "file") == 0)
     unhash_file(storage, new_path, &elem);
   else if (strcmp(elem.type, "tree") == 0)

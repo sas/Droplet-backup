@@ -259,6 +259,10 @@ static void hash_dispatch(struct hash_state *hs, FILE *backup)
       return;
   }
 
+  /* Skip the current path if it matches the exclude list. */
+  if (path_match_list(hs->path, options_get()->exclude_list))
+    return;
+
   if (S_ISREG(buf.st_mode))
   {
     FILE *file;
