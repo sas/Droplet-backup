@@ -34,8 +34,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
-#include <storage/dpl.h>
-#include <storage/file.h>
+#include <storage/backends/dpl.h>
+#include <storage/backends/file.h>
 #include <utils/options.h>
 #include <utils/stats.h>
 

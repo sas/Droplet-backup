@@ -31,24 +31,24 @@ include ../config.mk
 
 TARGET		= dplbck
 
-SRCS		= dplbck.c		\
-		  commands/backup.c	\
-		  commands/delete.c	\
-		  commands/help.c	\
-		  commands/list.c	\
-		  commands/purge.c	\
-		  commands/restore.c	\
-		  storage/dpl.c		\
-		  storage/file.c	\
-		  storage/storage.c	\
-		  utils/buffer.c	\
-		  utils/digest.c	\
-		  utils/list.c		\
-		  utils/logger.c	\
-		  utils/options.c	\
-		  utils/path.c		\
-		  utils/stats.c		\
-		  utils/strset.c	\
+SRCS		= dplbck.c			\
+		  commands/backup.c		\
+		  commands/delete.c		\
+		  commands/help.c		\
+		  commands/list.c		\
+		  commands/purge.c		\
+		  commands/restore.c		\
+		  storage/backends/dpl.c	\
+		  storage/backends/file.c	\
+		  storage/storage.c		\
+		  utils/buffer.c		\
+		  utils/digest.c		\
+		  utils/list.c			\
+		  utils/logger.c		\
+		  utils/options.c		\
+		  utils/path.c			\
+		  utils/stats.c			\
+		  utils/strset.c		\
 
 OBJS		= $(SRCS:.c=.o)
 
