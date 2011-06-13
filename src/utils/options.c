@@ -40,13 +40,13 @@
 #include "options.h"
 
 /* General options. */
-#define OPT_CHANGEDIR     'c'
+#define OPT_CHANGEDIR     'C'
 #define OPT_INTERACTIVE   'i'
 #define OPT_NAME          'n'
 
 /* Logging options. */
 #define OPT_VERBOSE       'v'
-#define OPT_LOGFILE       'l'
+#define OPT_LOGFILE       'o'
 
 /* Hierarchy traversal options. */
 #define OPT_XDEV          'x'
@@ -166,7 +166,7 @@ int options_init(int argc, char *argv[])
   memset(&options, 0, sizeof (struct options));
   options.exclude_list = list_new();
 
-  while ((flag = getopt_long(argc, argv, "c:in:v::l:xre:f:d:p:", possible_options, NULL)) != -1)
+  while ((flag = getopt_long(argc, argv, "C:in:v::o:xre:f:d:p:", possible_options, NULL)) != -1)
   {
     switch (flag)
     {
