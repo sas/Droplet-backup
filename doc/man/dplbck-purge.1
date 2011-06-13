@@ -26,43 +26,74 @@
 .\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\" 
 .\" 
+
 .TH DPLBCK-PURGE 1 "2011" "" ""
+
 .SH NAME
 dplbck-purge \- purge unused blocks of a backup directory
+
 .SH SYNOPSIS
 .B dplbck purge [
 .I options
 .B ] <
 .I storage
 .B >
+
 .SH DESCRIPTION
 .B dplbck purge
 removes all the unused blocks from a backup directory. This command is
 meant to be used after one or multiple uses of the
 .I dplbck delete
 command.
+
 .SH OPTIONS
+
 .TP
-.B --profile, -p
+.B -v, --verbose\fI[=LEVEL]\fR
+Verbosity level. Possible values are
+.I debug\fR,
+.I verbose\fR,
+.I info\fR,
+.I warning\fR,
+.I error\fR.
+Defaults to
+.I verbose
+if no
+.I LEVEL
+is specified.
+
+.TP
+.B -o, --log-file \fIFILE\fR
+Redirect all the output to
+.I FILE\fR.
+
+.TP
+.B -r, --dry-run
+Do not actually delete any object.
+
+.TP
+.B -p, --profile
 Profile to use with the
 .I dpl
-type storage.
+storage backend.
+
 .TP
-.B --profile-dir, -d
+.B -d, --profile-dir
 Directory in which the
 .I dpl
 profile should be searched.
-.TP
-.B --verbose, -v
-Verbose mode. A line is displayed for each file purged.
+
 .SH RETURN VALUE
 .B dplbck restore
 returns 0 on success, and non-zero on error.
+
 .SH BUGS
 Please send problems, bugs, questions, desirable enhancements, patches
 etc. to sas@cd80.net.
+
 .SH AUTHOR
 Stephane Sezer <sas@cd80.net>
+
 .SH SEE ALSO
 .BR dplbck (1),
 .BR dplbck-backup (1),

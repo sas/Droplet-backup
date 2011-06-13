@@ -26,9 +26,12 @@
 .\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\" 
 .\" 
+
 .TH DPLBCK-DELETE 1 "2011" "" ""
+
 .SH NAME
 dplbck-delete \- delete a backup from the remote storage
+
 .SH SYNOPSIS
 .B dplbck delete [
 .I options
@@ -37,6 +40,7 @@ dplbck-delete \- delete a backup from the remote storage
 .B > <
 .I backup
 .B >
+
 .SH DESCRIPTION
 .B dplbck delete
 deletes a previously made backup from a remote storage. Note that the
@@ -45,29 +49,66 @@ command does not actually delete the data blocks used by the backup, but
 only the backup description file. A
 .I purge
 command is needed to remove the unused blocks from the remote storage.
+
 .SH OPTIONS
+
 .TP
-.B --profile, -p
+.B -C, --change-dir \fIDIRECTORY\fR
+chdir() into
+.I DIRECTORY
+before executing the command.
+
+.TP
+.B -i, --interactive
+Interactively ask for the name of the backup to restore if none was
+specified on the command line.
+
+.TP
+.B -v, --verbose\fI[=LEVEL]\fR
+Verbosity level. Possible values are
+.I debug\fR,
+.I verbose\fR,
+.I info\fR,
+.I warning\fR,
+.I error\fR.
+Defaults to
+.I verbose
+if no
+.I LEVEL
+is specified.
+
+.TP
+.B -o, --log-file \fIFILE\fR
+Redirect all the output to
+.I FILE\fR.
+
+.TP
+.B -r, --dry-run
+Do not actually delete the backup.
+
+.TP
+.B -p, --profile
 Profile to use with the
 .I dpl
-type storage.
+storage backend.
+
 .TP
-.B --profile-dir, -d
+.B -d, --profile-dir
 Directory in which the
 .I dpl
 profile should be searched.
-.TP
-.B --interactive, -i
-Interactively ask for the name of the backup to restore if none was
-specified on the command line.
+
 .SH RETURN VALUE
 .B dplbck restore
 returns 0 on success, and non-zero on error.
+
 .SH BUGS
 Please send problems, bugs, questions, desirable enhancements, patches
 etc. to sas@cd80.net.
+
 .SH AUTHOR
 Stephane Sezer <sas@cd80.net>
+
 .SH SEE ALSO
 .BR dplbck (1),
 .BR dplbck-backup (1),

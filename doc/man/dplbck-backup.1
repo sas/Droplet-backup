@@ -26,9 +26,12 @@
 .\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\" 
 .\" 
+
 .TH DPLBCK-BACKUP 1 "2011" "" ""
+
 .SH NAME
 dplbck-backup \- backup a local folder tree on a remote storage
+
 .SH SYNOPSIS
 .B dplbck backup [
 .I options
@@ -37,40 +40,98 @@ dplbck-backup \- backup a local folder tree on a remote storage
 .B > <
 .I elements...
 .B >
+
 .SH DESCRIPTION
 .B dplbck backup
 makes an incremental backup of a local tree on a remote storage by
 traversing a file hierarchy and checksuming all files blocks.
+
 .SH OPTIONS
+
 .TP
-.B --profile, -p
+.B -C, --change-dir \fIDIRECTORY\fR
+chdir() into
+.I DIRECTORY
+before executing the command.
+
+.TP
+.B -n, --name \fINAME\fR
+Give a
+.I NAME
+to the backup, to use with the
+.I restore
+command.
+
+.TP
+.B -v, --verbose\fI[=LEVEL]\fR
+Verbosity level. Possible values are
+.I debug\fR,
+.I verbose\fR,
+.I info\fR,
+.I warning\fR,
+.I error\fR.
+Defaults to
+.I verbose
+if no
+.I LEVEL
+is specified.
+
+.TP
+.B -o, --log-file \fIFILE\fR
+Redirect all the output to
+.I FILE\fR.
+
+.TP
+.B -x, --xdev
+Do not cross filesystem boudaries.
+
+.TP
+.B -r, --dry-run
+Do not actually backup anything, just walk the local filesystem.
+
+.TP
+.B -e, --exclude \fIPATTERN\fR
+Exclude files matching
+.I PATTERN
+when traversing the local filesystem. Multiple combinations of
+.B --exclude
+options are possible.
+
+.TP
+.B -f, --exclude-file \fIFILE\fR
+Read
+.I FILE
+for exclude patterns (see the
+.B --exclude
+option).
+.I FILE
+shoud contain one exclude pattern per line. Multiple
+.B --exclude-file
+options are possible.
+
+.TP
+.B -p, --profile
 Profile to use with the
 .I dpl
-type storage.
+storage backend.
+
 .TP
-.B --profile-dir, -d
+.B -d, --profile-dir
 Directory in which the
 .I dpl
 profile should be searched.
-.TP
-.B --verbose, -v
-Verbose mode. A line is displayed for each file backuped.
-.TP
-.B --name, -n
-Give a name to the backup, to use with the
-.I restore
-command.
-.TP
-.B --change-dir, -c
-Change directory before executing the backup.
+
 .SH RETURN VALUE
 .B dplbck backup
 returns 0 on success, and non-zero on error.
+
 .SH BUGS
 Please send problems, bugs, questions, desirable enhancements, patches
 etc. to sas@cd80.net.
+
 .SH AUTHOR
 Stephane Sezer <sas@cd80.net>
+
 .SH SEE ALSO
 .BR dplbck (1),
 .BR dplbck-restore (1),

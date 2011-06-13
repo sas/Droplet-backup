@@ -26,9 +26,12 @@
 .\" SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .\" 
 .\" 
+
 .TH DPLBCK-RESTORE 1 "2011" "" ""
+
 .SH NAME
 dplbck-restore \- restore a backup from a remote storage
+
 .SH SYNOPSIS
 .B dplbck restore [
 .I options
@@ -37,39 +40,87 @@ dplbck-restore \- restore a backup from a remote storage
 .B > <
 .I backup
 .B >
+
 .SH DESCRIPTION
 .B dplbck restore
 restores a previously made backup from a remote storage to the current
 directory.
+
 .SH OPTIONS
+
 .TP
-.B --profile, -p
+.B -C, --change-dir \fIDIRECTORY\fR
+chdir() into
+.I DIRECTORY
+before executing the command.
+
+.TP
+.B -i, --interactive
+Interactively ask for the name of the backup to restore if none was
+specified on the command line.
+
+.TP
+.B -v, --verbose\fI[=LEVEL]\fR
+Verbosity level. Possible values are
+.I debug\fR,
+.I verbose\fR,
+.I info\fR,
+.I warning\fR,
+.I error\fR.
+Defaults to
+.I verbose
+if no
+.I LEVEL
+is specified.
+
+.TP
+.B -o, --log-file \fIFILE\fR
+Redirect all the output to
+.I FILE\fR.
+
+.TP
+.B -e, --exclude \fIPATTERN\fR
+Exclude files matching
+.I PATTERN
+when traversing the local filesystem. Multiple combinations of
+.B --exclude
+options are possible.
+
+.TP
+.B -f, --exclude-file \fIFILE\fR
+Read
+.I FILE
+for exclude patterns (see the
+.B --exclude
+option).
+.I FILE
+shoud contain one exclude pattern per line. Multiple
+.B --exclude-file
+options are possible.
+
+.TP
+.B -p, --profile
 Profile to use with the
 .I dpl
-type storage.
+storage backend.
+
 .TP
-.B --profile-dir, -d
+.B -d, --profile-dir
 Directory in which the
 .I dpl
 profile should be searched.
-.TP
-.B --verbose, -v
-Verbose mode. A line is displayed for each file restored.
-.TP
-.B --interactive, -i
-Interactively ask for the name of the backup to restore if none was
-specified on the command line.
-.TP
-.B --change-dir, -c
-Change directory before executing the restore.
+
 .SH RETURN VALUE
 .B dplbck restore
 returns 0 on success, and non-zero on error.
+
 .SH BUGS
 Please send problems, bugs, questions, desirable enhancements, patches
 etc. to sas@cd80.net.
+
 .SH AUTHOR
 Stephane Sezer <sas@cd80.net>
+
 .SH SEE ALSO
 .BR dplbck (1),
 .BR dplbck-backup (1),
