@@ -61,6 +61,9 @@ storage_t storage_new(const char *uri, bool create_dirs)
 
 bool storage_store_file(storage_t storage, const char *path, FILE *file)
 {
+  if (options_get()->dry_run)
+    return true;
+
   enum store_res ret;
 
   ret = storage->store_file(storage->state, path, file);
@@ -84,6 +87,9 @@ bool storage_store_file(storage_t storage, const char *path, FILE *file)
 
 bool storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer)
 {
+  if (options_get()->dry_run)
+    return true;
+
   enum store_res ret;
 
   ret = storage->store_buffer(storage->state, path, buffer);
@@ -143,6 +149,9 @@ const char *storage_list(storage_t storage, const char *path)
 
 bool storage_unlink(storage_t storage, const char *path)
 {
+  if (options_get()->dry_run)
+    return true;
+
   stats_log_transaction();
   return storage->unlink(storage->state, path);
 }
