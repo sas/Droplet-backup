@@ -65,7 +65,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 clean:
-	echo "RM	OBJS"
+	echo "RM	$(OBJS)"
 	rm -f $(OBJS)
 
 distclean: clean
