@@ -1,3 +1,15 @@
+* Handle file names containing a newline
+* Lock the backup directory to avoid races (eg: purge vs backup)
+* Update man page with purge
+* Sort output of backup listing
+* Split RX/TX stats by type (data vs metadata)
+* Do stats even in dry-run mode
+* Do not print stats everytime (eg: for the `list` command)
 * --dry-run for the restore command
 * --cache-dir (local cache for directory description files)
-* rpm/deb packages
+
+* Wiki
+  * Sample ackup lifecycle
+  * Specify supported file types
+  * Specify tool's Limitations (eg: can't do a `purge` and a `backup` at the
+    same time)
