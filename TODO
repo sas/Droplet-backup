@@ -1,6 +1,5 @@
 * Handle file names containing a newline
 * Lock the backup directory to avoid races (eg: purge vs backup)
-* Update man page with purge
 * Sort output of backup listing
 * Split RX/TX stats by type (data vs metadata)
 * Do stats even in dry-run mode
