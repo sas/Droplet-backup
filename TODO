@@ -8,7 +8,9 @@
 * --cache-dir (local cache for directory description files)
 
 * Wiki
-  * Sample ackup lifecycle
+  * Sample backup lifecycle
   * Specify supported file types
   * Specify tool's Limitations (eg: can't do a `purge` and a `backup` at the
     same time)
+
+* Release rpm/deb
