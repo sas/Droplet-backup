@@ -279,7 +279,7 @@ storage_t sto_dpl_new(const char *uri, bool create_dirs)
   ** slash in the original url (e.g.: dpl://bucket).
   */
   if (state->remote_root == NULL)
-    state->remote_root = estrdup("/");
+    state->remote_root = "/";
 
   res->store_file = sto_dpl_store_file;
   res->store_buffer = sto_dpl_store_buffer;
