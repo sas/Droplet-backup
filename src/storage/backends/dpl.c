@@ -274,6 +274,13 @@ storage_t sto_dpl_new(const char *uri, bool create_dirs)
   if ((ctx->cur_bucket = strsep(&state->remote_root, "/")) == NULL)
     goto err;
 
+  /*
+  ** Specify that the remote root is "/" if the user did not put the trailing
+  ** slash in the original url (e.g.: dpl://bucket).
+  */
+  if (state->remote_root == NULL)
+    state->remote_root = estrdup("/");
+
   res->store_file = sto_dpl_store_file;
   res->store_buffer = sto_dpl_store_buffer;
   res->retrieve_file = sto_dpl_retrieve_file;
