@@ -31,8 +31,9 @@
 #include <stdlib.h>
 
 #include <commands/help.h>
-#include <utils/logger.h>
 #include <storage/storage.h>
+#include <utils/logger.h>
+#include <utils/strset.h>
 
 #include "list.h"
 
@@ -40,6 +41,7 @@ int cmd_list(int argc, char *argv[])
 {
   storage_t storage;
   const char *elem;
+  strset_t ss = strset_new();
 
   if (argc != 2)
   {
@@ -54,10 +56,14 @@ int cmd_list(int argc, char *argv[])
   elem = storage_list(storage, "backups");
   while (elem != NULL)
   {
-    printf("%s\n", elem);
+    strset_add(ss, elem);
     elem = storage_list(storage, NULL);
   }
 
+  strset_sort(ss);
+  strset_print(ss);
+
+  strset_delete(ss);
   storage_delete(storage);
 
   return EXIT_SUCCESS;
