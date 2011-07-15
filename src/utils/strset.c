@@ -104,6 +104,18 @@ void strset_foreach(strset_t ss, void (*fun)(const char *, void *), void *data)
     fun(ss->strs[i], data);
 }
 
+static int strset_sort_cb(const void *s1, const void *s2)
+{
+  const char *ss1 = *((char**) s1);
+  const char *ss2 = *((char**) s2);
+  return strcmp(ss1, ss2);
+}
+
+void strset_sort(strset_t ss)
+{
+  qsort(ss->strs, ss->used, sizeof (char *), strset_sort_cb);
+}
+
 void strset_delete(strset_t ss)
 {
   for (unsigned int i = 0; i < ss->used; ++i)
