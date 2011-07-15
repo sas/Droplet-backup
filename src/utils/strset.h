@@ -35,12 +35,18 @@
 /* Opaque type. */
 typedef struct strset *strset_t;
 
+/*
+** This module manipulates a set of null-terminated strings. Everytime a string
+** is added to a set, a copy is created. Adding the same string to a set twice
+** does keep only one occurence.
+*/
 strset_t   strset_new(void);
 bool       strset_contains(strset_t ss, const char *str);
 bool       strset_add(strset_t ss, const char *str);
 bool       strset_del(strset_t ss, const char *str);
 void       strset_foreach(strset_t ss, void (*fun)(const char *, void *), void *data);
 void       strset_sort(strset_t ss);
+void       strset_print(strset_t ss);
 void       strset_delete(strset_t ss);
 
 #endif /* !STRSET_H_ */

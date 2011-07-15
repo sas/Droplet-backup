@@ -116,6 +116,18 @@ void strset_sort(strset_t ss)
   qsort(ss->strs, ss->used, sizeof (char *), strset_sort_cb);
 }
 
+void strset_print_cb(const char *s, void *data)
+{
+  (void) data;
+
+  printf("%s\n", s);
+}
+
+void strset_print(strset_t ss)
+{
+  strset_foreach(ss, strset_print_cb, NULL);
+}
+
 void strset_delete(strset_t ss)
 {
   for (unsigned int i = 0; i < ss->used; ++i)
