@@ -1,13 +1,15 @@
+* Centralize man pages (invoke man with the help command)
 * Handle file names containing a newline
-* Lock the backup directory to avoid races (eg: purge vs backup)
+* Lock the backup directory to avoid race conditions (e.g.: purge vs backup)
 * Split RX/TX stats by type (data vs metadata)
-* Do stats even in dry-run mode
-* Do not print stats everytime (eg: for the `list` command)
+* Compute stats even in dry-run mode
+* Do not print stats for every command (e.g.: for the `list` command)
 * --dry-run for the restore command
 * --cache-dir (local cache for directory description files)
 
 * Wiki
   * Sample backup lifecycle
+  * Integrate the pdf into the wiki
   * Specify supported file types
   * Specify tool's Limitations (eg: can't do a `purge` and a `backup` at the
     same time)
