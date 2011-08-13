@@ -7,11 +7,4 @@
 * --dry-run for the restore command
 * --cache-dir (local cache for directory description files)
 
-* Wiki
-  * Sample backup lifecycle
-  * Integrate the pdf into the wiki
-  * Specify supported file types
-  * Specify tool's Limitations (eg: can't do a `purge` and a `backup` at the
-    same time)
-
 * Release rpm/deb
