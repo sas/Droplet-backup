@@ -35,7 +35,7 @@
 
 extern char *__progname; /* From crt0.o. */
 
-static void help(FILE *output)
+static void main_help(FILE *output)
 {
   static const char *message[] =
   {
@@ -47,6 +47,7 @@ static void help(FILE *output)
     "        purge:     Purge a backup directory from unused blocks.",
     "        list:      List all available backups in a backup directory.",
     "        help:      Display detailed help about each command.",
+    "",
   };
 
   fprintf(output, "usage: %s <command> [ options ] <args>\n", __progname);
@@ -54,160 +55,46 @@ static void help(FILE *output)
     fprintf(output, "%s\n", message[i]);
 }
 
-static void help_backup(FILE *output)
-{
-  static const char *message[] =
-  {
-    "",
-    "    Options:",
-    "        --profile, -p:",
-    "            Profile to use with the `dpl` type storage.",
-    "        --profile-dir, -d:",
-    "            Directory in which the `dpl` profile should be searched.",
-    "        --verbose, -v:",
-    "            Verbose mode. A line is displayed for each file backuped.",
-    "        --name, -n:",
-    "            Give a name to the backup, to use with the `restore` command.",
-    "        --change-dir, -c:",
-    "            Change directory before executing the backup.",
-    "",
-    "    Supported URI schemes:",
-    "        dpl://   to backup to an S3 compatible cloud storage",
-    "        file://  to backup to a local dirctory",
-  };
-
-  fprintf(output, "usage: %s backup [ options ] <storage> <elements...>\n", __progname);
-  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    fprintf(output, "%s\n", message[i]);
-}
-
-static void help_restore(FILE *output)
-{
-  static const char *message[] =
-  {
-    "",
-    "    Options:",
-    "        --profile, -p:",
-    "            Profile to use with the `dpl` type storage.",
-    "        --profile-dir, -d:",
-    "            Directory in which the `dpl` profile should be searched.",
-    "        --verbose, -v:",
-    "            Verbose mode. A line is displayed for each file restored.",
-    "        --interactive, -i:",
-    "            Interactively ask for the name of the backup to restore if",
-    "            none was specified on the command line.",
-    "        --change-dir, -c:",
-    "            Change directory before executing the restore.",
-  };
-
-  fprintf(output, "usage: %s restore [ options ] <storage> <backup>\n", __progname);
-  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    fprintf(output, "%s\n", message[i]);
-}
-
-static void help_purge(FILE *output)
-{
-  static const char *message[] =
-  {
-    "",
-    "    Options:",
-    "        --profile, -p:",
-    "            Profile to use with the `dpl` type storage.",
-    "        --profile-dir, -d:",
-    "            Directory in which the `dpl` profile should be searched.",
-    "        --verbose, -v:",
-    "            Verbose mode. A line is displayed for each file purged.",
-  };
-
-  fprintf(output, "usage: %s purge [ options ] <storage>\n", __progname);
-  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    fprintf(output, "%s\n", message[i]);
-}
-
-static void help_list(FILE *output)
-{
-  static const char *message[] =
-  {
-    "",
-    "    Options:",
-    "        --profile, -p:",
-    "            Profile to use with the `dpl` type storage.",
-    "        --profile-dir, -d:",
-    "            Directory in which the `dpl` profile should be searched.",
-  };
-
-  fprintf(output, "usage: %s list [ options ] <storage>\n", __progname);
-  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    fprintf(output, "%s\n", message[i]);
-}
-
-static void help_delete(FILE *output)
-{
-  static const char *message[] =
-  {
-    "",
-    "    Options:",
-    "        --profile, -p:",
-    "            Profile to use with the `dpl` type storage.",
-    "        --profile-dir, -d:",
-    "            Directory in which the `dpl` profile should be searched.",
-    "        --interactive, -i:",
-    "            Interractively ask for a backup name, with a list of available",
-    "            backups if no backup name is specified on the command line.",
-  };
-
-  fprintf(output, "usage: %s delete [ options ] <storage> <backup>\n", __progname);
-  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    fprintf(output, "%s\n", message[i]);
-}
-
-static void help_help(FILE *output)
-{
-  static const char *message[] =
-  {
-    "",
-  };
-
-  fprintf(output, "usage: %s help <topic>\n", __progname);
-  for (unsigned int i = 0; i < sizeof (message) / sizeof (message[0]); ++i)
-    fprintf(output, "%s\n", message[i]);
-}
 
 int cmd_help(int argc, char *argv[])
 {
-  FILE *output = stdout;
-  int res = EXIT_SUCCESS;
-
-  if (strcmp(argv[0], "help_err") == 0)
-  {
-    output = stderr;
-    res = EXIT_FAILURE;
-  }
-
   if (argc == 1)
   {
-    help(output);
-    return res;
+    main_help(stdout);
+    return EXIT_SUCCESS;
   }
 
-  if (strcmp(argv[1], "backup") == 0)
-    help_backup(output);
-  else if (strcmp(argv[1], "restore") == 0)
-    help_restore(output);
-  else if (strcmp(argv[1], "delete") == 0)
-    help_delete(output);
-  else if (strcmp(argv[1], "purge") == 0)
-    help_purge(output);
-  else if (strcmp(argv[1], "list") == 0)
-    help_list(output);
-  else if (strcmp(argv[1], "help") == 0)
-    help_help(output);
-  else
+  char buf[42]; /* This should be enough! */
+  snprintf(buf, sizeof (buf), "man %s-%s", __progname, argv[1]);
+  system(buf);
+
+  return EXIT_SUCCESS;
+}
+
+int cmd_help_err(int argc, char *argv[])
+{
+  if (argc == 1)
   {
-    int help_argc = 2;
-    char *help_argv[] = { "help_err", "help", NULL };
-    return cmd_help(help_argc, help_argv);
+    main_help(stderr);
+    return EXIT_FAILURE;
   }
 
-  return res;
+  static const struct
+  {
+    const char *command;
+    const char *usage;
+  } ut[] =
+  {
+    { "backup",   "[ options ] <storage> <elements...>" },
+    { "restore",  "[ options ] <storage> <backup>" },
+    { "purge",    "[ options ] <storage>" },
+    { "list",     "[ options ] <storage>" },
+    { "delete",   "[ options ] <storage> <backup>" },
+  };
+
+  for (unsigned int i = 0; i < sizeof (ut) / sizeof (ut[0]); ++i)
+    if (strcmp(argv[1], ut[i].command) == 0)
+      fprintf(stderr, "usage: %s %s %s\n", __progname, ut[i].command, ut[i].usage);
+
+  return EXIT_FAILURE;
 }

@@ -172,7 +172,7 @@ int cmd_purge(int argc, char *argv[])
   {
     int help_argc = 2;
     char *help_argv[] = { "help_err", "purge", NULL };
-    return cmd_help(help_argc, help_argv);
+    return cmd_help_err(help_argc, help_argv);
   }
 
   if ((storage = storage_new(argv[1], 0)) == NULL)

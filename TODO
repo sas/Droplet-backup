@@ -1,6 +1,3 @@
-* Centralize man pages (invoke man with the help command)
-* Handle file names containing a newline
-* Lock the backup directory to avoid race conditions (e.g.: purge vs backup)
 * Split RX/TX stats by type (data vs metadata)
 * Compute stats even in dry-run mode
 * Do not print stats for every command (e.g.: for the `list` command)

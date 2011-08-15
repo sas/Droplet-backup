@@ -1,0 +1,3 @@
+* Filenames with a '\n' produce invalid backup files
+* Doing a `backup` and a `purge` operation at the same time will produce
+  inconsistent state, we nee to lock the backup directory
