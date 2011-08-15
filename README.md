@@ -13,12 +13,12 @@ Main features:
   * Multiple backup repositories
   * Block level dedup with intelligent variable window size algorithm
 
+For more information, check out the [[wiki|wiki]]!
+
+
+General man page:
 
 ```
-DPLBCK(1)                                                             DPLBCK(1)
-
-
-
 NAME
        dplbck - backup a local folder tree on a remote storage
 
@@ -81,8 +81,4 @@ AUTHOR
 SEE ALSO
        dplbck-backup(1),  dplbck-restore(1),  dplbck-delete(1)  dplbck-purge(1)
        dplbck-list(1)
-
-
-
-                                      2011                            DPLBCK(1)
 ```
