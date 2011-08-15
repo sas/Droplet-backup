@@ -55,7 +55,7 @@ int cmd_delete(int argc, char *argv[])
     return cmd_help_err(help_argc, help_argv);
   }
 
-  if ((storage = storage_new(argv[1], 0)) == NULL)
+  if ((storage = storage_new(argv[1], false, false)) == NULL)
     logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
   if (argc == 3)

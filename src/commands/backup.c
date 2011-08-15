@@ -350,7 +350,7 @@ int cmd_backup(int argc, char *argv[])
 
   stats_init();
 
-  if ((storage = storage_new(argv[1], 1)) == NULL)
+  if ((storage = storage_new(argv[1], true, true)) == NULL)
     logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
   backup = etmpfile();

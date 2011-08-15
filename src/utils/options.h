@@ -40,6 +40,7 @@ struct options
   const char      *change_dir;
   bool             interactive;
   const char      *name;
+  bool             force;
   enum log_level   verbose;
   const char      *log_file;
   bool             xdev;

@@ -43,6 +43,7 @@
 #define OPT_CHANGEDIR     'C'
 #define OPT_INTERACTIVE   'i'
 #define OPT_NAME          'n'
+#define OPT_FORCE         'f'
 
 /* Logging options. */
 #define OPT_VERBOSE       'v'
@@ -52,7 +53,7 @@
 #define OPT_XDEV          'x'
 #define OPT_DRYRUN        'r'
 #define OPT_EXCLUDE       'e'
-#define OPT_EXCLUDEFILE   'f'
+#define OPT_EXCLUDEFILE   'E'
 
 /* Droplet related options. */
 #define OPT_PROFILEDIR    'd'
@@ -78,6 +79,12 @@ static const struct option possible_options[] =
     .has_arg = required_argument,
     .flag = NULL,
     .val = OPT_NAME,
+  },
+  {
+    .name = "force",
+    .has_arg = no_argument,
+    .flag = NULL,
+    .val = OPT_FORCE,
   },
 
   /* Logging options. */
@@ -166,7 +173,7 @@ int options_init(int argc, char *argv[])
   memset(&options, 0, sizeof (struct options));
   options.exclude_list = list_new();
 
-  while ((flag = getopt_long(argc, argv, "C:in:v::o:xre:f:d:p:", possible_options, NULL)) != -1)
+  while ((flag = getopt_long(argc, argv, "C:in:fv::o:xre:E:d:p:", possible_options, NULL)) != -1)
   {
     switch (flag)
     {
@@ -179,6 +186,9 @@ int options_init(int argc, char *argv[])
         break;
       case OPT_NAME:
         options.name = optarg;
+        break;
+      case OPT_FORCE:
+        options.force = true;
         break;
 
       /* Logging options. */

@@ -41,8 +41,10 @@
 
 #include "storage.h"
 
-storage_t storage_new(const char *uri, bool create_dirs)
+storage_t storage_new(const char *uri, bool create_dirs, bool lock)
 {
+  (void) lock;
+
   static const struct
   {
     const char *scheme;

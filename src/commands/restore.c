@@ -240,7 +240,7 @@ int cmd_restore(int argc, char *argv[])
 
   stats_init();
 
-  if ((storage = storage_new(argv[1], 0)) == NULL)
+  if ((storage = storage_new(argv[1], false, false)) == NULL)
     logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
   if (argc == 3)

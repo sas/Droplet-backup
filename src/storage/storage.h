@@ -64,7 +64,7 @@ struct storage
 
 typedef struct storage *storage_t;
 
-storage_t      storage_new(const char *uri, bool create_dirs);
+storage_t      storage_new(const char *uri, bool create_dirs, bool lock);
 bool           storage_store_file(storage_t storage, const char *path, FILE *file);
 bool           storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer);
 FILE          *storage_retrieve_file(storage_t storage, const char *path);
