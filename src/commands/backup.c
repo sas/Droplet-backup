@@ -51,6 +51,7 @@
 #include <utils/options.h>
 #include <utils/path.h>
 #include <utils/rollsum.h>
+#include <utils/stats.h>
 
 #include "backup.h"
 
@@ -347,6 +348,8 @@ int cmd_backup(int argc, char *argv[])
     return cmd_help_err(help_argc, help_argv);
   }
 
+  stats_init();
+
   if ((storage = storage_new(argv[1], 1)) == NULL)
     logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
@@ -385,6 +388,7 @@ int cmd_backup(int argc, char *argv[])
 
   fclose(backup);
   storage_delete(storage);
+  stats_print();
 
   return EXIT_SUCCESS;
 }

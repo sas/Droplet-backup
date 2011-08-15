@@ -1,6 +1,5 @@
 * Split RX/TX stats by type (data vs metadata)
 * Compute stats even in dry-run mode
-* Do not print stats for every command (e.g.: for the `list` command)
 * --dry-run for the restore command
 * --cache-dir (local cache for directory description files)
 

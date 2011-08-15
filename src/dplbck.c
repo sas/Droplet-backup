@@ -40,7 +40,6 @@
 #include <commands/restore.h>
 #include <utils/logger.h>
 #include <utils/options.h>
-#include <utils/stats.h>
 
 static const struct {
   char *cmd_name;
@@ -67,8 +66,6 @@ int main(int argc, char *argv[])
   argv += cmd_offset;
 
   change_dir = options_get()->change_dir;
-  stats_init();
-
   if (change_dir != NULL)
     if (chdir(change_dir) == -1)
       elogger(LOG_ERROR, "%s", change_dir);
@@ -88,7 +85,6 @@ int main(int argc, char *argv[])
   if (res == -1)
     logger(LOG_ERROR, "unknown command: %s", *argv);
 
-  stats_print();
   options_end();
 
   return res;
