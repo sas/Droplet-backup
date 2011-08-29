@@ -251,13 +251,28 @@ static void sto_dpl_delete(void *state)
   free(s);
 }
 
+static bool sto_dpl_exists(void *state, const char *path)
+{
+  struct dpl_storage_state *s = state;
+  char full_path[strlen(s->remote_root) + strlen(path) + 2];
+  dpl_status_t ret;
+  dpl_dict_t *dict;
+
+  snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
+
+  ret = dpl_head(s->ctx, s->ctx->cur_bucket, full_path, NULL, NULL, &dict);
+  free(dict);
+
+  return ret == DPL_SUCCESS;
+}
+
 storage_t sto_dpl_new(const char *uri, bool create_dirs)
 {
   struct storage *res = NULL;
   struct dpl_storage_state *state = NULL;
   dpl_ctx_t *ctx = NULL;
-  /* strlen("/backups") == strlen("/objects") == strlen("/.dplbck") */
-  char path[strlen(uri) + strlen("/backups") + 1];
+  /* strlen("backups") == strlen("objects") == strlen(".dplbck") */
+  char path[strlen(uri) + strlen("backups") + 2];
   dpl_status_t ret;
   dpl_dict_t *dict;
 
@@ -281,13 +296,14 @@ storage_t sto_dpl_new(const char *uri, bool create_dirs)
   if (state->remote_root == NULL)
     state->remote_root = "/";
 
+  res->delete = sto_dpl_delete;
   res->store_file = sto_dpl_store_file;
   res->store_buffer = sto_dpl_store_buffer;
   res->retrieve_file = sto_dpl_retrieve_file;
   res->retrieve_buffer = sto_dpl_retrieve_buffer;
   res->list = sto_dpl_list;
   res->unlink = sto_dpl_unlink;
-  res->delete = sto_dpl_delete;
+  res->exists = sto_dpl_exists;
   state->ctx = ctx;
   res->state = state;
 
@@ -298,32 +314,29 @@ storage_t sto_dpl_new(const char *uri, bool create_dirs)
   */
   if (create_dirs)
   {
-    strcpy(path, state->remote_root);
+    snprintf(path, sizeof (path), "%s", state->remote_root);
     ret = dpl_mkdir(ctx, path);
     if (ret != DPL_SUCCESS && ret != DPL_EEXIST)
       goto err;
 
-    strcat(path, "/backups");
+    snprintf(path, sizeof (path), "%s/%s", state->remote_root, "backups");
     ret = dpl_mkdir(ctx, path);
     if (ret != DPL_SUCCESS && ret != DPL_EEXIST)
       goto err;
 
-    strcpy(path, state->remote_root);
-    strcat(path, "/objects");
+    snprintf(path, sizeof (path), "%s/%s", state->remote_root, "objects");
     ret = dpl_mkdir(ctx, path);
     if (ret != DPL_SUCCESS && ret != DPL_EEXIST)
       goto err;
 
-    strcpy(path, state->remote_root);
-    strcat(path, "/.dplbck");
+    snprintf(path, sizeof (path), "%s/%s", state->remote_root, ".dplbck");
     ret = dpl_mknod(ctx, path);
     if (ret != DPL_SUCCESS && ret != DPL_EEXIST)
       goto err;
   }
   else
   {
-    strcpy(path, state->remote_root);
-    strcat(path, "/.dplbck");
+    snprintf(path, sizeof (path), "%s/%s", state->remote_root, ".dplbck");
     ret = dpl_head(ctx, ctx->cur_bucket, path, NULL, NULL, &dict);
     if (ret != DPL_SUCCESS)
       goto err;

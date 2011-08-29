@@ -262,6 +262,16 @@ static bool sto_file_unlink(void *state, const char *path)
   return unlink(full_path) == 0;
 }
 
+static bool sto_file_exists(void *state, const char *path)
+{
+  struct file_storage_state *s = state;
+  char full_path[strlen(s->remote_root) + strlen(path) + 2];
+
+  snprintf(full_path, sizeof (full_path), "%s/%s", s->remote_root, path);
+
+  return access(full_path, F_OK) == 0;
+}
+
 static void sto_file_delete(void *state)
 {
   struct file_storage_state *s = state;
@@ -275,20 +285,21 @@ struct storage *sto_file_new(const char *uri, bool create_dirs)
 {
   struct storage *res = NULL;
   struct file_storage_state *state = NULL;
-  /* strlen("/backups") == strlen("/objects") == strlen("/.dplbck") */
-  char path[strlen(uri) + strlen("/backups") + 1];
+  /* strlen("backups") == strlen("objects") == strlen(".dplbck") */
+  char path[strlen(uri) + strlen("backups") + 2];
   int fd;
 
   res = emalloc(sizeof (struct storage));
   state = emalloc(sizeof (struct file_storage_state));
 
+  res->delete = sto_file_delete;
   res->store_file = sto_file_store_file;
   res->store_buffer = sto_file_store_buffer;
   res->retrieve_file = sto_file_retrieve_file;
   res->retrieve_buffer = sto_file_retrieve_buffer;
   res->list = sto_file_list;
   res->unlink = sto_file_unlink;
-  res->delete = sto_file_delete;
+  res->exists = sto_file_exists;
   state->remote_root = uri;
   state->last_list = NULL;
   res->state = state;
@@ -297,41 +308,35 @@ struct storage *sto_file_new(const char *uri, bool create_dirs)
   ** Ensure we have access to the directory where we want to backup, and create
   ** required subdirectories (e.g.: `backups`, `objects`) if they do not exist
   ** yet.
-  ** XXX: Some parts of this code are a little stupid.
   */
   if (create_dirs)
   {
-    strcpy(path, state->remote_root);
+    snprintf(path, sizeof (path), "%s", state->remote_root);
     if (mkdir(path, 0777) == -1 && errno != EEXIST)
       goto err;
 
-    strcat(path, "/backups");
+    snprintf(path, sizeof (path), "%s/%s", state->remote_root, "backups");
     if (mkdir(path, 0777) == -1 && errno != EEXIST)
       goto err;
 
-    strcpy(path, state->remote_root);
-    strcat(path, "/objects");
+    snprintf(path, sizeof (path), "%s/%s", state->remote_root, "objects");
     if (mkdir(path, 0777) == -1 && errno != EEXIST)
       goto err;
 
-    strcpy(path, state->remote_root);
-    strcat(path, "/.dplbck");
+    snprintf(path, sizeof (path), "%s/%s", state->remote_root, ".dplbck");
+    /*
+    ** We could replace this with an mknod(), but the manpage states that "The
+    ** only portable use of mknod() is to create a FIFO-special file".
+    */
     if ((fd = open(path, O_CREAT | O_RDONLY, 0666)) == -1)
       goto err;
     close(fd);
   }
   else
   {
-    strcpy(path, state->remote_root);
-    strcat(path, "/.dplbck");
-    /*
-    ** XXX: Maybe we should replace this with a call to mknod(), but the manpage
-    ** states that "The only portable use of mknod() is to create a FIFO-special
-    ** file".
-    */
-    if ((fd = open(path, O_RDONLY)) == -1)
+    snprintf(path, sizeof (path), "%s/%s", state->remote_root, ".dplbck");
+    if (access(path, F_OK) == -1)
       goto err;
-    close(fd);
   }
 
   return res;

@@ -51,13 +51,18 @@ enum store_res
 
 struct storage
 {
+  void             (*delete)(void *state);
+
   enum store_res   (*store_file)(void *state, const char *path, FILE *file);
   enum store_res   (*store_buffer)(void *state, const char *path, struct buffer *buffer);
+
   FILE            *(*retrieve_file)(void *state, const char *path);
   struct buffer   *(*retrieve_buffer)(void *state, const char *path);
+
   const char      *(*list)(void *state, const char *path);
   bool             (*unlink)(void *state, const char *path);
-  void             (*delete)(void *state);
+  bool             (*exists)(void *state, const char *path);
+
   void            *state;
 };
 # endif /* STORAGE_INTERNAL */
@@ -65,12 +70,16 @@ struct storage
 typedef struct storage *storage_t;
 
 storage_t      storage_new(const char *uri, bool create_dirs, bool lock);
+void           storage_delete(storage_t storage);
+
 bool           storage_store_file(storage_t storage, const char *path, FILE *file);
 bool           storage_store_buffer(storage_t storage, const char *path, struct buffer *buffer);
+
 FILE          *storage_retrieve_file(storage_t storage, const char *path);
 struct buffer *storage_retrieve_buffer(storage_t storage, const char *path);
+
 const char    *storage_list(storage_t storage, const char *path);
 bool           storage_unlink(storage_t storage, const char *path);
-void           storage_delete(storage_t storage);
+bool           storage_exists(storage_t storage, const char *path);
 
 #endif /* !STORAGE_H_ */
