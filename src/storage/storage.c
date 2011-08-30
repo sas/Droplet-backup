@@ -61,6 +61,12 @@ storage_t storage_new(const char *uri, bool create_dirs, bool lock)
   return NULL;
 }
 
+void storage_delete(storage_t storage)
+{
+  storage->delete(storage->state);
+  free(storage);
+}
+
 bool storage_store_file(storage_t storage, const char *path, FILE *file)
 {
   if (options_get()->dry_run)
@@ -158,8 +164,58 @@ bool storage_unlink(storage_t storage, const char *path)
   return storage->unlink(storage->state, path);
 }
 
-void storage_delete(storage_t storage)
+bool storage_exists(storage_t storage, const char *path)
 {
-  storage->delete(storage->state);
-  free(storage);
+  stats_log_transaction();
+  return storage->exists(storage->state, path);
+}
+
+bool storage_lock(storage_t storage, bool exclusive, bool force)
+{
+  struct buffer *lock;
+  const char *lock_str = exclusive ? "exclusive" : "shared";
+
+  lock = storage_retrieve_buffer(storage, ".dplbck-lock");
+
+  if (lock == NULL) /* Directory not already locked. */
+  {
+    int len = strlen(lock_str);
+
+    lock = buffer_new(len);
+    memcpy(lock->data, lock_str, len);
+    lock->used = len;
+
+    storage_store_buffer(storage, ".dplbck-lock", lock);
+
+    buffer_delete(lock);
+    return true;
+  }
+
+  if ((strncmp((char*) lock->data, "shared", lock->used) == 0) && !exclusive)
+  {
+    buffer_delete(lock);
+    return true;
+  }
+  else
+  {
+    buffer_delete(lock);
+    if (force)
+    {
+      /*
+      ** Unlock and lock back the directory to get the right kind of lock
+      ** (shared or exclusive).
+      */
+      storage_unlock(storage);
+      return storage_lock(storage, exclusive, false);
+    }
+    else
+    {
+      return false;
+    }
+  }
+}
+
+bool storage_unlock(storage_t storage)
+{
+  return storage_unlink(storage, ".dplbck-lock");
 }

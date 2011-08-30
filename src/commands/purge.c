@@ -178,6 +178,9 @@ int cmd_purge(int argc, char *argv[])
   if ((storage = storage_new(argv[1], false, true)) == NULL)
     logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
+  if (!storage_lock(storage, true, options_get()->force))
+    logger(LOG_ERROR, "backup directory locked, use -f to force operation");
+
   backups = strset_new();
   objects = strset_new();
 
@@ -210,6 +213,7 @@ int cmd_purge(int argc, char *argv[])
 
   strset_delete(backups);
   strset_delete(objects);
+  storage_unlock(storage);
   storage_delete(storage);
 
   return EXIT_SUCCESS;

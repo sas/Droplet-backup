@@ -353,6 +353,9 @@ int cmd_backup(int argc, char *argv[])
   if ((storage = storage_new(argv[1], true, true)) == NULL)
     logger(LOG_ERROR, "unable to open storage: %s", argv[1]);
 
+  if (!storage_lock(storage, false, options_get()->force))
+    logger(LOG_ERROR, "backup directory locked, use -f to force operation");
+
   backup = etmpfile();
 
   for (int i = 2; i < argc; ++i)
@@ -387,6 +390,7 @@ int cmd_backup(int argc, char *argv[])
   free(upload_path);
 
   fclose(backup);
+  storage_unlock(storage);
   storage_delete(storage);
   stats_print();
 

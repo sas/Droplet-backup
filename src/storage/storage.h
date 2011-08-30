@@ -82,4 +82,7 @@ const char    *storage_list(storage_t storage, const char *path);
 bool           storage_unlink(storage_t storage, const char *path);
 bool           storage_exists(storage_t storage, const char *path);
 
+bool           storage_lock(storage_t storage, bool exclusive, bool force);
+bool           storage_unlock(storage_t storage);
+
 #endif /* !STORAGE_H_ */
