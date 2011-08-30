@@ -247,7 +247,7 @@ int options_init(int argc, char *argv[])
   return optind;
 }
 
-struct options *options_get(void)
+const struct options *options_get(void)
 {
   return &options;
 }

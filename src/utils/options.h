@@ -50,8 +50,8 @@ struct options
   const char      *profile;
 };
 
-int              options_init(int argc, char *argv[]);
-struct options  *options_get(void);
-void             options_end(void);
+int                    options_init(int argc, char *argv[]);
+const struct options  *options_get(void);
+void                   options_end(void);
 
 #endif /* !OPTIONS_H_ */
