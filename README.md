@@ -7,10 +7,9 @@ HostEurope, SeaWeb, Dunkel, Tiscali, Amazon S3. For more information about the
 Droplet library, see https://github.com/scality/Droplet
 
 Main features:
-
-  * Incremental backup
-  * Multiple backup repositories
-  * Block level dedup with intelligent variable window size algorithm
+* incremental backup;
+* multiple backup repositories;
+* block level dedup with intelligent variable window size algorithm.
 
 For more information, check out the wiki at
 https://github.com/thrashboul/Droplet-backup/wiki
